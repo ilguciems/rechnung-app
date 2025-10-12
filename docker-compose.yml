@@ -1,0 +1,28 @@
+services:
+  postgres:
+    image: postgres:18
+    container_name: postgres-invoice
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: invoicedb
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  app:
+    build: .
+    container_name: next-invoice
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      NODE_ENV: production
+
+volumes:
+  postgres_data:
+

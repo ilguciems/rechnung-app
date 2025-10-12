@@ -1,0 +1,92 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum LegalForm {
+  KLEINGEWERBE
+  FREIBERUFLER
+  GBR
+  EINZELKAUFMANN
+  OHG
+  KG
+  GMBH_CO_KG
+  GMBH
+  UG
+  AG
+  KGaA
+  SE
+  EWIV
+}
+
+model Company {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  name        String
+  street      String
+  houseNumber String
+  zipCode     String
+  city        String
+  country     String @default("Deutschland")
+
+  phone   String
+  email   String
+  iban    String
+  bic     String
+  bank    String
+  logoUrl String?
+
+  isSubjectToVAT Boolean @default(false)
+  firstTaxRate   Float?
+  secondTaxRate  Float?
+
+  legalForm LegalForm @default(KLEINGEWERBE)
+
+  steuernummer          String?
+  ustId                 String?
+  handelsregisternummer String?
+
+  invoices Invoice[]
+
+  @@index([createdAt])
+  @@index([updatedAt])
+}
+
+model Invoice {
+  id            Int    @id @default(autoincrement())
+  invoiceNumber String @unique
+  customerName  String
+
+  customerStreet      String
+  customerHouseNumber String
+  customerZipCode     String
+  customerCity        String
+  customerCountry     String @default("Deutschland")
+
+  createdAt DateTime  @default(now())
+  isPaid    Boolean   @default(false)
+  paidAt    DateTime?
+
+  items     Item[]
+  companyId Int
+  company   Company @relation(fields: [companyId], references: [id])
+}
+
+model Item {
+  id          Int     @id @default(autoincrement())
+  description String
+  quantity    Int
+  unitPrice   Float
+  taxRate     Float?
+  invoiceId   Int
+  invoice     Invoice @relation(fields: [invoiceId], references: [id])
+}
