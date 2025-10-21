@@ -340,10 +340,12 @@ export async function generateInvoicePDF(
 
     // now actually draw the row on current `page`
     let xPos = startX;
-    const itemNet = item.quantity * item.unitPrice;
+    const itemTaxRate = item.taxRate ?? 0;
+    const netUnitPrice = item.unitPrice / (1 + itemTaxRate / 100);
+    const itemNet = item.quantity * netUnitPrice;
     const vatRate = item.taxRate ?? 0;
     const vatAmount = (itemNet * vatRate) / 100;
-    const itemTotal = company.isSubjectToVAT ? itemNet + vatAmount : itemNet;
+    const itemTotal = item.quantity * item.unitPrice;
 
     netTotal += itemNet;
     if (company.isSubjectToVAT && vatRate > 0) {
