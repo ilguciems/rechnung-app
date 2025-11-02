@@ -13,26 +13,33 @@ vi.mock("react-hot-toast", () => ({
 }));
 
 // mock fetch response
-global.fetch = vi.fn((url, opts) => {
-  if (url === "/api/company" && opts.method === "GET") {
-    return Promise.resolve({
-      ok: true,
-    });
-  }
 
-  if (url === "/api/company" && opts.method === "POST") {
-    return Promise.resolve({
-      ok: true,
-      json: async () => ({
-        id: 1,
-        name: "Test Company",
-        message: "success",
-      }),
-    });
-  }
+beforeEach(() => {
+  global.fetch = vi.fn((url, opts) => {
+    if (url === "/api/company" && opts.method === "GET") {
+      return Promise.resolve({
+        ok: true,
+      });
+    }
 
-  return Promise.reject(new Error("Unknown fetch URL"));
-}) as Mock;
+    if (url === "/api/company" && opts.method === "POST") {
+      return Promise.resolve({
+        ok: true,
+        json: async () => ({
+          id: 1,
+          name: "Test Company",
+          message: "success",
+        }),
+      });
+    }
+
+    return Promise.reject(new Error("Unknown fetch URL"));
+  }) as Mock;
+});
+
+afterEach(() => {
+  vi.restoreAllMocks();
+});
 
 describe("CompanySection", () => {
   const user = userEvent.setup();
