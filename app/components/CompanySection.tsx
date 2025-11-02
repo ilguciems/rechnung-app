@@ -3,9 +3,8 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
-import { isEqual } from "lodash";
 import { Loader2 } from "lucide-react";
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { formatPhone } from "@/lib/phone-utils";
@@ -51,7 +50,7 @@ export default function CompanySection() {
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isDirty },
     watch,
     setValue,
     reset,
@@ -136,13 +135,6 @@ export default function CompanySection() {
       queryClient.invalidateQueries({ queryKey: ["company"] });
     },
   });
-
-  // check if form is changed
-  const watchedValues = watch();
-  const isChanged = useMemo(
-    () => (company ? !isEqual(company, watchedValues) : true),
-    [company, watchedValues],
-  );
 
   // Submit
   const onSubmit = handleSubmit(async (data) => {
@@ -331,7 +323,7 @@ export default function CompanySection() {
         <button
           type="submit"
           className="mt-4 px-3 py-1 bg-blue-500 text-white rounded-md flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed min-w-[160px] cursor-pointer"
-          disabled={isSubmitting || saveCompany.isPending || !isChanged}
+          disabled={isSubmitting || saveCompany.isPending || !isDirty}
         >
           {saveCompany.isPending || isSubmitting ? (
             <Loader2 className="h-6 w-6 animate-spin" />
