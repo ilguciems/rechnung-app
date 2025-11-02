@@ -57,11 +57,32 @@ export default function InvoiceSection() {
           description: "",
           quantity: 1,
           unitPrice: "" as unknown as number,
-          taxRate: company.isSubjectToVAT ? (company.firstTaxRate ?? 19) : null,
+          taxRate: null,
         },
       ],
     },
   });
+
+  useEffect(() => {
+    if (!company) return;
+
+    reset({
+      customerName: "",
+      customerStreet: "",
+      customerHouseNumber: "",
+      customerCity: "",
+      customerZipCode: "",
+      customerCountry: "Deutschland",
+      items: [
+        {
+          description: "",
+          quantity: 1,
+          unitPrice: "" as unknown as number,
+          taxRate: company.isSubjectToVAT ? (company.firstTaxRate ?? 19) : null,
+        },
+      ],
+    });
+  }, [company, reset]);
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -90,9 +111,9 @@ export default function InvoiceSection() {
     createInvoice.mutate(data);
   };
 
-  const withVat = company.isSubjectToVAT;
-  const firstTaxRate = parseFloat(company.firstTaxRate);
-  const secondTaxRate = parseFloat(company.secondTaxRate);
+  const withVat = company?.isSubjectToVAT ?? false;
+  const firstTaxRate = parseFloat(company?.firstTaxRate ?? "0");
+  const secondTaxRate = parseFloat(company?.secondTaxRate ?? "0");
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
