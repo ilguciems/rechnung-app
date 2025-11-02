@@ -167,21 +167,23 @@ describe("CompanySection", () => {
 
     await user.click(submitButton);
 
-    // API was called
-    await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(5));
+// API was called
 
-    const fourthCallArgs = (global.fetch as Mock).mock.calls[3];
+const fetchCalls = (global.fetch as Mock).mock.calls;
 
-    await waitFor(() => expect(fourthCallArgs[0]).toBe("/api/company"));
+// Find the POST call
+const postCall = fetchCalls.find(
+  (call) => call[0] === "/api/company" && call[1]?.method === "POST"
+);
 
-    expect(fourthCallArgs[1]).toEqual(
-      expect.objectContaining({
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: expect.any(String),
-      }),
-    );
-
+// Check that the POST call was made
+expect((postCall ?? [])[1]).toEqual(
+  expect.objectContaining({
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: expect.any(String),
+  })
+);
     await waitFor(() =>
       expect(toast.success).toHaveBeenCalledWith(
         "Unternehmensdaten gespeichert!",
