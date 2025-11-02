@@ -1,10 +1,42 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import toast from "react-hot-toast";
+import type { Mock } from "vitest";
 import Providers from "../../providers";
 import CompanySection from "../CompanySection";
 
+// mock toast
+vi.mock("react-hot-toast", () => ({
+  default: { success: vi.fn(), error: vi.fn() },
+  success: vi.fn(),
+  error: vi.fn(),
+}));
+
+// mock fetch response
+global.fetch = vi.fn((url, opts) => {
+  if (url === "/api/company" && opts.method === "GET") {
+    return Promise.resolve({
+      ok: true,
+    });
+  }
+
+  if (url === "/api/company" && opts.method === "POST") {
+    return Promise.resolve({
+      ok: true,
+      json: async () => ({
+        id: 1,
+        name: "Test Company",
+        message: "success",
+      }),
+    });
+  }
+
+  return Promise.reject(new Error("Unknown fetch URL"));
+}) as Mock;
+
 describe("CompanySection", () => {
-  it("should fill out the new company form", async () => {
+  const user = userEvent.setup();
+  it("should fill out the new company form and submit", async () => {
     render(
       <Providers>
         <CompanySection />
@@ -12,37 +44,52 @@ describe("CompanySection", () => {
     );
 
     expect(screen.getByText("Firmendaten eingeben")).toBeInTheDocument();
+    expect(
+      screen.queryByText("Firmendaten bearbeiten"),
+    ).not.toBeInTheDocument();
 
     const nameInput = screen.getByLabelText("Firmenname");
     expect(nameInput).toBeInTheDocument();
-    await userEvent.type(nameInput, "Test Company");
-    expect(nameInput).toHaveValue("Test Company");
+    await user.type(nameInput, "Test Company");
 
     const legalFormInput = screen.getByLabelText("Rechtsform");
     expect(legalFormInput).toBeInTheDocument();
     expect(legalFormInput).toHaveValue("KLEINGEWERBE");
-    await userEvent.selectOptions(legalFormInput, "Freiberufler");
-    expect(legalFormInput).toHaveValue("FREIBERUFLER");
+
+    expect(
+      screen.queryByText("Diese Rechtsform ist umsatzsteuerpflichtig."),
+    ).not.toBeInTheDocument();
+
+    expect(
+      screen.getByText("Mein Unternehmen ist umsatzsteuerpflichtig."),
+    ).toBeInTheDocument();
+
+    await user.selectOptions(legalFormInput, "GMBH");
+    expect(legalFormInput).toHaveValue("GMBH");
+
+    expect(
+      screen.queryByText("Mein Unternehmen ist umsatzsteuerpflichtig."),
+    ).not.toBeInTheDocument();
+
+    expect(
+      screen.getByText("Diese Rechtsform ist umsatzsteuerpflichtig."),
+    ).toBeInTheDocument();
 
     const streetInput = screen.getByLabelText("Straße");
     expect(streetInput).toBeInTheDocument();
-    await userEvent.type(streetInput, "Test Street");
-    expect(streetInput).toHaveValue("Test Street");
+    await user.type(streetInput, "Test Street");
 
     const houseNumberInput = screen.getByLabelText("Hausnummer");
     expect(houseNumberInput).toBeInTheDocument();
-    await userEvent.type(houseNumberInput, "123");
-    expect(houseNumberInput).toHaveValue("123");
+    await user.type(houseNumberInput, "123");
 
     const zipCodeInput = screen.getByLabelText("PLZ");
     expect(zipCodeInput).toBeInTheDocument();
-    await userEvent.type(zipCodeInput, "12345");
-    expect(zipCodeInput).toHaveValue("12345");
+    await user.type(zipCodeInput, "12345");
 
     const cityInput = screen.getByLabelText("Ort");
     expect(cityInput).toBeInTheDocument();
-    await userEvent.type(cityInput, "Test City");
-    expect(cityInput).toHaveValue("Test City");
+    await user.type(cityInput, "Test City");
 
     const countryInput = screen.getByLabelText("Land");
     expect(countryInput).toBeInTheDocument();
@@ -51,53 +98,56 @@ describe("CompanySection", () => {
 
     const phoneInput = screen.getByLabelText("Telefon");
     expect(phoneInput).toBeInTheDocument();
-    await userEvent.type(phoneInput, "01234567890");
+    await user.type(phoneInput, "01234567890");
+
     // Simulate onBlur
-    await userEvent.click(screen.getByText("Firmendaten eingeben"));
+    await user.click(screen.getByText("Firmendaten eingeben"));
     expect(phoneInput).toHaveValue("+49 123 4567 890");
 
     const emailInput = screen.getByLabelText("E-Mail");
     expect(emailInput).toBeInTheDocument();
-    await userEvent.type(emailInput, "0mO7K@example.com");
-    expect(emailInput).toHaveValue("0mO7K@example.com");
+    await user.type(emailInput, "0mO7K@example.com");
+
+    const bankInput = screen.getByLabelText("Bank");
+    expect(bankInput).toBeInTheDocument();
+    await user.type(bankInput, "Sparkasse");
 
     const ibanInput = screen.getByLabelText("IBAN");
     expect(ibanInput).toBeInTheDocument();
-    await userEvent.type(ibanInput, "DE12345678901234567890");
-    expect(ibanInput).toHaveValue("DE12 3456 7890 1234 5678 90");
+    await user.type(ibanInput, "DE56510200007515835538");
+    expect(ibanInput).toHaveValue("DE56 5102 0000 7515 8355 38");
 
     const bicInput = screen.getByLabelText("BIC");
     expect(bicInput).toBeInTheDocument();
-    await userEvent.type(bicInput, "DE123456789");
-    expect(bicInput).toHaveValue("DE123456789");
+    await user.type(bicInput, "BHFBDEFF500");
+
+    const handelsregisternummerInput = screen.getByLabelText(
+      "Handelsregisternummer",
+    );
+    expect(handelsregisternummerInput).toBeInTheDocument();
+    await user.type(handelsregisternummerInput, "123456789");
 
     const taxNumberInput = screen.getByLabelText("Steuernummer *");
     expect(taxNumberInput).toBeInTheDocument();
-    await userEvent.type(taxNumberInput, "DE123456789");
-    expect(taxNumberInput).toHaveValue("DE123456789");
+    await user.type(taxNumberInput, "DE123456789");
 
     const vatInput = screen.getByLabelText(
       "Umsatzsteuer-Identifikationsnummer *",
     );
     expect(vatInput).toBeInTheDocument();
-    await userEvent.type(vatInput, "DE123456789");
-    expect(vatInput).toHaveValue("DE123456789");
+    await user.type(vatInput, "DE123456789");
 
     expect(
-      screen.getByText("Mein Unternehmen ist umsatzsteuerpflichtig."),
+      screen.getByText("Diese Rechtsform ist umsatzsteuerpflichtig."),
     ).toBeInTheDocument();
 
     const checkbox = screen.getByRole("checkbox");
     expect(checkbox).toBeInTheDocument();
 
-    expect(checkbox).not.toBeChecked();
+    expect(checkbox).toBeDisabled();
 
-    expect(
-      screen.queryByText("Erster Steuersatz in %"),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByText("Zweiter Steuersatz in %"),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText("Erster Steuersatz in %")).toBeInTheDocument();
+    expect(screen.queryByText("Zweiter Steuersatz in %")).toBeInTheDocument();
 
     await userEvent.click(checkbox);
     expect(checkbox).toBeChecked();
@@ -105,39 +155,33 @@ describe("CompanySection", () => {
     expect(screen.getByText("Erster Steuersatz in %")).toBeInTheDocument();
     expect(screen.getByText("Zweiter Steuersatz in %")).toBeInTheDocument();
 
-    const submitButton = screen.getByRole("button", { name: "Speichern" });
+    const submitButton = screen.getByRole("button", { name: /speichern/i });
     expect(submitButton).toBeEnabled();
-  });
 
-  it("shows tax rates for vat required legal forms on load", async () => {
-    render(
-      <Providers>
-        <CompanySection />
-      </Providers>,
+    await user.click(submitButton);
+
+    // API was called
+    await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(5));
+
+    const fourthCallArgs = (global.fetch as Mock).mock.calls[3];
+
+    await waitFor(() => expect(fourthCallArgs[0]).toBe("/api/company"));
+
+    expect(fourthCallArgs[1]).toEqual(
+      expect.objectContaining({
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: expect.any(String),
+      }),
     );
-    expect(screen.getByText("Firmendaten eingeben")).toBeInTheDocument();
 
-    const checkbox = screen.getByRole("checkbox");
-    expect(checkbox).toBeInTheDocument();
+    await waitFor(() =>
+      expect(toast.success).toHaveBeenCalledWith(
+        "Unternehmensdaten gespeichert!",
+      ),
+    );
 
-    expect(checkbox).not.toBeChecked();
-
-    const legalFormInput = screen.getByLabelText("Rechtsform");
-    expect(legalFormInput).toBeInTheDocument();
-    expect(legalFormInput).toHaveValue("KLEINGEWERBE");
-
-    expect(
-      screen.queryByText("Erster Steuersatz in %"),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByText("Zweiter Steuersatz in %"),
-    ).not.toBeInTheDocument();
-
-    await userEvent.selectOptions(legalFormInput, "GmbH");
-    expect(legalFormInput).toHaveValue("GMBH");
-
-    expect(checkbox).toBeChecked();
-    expect(screen.getByText("Erster Steuersatz in %")).toBeInTheDocument();
-    expect(screen.getByText("Zweiter Steuersatz in %")).toBeInTheDocument();
+    expect(screen.getByText("Firmendaten bearbeiten")).toBeInTheDocument();
+    expect(screen.queryByText("Firmendaten eingeben")).not.toBeInTheDocument();
   });
 });
