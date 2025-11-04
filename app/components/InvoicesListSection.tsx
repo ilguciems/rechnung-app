@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import _ from "lodash";
 import { useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
+import { ROUTES } from "@/lib/api-routes";
 import type { InvoiceItem } from "@/lib/zod-schema";
 import DeleteLastInvoiceButton from "./DeleteLastInvoiceButton";
 import PdfLoadingModal from "./PdfLoadingModal";
@@ -43,7 +44,7 @@ export default function InvoicesListSection() {
       if (search) params.set("search", search);
       if (isPaid) params.set("isPaid", isPaid);
 
-      const res = await fetch(`/api/invoices?${params.toString()}`);
+      const res = await fetch(ROUTES.INVOICES_SEARCH(params));
       if (!res.ok) throw new Error("Fehler beim Laden");
       return res.json();
     },
@@ -52,7 +53,7 @@ export default function InvoicesListSection() {
   // Change paid status
   const togglePaid = useMutation({
     mutationFn: async ({ id, current }: { id: number; current: boolean }) => {
-      const res = await fetch(`/api/invoices/${id}`, {
+      const res = await fetch(ROUTES.INVOICE(id), {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ isPaid: !current }),
@@ -69,7 +70,7 @@ export default function InvoicesListSection() {
   const downloadPDF = async (id: number) => {
     try {
       setPdfLoading(true);
-      const res = await fetch(`/api/invoices/${id}/pdf`);
+      const res = await fetch(ROUTES.INVOICE_PDF(id));
       if (!res.ok) {
         toast.error("Fehler beim PDF-Export");
         return;

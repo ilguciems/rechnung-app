@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
+import { ROUTES } from "@/lib/api-routes";
 import {
   CompanySection,
   InvoiceSection,
@@ -14,7 +15,7 @@ export default function Home() {
   const { data: company, isLoading } = useQuery({
     queryKey: ["company"],
     queryFn: async () => {
-      const res = await fetch("/api/company");
+      const res = await fetch(ROUTES.COMPANY);
       if (!res.ok) throw new Error("Fehler beim Laden der Firma");
       return res.json();
     },

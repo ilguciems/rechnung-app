@@ -4,9 +4,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
+import { ROUTES } from "@/lib/api-routes";
 import { formatPhone } from "@/lib/phone-utils";
 import {
   type Company,
@@ -35,12 +36,13 @@ const legalFormsOptions = [
 
 export default function CompanySection() {
   const queryClient = useQueryClient();
+  const [vatToggledByUser, setVatToggledByUser] = useState(false);
 
   // Load company
   const { data: company } = useQuery<Company>({
     queryKey: ["company"],
     queryFn: async () => {
-      const res = await fetch("/api/company");
+      const res = await fetch(ROUTES.COMPANY);
       if (!res.ok) throw new Error("Fehler beim Laden der Firma");
       return res.json();
     },
@@ -55,6 +57,7 @@ export default function CompanySection() {
     setValue,
     reset,
     clearErrors,
+    setFocus,
   } = useForm<Company>({
     resolver: zodResolver(companySchema),
     defaultValues: {
@@ -85,6 +88,12 @@ export default function CompanySection() {
   const isHandelsregisterRequired =
     HANDELSREGISTER_REQUIRED_FORMS.includes(legalForm);
 
+  const handleVatToggle = () => {
+    if (!isVatRequired) {
+      setVatToggledByUser(true);
+    }
+  };
+
   useEffect(() => {
     if (isVatRequired) {
       setValue("isSubjectToVAT", true);
@@ -106,10 +115,18 @@ export default function CompanySection() {
 
   const isSubjectToVAT = watch("isSubjectToVAT");
 
+  useEffect(() => {
+    if (!vatToggledByUser) return;
+    if (isSubjectToVAT) {
+      setFocus("firstTaxRate");
+    }
+    setVatToggledByUser(false);
+  }, [vatToggledByUser, isSubjectToVAT, setFocus]);
+
   const saveCompany = useMutation({
     mutationFn: async (form: Partial<Company>) => {
       const method = company ? "PUT" : "POST";
-      const res = await fetch("/api/company", {
+      const res = await fetch(ROUTES.COMPANY, {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
@@ -258,6 +275,7 @@ export default function CompanySection() {
             className="col-span-2 sm:col-span-1"
             register={register}
             errors={errors}
+            aria-describedby="tax-either"
           />
           <Input<Company>
             name="ustId"
@@ -265,18 +283,23 @@ export default function CompanySection() {
             className="col-span-2 sm:col-span-1"
             register={register}
             errors={errors}
+            aria-describedby="tax-either"
           />
-          <span className="col-span-2 text-xs text-gray-700">
+          <p id="tax-either" className="col-span-2 text-xs text-gray-700">
             * Sie können entweder Steuernummer oder
             Umsatzsteuer-Identifikationsnummer eingeben.
-          </span>
+          </p>
         </div>
         <div className="flex items-center gap-2 p-2 my-3">
           <input
             className="w-4 h-4"
             id="isSubjectToVAT"
             type="checkbox"
-            {...register("isSubjectToVAT")}
+            {...register("isSubjectToVAT", {
+              onChange: handleVatToggle,
+            })}
+            aria-controls="vat-rate-fields"
+            aria-expanded={isSubjectToVAT}
             disabled={isVatRequired}
           />
           <label htmlFor="isSubjectToVAT" className="text-sm text-gray-700">
@@ -288,10 +311,10 @@ export default function CompanySection() {
         <AnimatePresence initial={false}>
           {isSubjectToVAT && (
             <motion.div
+              id="vat-rate-fields"
               key="vat-fields"
               className="grid grid-cols-2 gap-3"
               aria-live="polite"
-              aria-label="Steuersätze"
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}

@@ -6,6 +6,7 @@ import { Loader2 } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
+import { ROUTES } from "@/lib/api-routes";
 
 import { type Invoice, invoiceSchema } from "@/lib/zod-schema";
 import Input from "./Input";
@@ -17,7 +18,7 @@ export default function InvoiceSection() {
   const { data: company } = useQuery({
     queryKey: ["company"],
     queryFn: async () => {
-      const res = await fetch("/api/company");
+      const res = await fetch(ROUTES.COMPANY);
       if (!res.ok) throw new Error("Fehler beim Laden der Firma");
       return res.json();
     },
@@ -91,7 +92,7 @@ export default function InvoiceSection() {
 
   const createInvoice = useMutation({
     mutationFn: async (newInvoice: Invoice) => {
-      const res = await fetch("/api/invoices", {
+      const res = await fetch(ROUTES.INVOICES, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newInvoice),
