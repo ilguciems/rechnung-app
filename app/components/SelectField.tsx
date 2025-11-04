@@ -31,6 +31,7 @@ export function SelectField<T extends FieldValues>({
   setValueAs,
   bgWhite = false,
   className = "",
+  ...props
 }: SelectFieldProps<T>) {
   const errorMessage = get(errors, name)?.message as string | undefined;
 
@@ -53,6 +54,7 @@ export function SelectField<T extends FieldValues>({
         className={`border p-2 rounded w-full ${
           errorMessage ? "border-red-500" : "border-gray-300"
         }`}
+        {...props}
       >
         {options.map((opt) => (
           <option key={opt.value} value={opt.value}>

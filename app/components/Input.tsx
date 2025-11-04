@@ -45,6 +45,7 @@ export default function Input<T extends FieldValues>({
   inputMode = "text",
   step = undefined,
   bgWhite = false,
+  ...props
 }: InputProps<T>) {
   const errorMessage = get(errors, name)?.message as string | undefined;
 
@@ -97,6 +98,7 @@ export default function Input<T extends FieldValues>({
         type={type === "iban" || type === "phone" ? "text" : type}
         placeholder={placeholder}
         {...rest}
+        {...props}
         inputMode={inputMode}
         step={step}
         onChange={handleChange}

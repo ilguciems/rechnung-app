@@ -3,6 +3,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { ROUTES } from "@/lib/api-routes";
 
 export default function DeleteLastInvoiceButton({
   hasInvoices,
@@ -14,7 +15,7 @@ export default function DeleteLastInvoiceButton({
 
   const deleteLastInvoice = useMutation({
     mutationFn: async () => {
-      const res = await fetch("/api/invoices/last", { method: "DELETE" });
+      const res = await fetch(ROUTES.INVOICES_LAST, { method: "DELETE" });
       if (!res.ok) throw new Error("Fehler beim Löschen");
       return res.json();
     },
@@ -44,8 +45,8 @@ export default function DeleteLastInvoiceButton({
 
       {/* Modal */}
       {open && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full">
+        <div className="fixed inset-0 bg-black opacity-95 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full !opacity-100">
             <h2 className="text-lg font-semibold mb-2">Sicher löschen?</h2>
             <p className="text-sm text-gray-600 mb-4">
               Diese Aktion kann <strong>nicht</strong> rückgängig gemacht
