@@ -22,7 +22,7 @@ export async function POST(req: Request) {
 }
 
 // Update a company
-export async function PUT(req: Request) {
+export async function PATCH(req: Request) {
   const data = await req.json();
   const company = await prisma.company.findFirst();
 

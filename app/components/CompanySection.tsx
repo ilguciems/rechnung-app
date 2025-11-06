@@ -52,12 +52,13 @@ export default function CompanySection() {
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting, isDirty },
+    formState: { errors, isSubmitting, isDirty, dirtyFields },
     watch,
     setValue,
     reset,
     clearErrors,
     setFocus,
+    getValues,
   } = useForm<Company>({
     resolver: zodResolver(companySchema),
     defaultValues: {
@@ -73,8 +74,8 @@ export default function CompanySection() {
       bic: "",
       bank: "",
       isSubjectToVAT: false,
-      firstTaxRate: 19,
-      secondTaxRate: 7,
+      firstTaxRate: null,
+      secondTaxRate: null,
       logoUrl: "",
       legalForm: "KLEINGEWERBE",
       steuernummer: "",
@@ -110,22 +111,48 @@ export default function CompanySection() {
   }, [setValue, clearErrors, isHandelsregisterRequired]);
 
   useEffect(() => {
-    if (company) reset({ ...company, phone: formatPhone(company.phone) });
+    if (company)
+      reset({
+        ...company,
+        phone: formatPhone(company.phone),
+        firstTaxRate: company.firstTaxRate || 19,
+        secondTaxRate: company.secondTaxRate || 7,
+      });
   }, [company, reset]);
 
   const isSubjectToVAT = watch("isSubjectToVAT");
 
   useEffect(() => {
-    if (!vatToggledByUser) return;
-    if (isSubjectToVAT) {
-      setFocus("firstTaxRate");
+    if (vatToggledByUser) {
+      if (isSubjectToVAT) {
+        setValue("firstTaxRate", getValues("firstTaxRate") ?? 19, {
+          shouldDirty: true,
+        });
+        setValue("secondTaxRate", getValues("secondTaxRate") ?? 7, {
+          shouldDirty: true,
+        });
+
+        setFocus("firstTaxRate");
+      } else {
+        setValue("firstTaxRate", null, { shouldDirty: true });
+        setValue("secondTaxRate", null, { shouldDirty: true });
+        clearErrors(["firstTaxRate", "secondTaxRate"]);
+      }
+
+      setVatToggledByUser(false);
     }
-    setVatToggledByUser(false);
-  }, [vatToggledByUser, isSubjectToVAT, setFocus]);
+  }, [
+    vatToggledByUser,
+    isSubjectToVAT,
+    setValue,
+    getValues,
+    clearErrors,
+    setFocus,
+  ]);
 
   const saveCompany = useMutation({
     mutationFn: async (form: Partial<Company>) => {
-      const method = company ? "PUT" : "POST";
+      const method = company ? "PATCH" : "POST";
       const res = await fetch(ROUTES.COMPANY, {
         method,
         headers: { "Content-Type": "application/json" },
@@ -155,7 +182,18 @@ export default function CompanySection() {
 
   // Submit
   const onSubmit = handleSubmit(async (data) => {
-    await saveCompany.mutateAsync(data);
+    const payload: Partial<Company> = {};
+
+    for (const key of Object.keys(dirtyFields)) {
+      payload[key as keyof Company] = data[
+        key as keyof Company
+      ] as unknown as undefined;
+    }
+
+    payload.firstTaxRate = isSubjectToVAT ? data.firstTaxRate : null;
+    payload.secondTaxRate = isSubjectToVAT ? data.secondTaxRate : null;
+
+    await saveCompany.mutateAsync(payload);
   });
 
   return (
