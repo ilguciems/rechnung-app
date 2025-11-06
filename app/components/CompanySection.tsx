@@ -89,17 +89,26 @@ export default function CompanySection() {
   const isHandelsregisterRequired =
     HANDELSREGISTER_REQUIRED_FORMS.includes(legalForm);
 
-  const handleVatToggle = () => {
-    if (!isVatRequired) {
-      setVatToggledByUser(true);
-    }
+  const handleVatToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setVatToggledByUser(true);
+
+    setValue("isSubjectToVAT", e.target.checked, {
+      shouldDirty: true,
+      shouldTouch: true,
+    });
   };
 
   useEffect(() => {
     if (isVatRequired) {
-      setValue("isSubjectToVAT", true);
+      setValue("isSubjectToVAT", true, {
+        shouldDirty: true,
+        shouldTouch: true,
+      });
     } else {
-      setValue("isSubjectToVAT", false);
+      setValue("isSubjectToVAT", false, {
+        shouldDirty: true,
+        shouldTouch: true,
+      });
     }
   }, [isVatRequired, setValue]);
 
