@@ -16,7 +16,8 @@
     "lint": "biome check",
     "format": "biome format --write",
     "test": "vitest",
-    "test:ui": "vitest --ui"
+    "test:ui": "vitest --ui",
+    "reset-db": "rm -rf prisma/migrations && npx prisma migrate dev --name init && npx prisma migrate reset --force"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -49,6 +50,7 @@
     "@vitejs/plugin-react": "^5.0.4",
     "@vitest/coverage-v8": "^3.2.4",
     "jsdom": "^27.0.0",
+    "msw": "^2.11.6",
     "playwright": "^1.56.0",
     "prisma": "^6.16.2",
     "tailwindcss": "^4",

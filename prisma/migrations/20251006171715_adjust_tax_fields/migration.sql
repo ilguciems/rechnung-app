@@ -1,8 +1,0 @@
--- AlterTable
-ALTER TABLE "public"."Company" ALTER COLUMN "firstTaxRate" SET DEFAULT 19,
-ALTER COLUMN "firstTaxRate" SET DATA TYPE DOUBLE PRECISION,
-ALTER COLUMN "secondTaxRate" SET DEFAULT 7,
-ALTER COLUMN "secondTaxRate" SET DATA TYPE DOUBLE PRECISION;
-
--- AlterTable
-ALTER TABLE "public"."Item" ADD COLUMN     "taxRate" DOUBLE PRECISION;

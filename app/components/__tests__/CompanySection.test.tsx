@@ -1,7 +1,9 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { HttpResponse, http } from "msw";
 import toast from "react-hot-toast";
-import type { Mock } from "vitest";
+import { ROUTES } from "@/lib/api-routes";
+import { server } from "@/tests/mocks/server";
 import Providers from "../../providers";
 import CompanySection from "../CompanySection";
 
@@ -12,38 +14,20 @@ vi.mock("react-hot-toast", () => ({
   error: vi.fn(),
 }));
 
-// mock fetch response
-
-beforeEach(() => {
-  global.fetch = vi.fn((url, opts) => {
-    if (url === "/api/company" && opts.method === "GET") {
-      return Promise.resolve({
-        ok: true,
-      });
-    }
-
-    if (url === "/api/company" && opts.method === "POST") {
-      return Promise.resolve({
-        ok: true,
-        json: async () => ({
-          id: 1,
-          name: "Test Company",
-          message: "success",
-        }),
-      });
-    }
-
-    return Promise.reject(new Error("Unknown fetch URL"));
-  }) as Mock;
-});
-
 afterEach(() => {
+  server.resetHandlers();
   vi.restoreAllMocks();
+  vi.clearAllMocks();
 });
 
 describe("CompanySection", () => {
   const user = userEvent.setup();
   it("should fill out the new company form and submit", async () => {
+    server.use(
+      // mock company not found
+      http.get(ROUTES.COMPANY, () => new HttpResponse(null, { status: 200 })),
+    );
+
     render(
       <Providers>
         <CompanySection />
@@ -167,23 +151,6 @@ describe("CompanySection", () => {
 
     await user.click(submitButton);
 
-// API was called
-
-const fetchCalls = (global.fetch as Mock).mock.calls;
-
-// Find the POST call
-const postCall = fetchCalls.find(
-  (call) => call[0] === "/api/company" && call[1]?.method === "POST"
-);
-
-// Check that the POST call was made
-expect((postCall ?? [])[1]).toEqual(
-  expect.objectContaining({
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: expect.any(String),
-  })
-);
     await waitFor(() =>
       expect(toast.success).toHaveBeenCalledWith(
         "Unternehmensdaten gespeichert!",
@@ -192,5 +159,42 @@ expect((postCall ?? [])[1]).toEqual(
 
     expect(screen.getByText("Firmendaten bearbeiten")).toBeInTheDocument();
     expect(screen.queryByText("Firmendaten eingeben")).not.toBeInTheDocument();
+  });
+  it("renders existing company", async () => {
+    render(
+      <Providers>
+        <CompanySection />
+      </Providers>,
+    );
+
+    expect(
+      await screen.findByText("Firmendaten bearbeiten"),
+    ).toBeInTheDocument();
+
+    expect(screen.queryByText("Firmendaten eingeben")).not.toBeInTheDocument();
+
+    const nameInput = screen.getByLabelText("Firmenname");
+    expect(nameInput).toBeInTheDocument();
+    expect(nameInput).toHaveValue("Test Company");
+
+    const legalFormInput = screen.getByLabelText("Rechtsform");
+    expect(legalFormInput).toBeInTheDocument();
+    expect(legalFormInput).toHaveValue("GMBH");
+
+    const streetInput = screen.getByLabelText("Straße");
+    expect(streetInput).toBeInTheDocument();
+    expect(streetInput).toHaveValue("Teststraße");
+
+    const zipCodeInput = screen.getByLabelText("PLZ");
+    expect(zipCodeInput).toBeInTheDocument();
+    expect(zipCodeInput).toHaveValue("12345");
+
+    const cityInput = screen.getByLabelText("Ort");
+    expect(cityInput).toBeInTheDocument();
+    expect(cityInput).toHaveValue("Test City");
+
+    const countryInput = screen.getByLabelText("Land");
+    expect(countryInput).toBeInTheDocument();
+    expect(countryInput).toHaveValue("Deutschland");
   });
 });
