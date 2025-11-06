@@ -69,8 +69,16 @@ export const companySchema = z
       ),
     email: z.email("Ungültige E-Mail"),
     isSubjectToVAT: z.boolean(),
-    firstTaxRate: z.number().default(19).optional().nullable(),
-    secondTaxRate: z.number().default(7).optional().nullable(),
+    firstTaxRate: z
+      .number("Steuersatz erforderlich")
+      .default(19)
+      .optional()
+      .nullable(),
+    secondTaxRate: z
+      .number("Steuersatz erforderlich")
+      .default(7)
+      .optional()
+      .nullable(),
     logoUrl: z.string().optional().nullable(),
     legalForm: LegalFormEnum,
 
