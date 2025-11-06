@@ -160,18 +160,6 @@ export const companySchema = z
       });
     }
 
-    if (
-      !VAT_REQUIRED_FORMS.includes(data.legalForm) &&
-      data.handelsregisternummer
-    ) {
-      ctx.addIssue({
-        code: "custom",
-        message:
-          "Handelsregisternummer ist für diese Rechtsform nicht erforderlich.",
-        path: ["handelsregisternummer"],
-      });
-    }
-
     // --- Handelsregisternummer ---
     const requiresHandelsregister = HANDELSREGISTER_REQUIRED_FORMS.includes(
       data.legalForm,
@@ -181,15 +169,6 @@ export const companySchema = z
       ctx.addIssue({
         path: ["handelsregisternummer"],
         message: "Handelsregisternummer ist für diese Rechtsform erforderlich.",
-        code: "custom",
-      });
-    }
-
-    if (!requiresHandelsregister && data.handelsregisternummer?.trim()) {
-      ctx.addIssue({
-        path: ["handelsregisternummer"],
-        message:
-          "Handelsregisternummer ist für diese Rechtsform nicht erforderlich.",
         code: "custom",
       });
     }
