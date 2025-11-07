@@ -114,10 +114,9 @@ export default function CompanySection() {
 
   useEffect(() => {
     if (!isHandelsregisterRequired) {
-      setValue("handelsregisternummer", "");
       clearErrors("handelsregisternummer");
     }
-  }, [setValue, clearErrors, isHandelsregisterRequired]);
+  }, [clearErrors, isHandelsregisterRequired]);
 
   useEffect(() => {
     if (company)
@@ -132,27 +131,30 @@ export default function CompanySection() {
   const isSubjectToVAT = watch("isSubjectToVAT");
 
   useEffect(() => {
+    if (!isSubjectToVAT) {
+      setValue("firstTaxRate", null, { shouldDirty: true });
+      setValue("secondTaxRate", null, { shouldDirty: true });
+      clearErrors(["firstTaxRate", "secondTaxRate"]);
+      return;
+    }
+    const first = company?.firstTaxRate ?? 19;
+    const second = company?.secondTaxRate ?? 7;
+    if (!getValues("firstTaxRate")) {
+      setValue("firstTaxRate", first, { shouldDirty: true });
+    }
+
+    if (!getValues("secondTaxRate")) {
+      setValue("secondTaxRate", second, { shouldDirty: true });
+    }
     if (vatToggledByUser) {
-      if (isSubjectToVAT) {
-        setValue("firstTaxRate", getValues("firstTaxRate") ?? 19, {
-          shouldDirty: true,
-        });
-        setValue("secondTaxRate", getValues("secondTaxRate") ?? 7, {
-          shouldDirty: true,
-        });
-
-        setFocus("firstTaxRate");
-      } else {
-        setValue("firstTaxRate", null, { shouldDirty: true });
-        setValue("secondTaxRate", null, { shouldDirty: true });
-        clearErrors(["firstTaxRate", "secondTaxRate"]);
-      }
-
+      setFocus("firstTaxRate");
       setVatToggledByUser(false);
     }
   }, [
-    vatToggledByUser,
     isSubjectToVAT,
+    company?.firstTaxRate,
+    company?.secondTaxRate,
+    vatToggledByUser,
     setValue,
     getValues,
     clearErrors,
