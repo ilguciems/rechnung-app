@@ -7,6 +7,7 @@ import {
   CompanySection,
   InvoiceSection,
   InvoicesListSection,
+  UploadLogoSection,
 } from "./components";
 
 import StartLoadingScreen from "./components/StartLoadingScreen";
@@ -28,6 +29,8 @@ export default function Home() {
       className="p-6 max-w-3xl mx-auto space-y-8"
     >
       {isLoading && <StartLoadingScreen />}
+
+      <UploadLogoSection />
       <CompanySection />
 
       <AnimatePresence>

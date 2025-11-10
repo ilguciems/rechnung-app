@@ -6,4 +6,5 @@ export const ROUTES = {
     `/api/invoices?${params.toString()}`,
   INVOICE: (id: number) => `/api/invoices/${id}`,
   INVOICE_PDF: (id: number) => `/api/invoices/${id}/pdf`,
+  COMPANY_LOGO: "/api/company/logo",
 };
