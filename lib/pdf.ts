@@ -186,7 +186,7 @@ export async function generateInvoicePDF(
   // ---------------------------
 
   // logo (if exists)
-  const logoPath = path.join(process.cwd(), "public", "logo.png");
+  const logoPath = path.join(process.cwd(), "public", "assets/logo.png");
   if (fs.existsSync(logoPath)) {
     const logoImageBytes = fs.readFileSync(logoPath);
     const logoImage = await pdfDoc.embedPng(logoImageBytes);

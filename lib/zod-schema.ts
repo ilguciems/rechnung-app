@@ -202,3 +202,25 @@ export const invoiceSchema = z.object({
 });
 
 export type Invoice = z.infer<typeof invoiceSchema>;
+
+const MAX_FILE_SIZE = 5000000;
+const ACCEPTED_IMAGE_TYPES = ["image/png"];
+
+export const uploadSchema = z.object({
+  file: z
+    .any()
+    // To not allow empty files
+    .refine((files) => files?.length >= 1, {
+      message: "Datei ist erforderlich",
+    })
+    // To not allow files other than images
+    .refine((files) => ACCEPTED_IMAGE_TYPES.includes(files?.[0]?.type), {
+      message: "nur PNG-Dateien sind erlaubt.",
+    })
+    // To not allow files larger than 5MB
+    .refine((files) => files?.[0]?.size <= MAX_FILE_SIZE, {
+      message: "Datei darf nicht mehr als 5MB groß sein.",
+    }),
+});
+
+export type UploadData = z.infer<typeof uploadSchema>;
