@@ -1,7 +1,7 @@
 export default function StartLoadingScreen() {
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black opacity-75 z-50">
-      <div className="bg-white rounded-lg shadow-lg p-6 flex flex-col items-center opacity-75">
+    <div className="fixed inset-0 flex items-center justify-center bg-black-rgba z-100">
+      <div className="bg-white rounded-lg shadow-lg p-6 flex flex-col items-center">
         <svg
           role="img"
           aria-label="Lade Unternehmensdaten"

@@ -1,6 +1,6 @@
 export default function PdfLoadingModal() {
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+    <div className="fixed inset-0 flex items-center justify-center bg-black-rgba">
       <div className="bg-white rounded-lg shadow-lg p-6 flex flex-col items-center">
         <svg
           role="img"
