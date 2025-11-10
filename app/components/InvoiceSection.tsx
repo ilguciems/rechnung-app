@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Loader2 } from "lucide-react";
+import { ArrowUp, Loader2 } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
@@ -118,9 +118,23 @@ export default function InvoiceSection() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      <h2 className="text-xl font-semibold" ref={invoiceFormRef}>
-        Neue Rechnung
-      </h2>
+      <div
+        ref={invoiceFormRef}
+        className="flex flex-col sm:flex-row gap-3 justify-between pt-3"
+      >
+        <h2 className="text-xl font-semibold order-last sm:order-first">
+          Neue Rechnung
+        </h2>
+        <button
+          type="button"
+          className="hover:cursor-pointer underline hover:decoration-0"
+          onClick={() => scrollTo({ top: 0, behavior: "smooth" })}
+        >
+          <span className="flex">
+            Firmendaten bearbeiten <ArrowUp className="ml-1" />
+          </span>
+        </button>
+      </div>
       <h3 className="text-lg font-semibold">Kundeninformationen</h3>
 
       <div className="grid grid-cols-2 gap-3">
