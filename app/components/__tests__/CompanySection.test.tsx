@@ -14,7 +14,7 @@ vi.mock("react-hot-toast", () => ({
   error: vi.fn(),
 }));
 
-afterEach(() => {
+beforeEach(() => {
   server.resetHandlers();
   vi.restoreAllMocks();
   vi.clearAllMocks();
@@ -161,8 +161,6 @@ describe("CompanySection", () => {
     expect(screen.queryByText("Firmendaten eingeben")).not.toBeInTheDocument();
   });
   it("renders existing company", async () => {
-    // original mock with company data
-    server.resetHandlers();
     render(
       <Providers>
         <CompanySection />
