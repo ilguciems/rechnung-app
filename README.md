@@ -1,6 +1,6 @@
-## 🧾 Rechnung App (Next.js 15)
+## 🧾 Rechnung App (Next.js 16)
 
-* A modern Next.js 15 application for generating professional invoices (PDF) compliant with German tax law.
+* A modern Next.js 16 application for generating professional invoices (PDF) compliant with German tax law.
 * The app runs locally by design — ensuring full control and data privacy (Datenschutz).
 
 ## Features:
