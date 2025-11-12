@@ -1,3 +1,4 @@
+import type { Prisma } from "@prisma/client";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma-client";
@@ -5,14 +6,20 @@ import { validateQuery } from "@/lib/validateQuery";
 import { invoiceSchema as createInvoiceSchema } from "@/lib/zod-schema";
 
 const querySchema = z.object({
-  search: z.string().optional().default(""),
+  search: z.string().optional(),
   isPaid: z.enum(["true", "false"]).optional(),
+  page: z.string().transform(Number).default(1),
+  pageSize: z.string().transform(Number).default(10),
 });
 
+type QueryType = z.infer<typeof querySchema>;
+
 export async function GET(req: Request) {
-  return validateQuery(req, querySchema, async ({ search, isPaid }) => {
-    const invoices = await prisma.invoice.findMany({
-      where: {
+  return validateQuery(
+    req,
+    querySchema,
+    async ({ search, isPaid, page, pageSize }: QueryType) => {
+      const where: Prisma.InvoiceWhereInput = {
         AND: [
           search
             ? {
@@ -24,13 +31,27 @@ export async function GET(req: Request) {
             : {},
           isPaid ? { isPaid: isPaid === "true" } : {},
         ],
-      },
-      include: { items: true },
-      orderBy: { createdAt: "desc" },
-    });
+      };
 
-    return NextResponse.json(invoices);
-  });
+      const total = await prisma.invoice.count({ where });
+
+      const invoices = await prisma.invoice.findMany({
+        where,
+        include: { items: true },
+        orderBy: { createdAt: "desc" },
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+      });
+
+      return NextResponse.json({
+        data: invoices,
+        page,
+        pageSize,
+        total,
+        totalPages: Math.ceil(total / pageSize),
+      });
+    },
+  );
 }
 
 export async function POST(req: Request) {
