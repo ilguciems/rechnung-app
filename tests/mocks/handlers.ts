@@ -20,16 +20,22 @@ const companyPayload = {
   secondTaxRate: 7,
 };
 
-const invoicePayload = [
-  {
-    id: 1,
-    invoiceNumber: "INV-123",
-    customerName: "John Doe",
-    createdAt: "2022-01-01T00:00:00.000Z",
-    isPaid: false,
-    items: [{ quantity: 1, unitPrice: 100 }],
-  },
-];
+const invoicePayload = {
+  data: [
+    {
+      id: 1,
+      invoiceNumber: "INV-123",
+      customerName: "John Doe",
+      createdAt: "2022-01-01T00:00:00.000Z",
+      isPaid: false,
+      items: [{ quantity: 1, unitPrice: 100 }],
+    },
+  ],
+  page: 1,
+  pageSize: 5,
+  total: 1,
+  totalPages: 1,
+};
 
 export const handlers = [
   http.get(ROUTES.COMPANY, () => {

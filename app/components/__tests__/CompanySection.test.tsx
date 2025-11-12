@@ -161,6 +161,8 @@ describe("CompanySection", () => {
     expect(screen.queryByText("Firmendaten eingeben")).not.toBeInTheDocument();
   });
   it("renders existing company", async () => {
+    // original mock with company data
+    server.resetHandlers();
     render(
       <Providers>
         <CompanySection />
