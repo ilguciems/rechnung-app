@@ -7,4 +7,6 @@ export const ROUTES = {
   INVOICE: (id: number) => `/api/invoices/${id}`,
   INVOICE_PDF: (id: number) => `/api/invoices/${id}/pdf`,
   COMPANY_LOGO: "/api/company/logo",
+  CUSTOMERS_SEARCH: (type: string) =>
+    `/api/customers/search?${type === "customers" ? "type=customers" : type === "products" ? "type=products" : ""}`,
 };
