@@ -2,6 +2,42 @@ import { HttpResponse, http } from "msw";
 import { ROUTES } from "@/lib/api-routes";
 import type { Company } from "@/lib/zod-schema";
 
+const customers = [
+  {
+    id: 1,
+    customerName: "Peter Fischer",
+    customerStreet: "Fischerstraße",
+    customerHouseNumber: "10",
+    customerZipCode: "98765",
+    customerCity: "Vienna",
+    customerCountry: "Österreich",
+  },
+  {
+    id: 2,
+    customerName: "Petra Fischmann",
+    customerStreet: "Schmidtstraße",
+    customerHouseNumber: "20",
+    customerZipCode: "54321",
+    customerCity: "Hamburg",
+    customerCountry: "Deutschland",
+  },
+];
+
+const products = [
+  {
+    id: 1,
+    description: "Hardware",
+    unitPrice: 100,
+    taxRate: 7,
+  },
+  {
+    id: 2,
+    description: "Software",
+    unitPrice: 50,
+    taxRate: 19,
+  },
+];
+
 const companyPayload = {
   name: "Test Company",
   legalForm: "GMBH",
@@ -47,6 +83,41 @@ export const handlers = [
   http.patch(ROUTES.COMPANY, async ({ request }) => {
     const body = (await request.json()) as Company;
     return HttpResponse.json({ ...body, id: 1 });
+  }),
+
+  // === Autocomplete for customers ===
+  http.get("/api/customers/search", ({ request }) => {
+    const url = new URL(request.url);
+    const type = url.searchParams.get("type");
+    const q = url.searchParams.get("search")?.toLowerCase() ?? "";
+
+    // Missing type
+    if (!type) {
+      return HttpResponse.json(
+        { error: "Missing search type" },
+        { status: 400 },
+      );
+    }
+
+    // Customers
+    if (type === "customers") {
+      const filtered = q
+        ? customers.filter((c) => c.customerName.toLowerCase().includes(q))
+        : customers;
+
+      return HttpResponse.json(filtered.slice(0, 10));
+    }
+
+    // Products
+    if (type === "products") {
+      const filtered = q
+        ? products.filter((p) => p.description.toLowerCase().includes(q))
+        : products;
+
+      return HttpResponse.json(filtered.slice(0, 10));
+    }
+
+    return HttpResponse.json({ error: "Invalid search type" }, { status: 400 });
   }),
 
   http.get(/\/api\/invoices.*/, () => {

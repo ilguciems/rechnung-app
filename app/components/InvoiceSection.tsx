@@ -9,8 +9,16 @@ import toast from "react-hot-toast";
 import { ROUTES } from "@/lib/api-routes";
 
 import { type Invoice, invoiceSchema } from "@/lib/zod-schema";
+import AutoCompleteInput from "./AutoCompleteInput";
 import Input from "./Input";
 import { SelectField } from "./SelectField";
+
+type Product = {
+  description: string;
+  quantity: number;
+  unitPrice: number;
+  taxRate?: number | null | undefined;
+};
 
 export default function InvoiceSection() {
   const queryClient = useQueryClient();
@@ -44,6 +52,7 @@ export default function InvoiceSection() {
     control,
     formState: { errors },
     reset,
+    setValue,
   } = useForm<Invoice>({
     resolver: zodResolver(invoiceSchema),
     defaultValues: {
@@ -116,6 +125,15 @@ export default function InvoiceSection() {
   const firstTaxRate = parseFloat(company?.firstTaxRate ?? "0");
   const secondTaxRate = parseFloat(company?.secondTaxRate ?? "0");
 
+  const handleCustomerSelect = (customer: Invoice) => {
+    setValue("customerName", customer.customerName);
+    setValue("customerStreet", customer.customerStreet);
+    setValue("customerHouseNumber", customer.customerHouseNumber);
+    setValue("customerCity", customer.customerCity);
+    setValue("customerZipCode", customer.customerZipCode);
+    setValue("customerCountry", customer.customerCountry);
+  };
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div
@@ -138,13 +156,18 @@ export default function InvoiceSection() {
       <h3 className="text-lg font-semibold">Kundeninformationen</h3>
 
       <div className="grid grid-cols-2 gap-3">
-        <Input
+        <AutoCompleteInput
           bgWhite
           name="customerName"
           label="Kundenname / Firmenname"
           className="col-span-2"
           register={register}
           errors={errors}
+          fetchUrl={ROUTES.CUSTOMERS_SEARCH("customers")}
+          setValue={setValue}
+          onSelect={handleCustomerSelect}
+          displayKey="customerName"
+          control={control}
         />
         <Input
           bgWhite
@@ -192,15 +215,25 @@ export default function InvoiceSection() {
       <h3 className="text-lg font-semibold">Positionen</h3>
       {fields.map((field, idx) => (
         <div key={field.id} className="grid grid-cols-12 gap-2 mb-2">
-          <Input
+          <AutoCompleteInput
             bgWhite
+            name={`items.${idx}.description`}
+            label="Warenbeschreibung"
             className={`col-span-12 ${
               withVat ? "sm:col-span-5" : "sm:col-span-7"
             } mt-2 sm:mt-0`}
-            name={`items.${idx}.description`}
-            label="Warenbeschreibung"
             register={register}
             errors={errors}
+            fetchUrl={ROUTES.CUSTOMERS_SEARCH("products")}
+            setValue={setValue}
+            control={control}
+            displayKey="description"
+            onSelect={(product: Product) => {
+              setValue(`items.${idx}.unitPrice`, product.unitPrice);
+              if (withVat && product.taxRate != null) {
+                setValue(`items.${idx}.taxRate`, product.taxRate);
+              }
+            }}
           />
           <Input
             bgWhite
