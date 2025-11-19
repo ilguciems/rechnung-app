@@ -27,13 +27,18 @@ describe("InvoicesListSection", () => {
 
     expect(screen.getByText("Offen")).toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: /Bezahlt setzen/i }));
+    await user.click(screen.getByRole("button", { name: /aktionen/i }));
+
+    expect(await screen.findByText("Bezahlt setzen")).toBeInTheDocument();
+    expect(await screen.findByText("PDF herunterladen")).toBeInTheDocument();
+
+    await user.click(screen.getByText("Bezahlt setzen"));
 
     expect(await screen.findByText("Bezahlt")).toBeInTheDocument();
 
-    await user.click(
-      screen.getByRole("button", { name: /PDF herunterladen/i }),
-    );
+    await user.click(screen.getByRole("button", { name: /aktionen/i }));
+
+    await user.click(screen.getByText("PDF herunterladen"));
 
     await waitFor(() => {
       expect(window.URL.createObjectURL).toHaveBeenCalled();
