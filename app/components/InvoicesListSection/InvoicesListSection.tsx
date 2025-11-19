@@ -2,11 +2,13 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import _ from "lodash";
+import { FileText, Square, SquareCheckBig } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
 import { ROUTES } from "@/lib/api-routes";
 import type { InvoiceItem } from "@/lib/zod-schema";
 import {
+  ActionMenu,
   DeleteLastInvoiceButton,
   InvoicesSkeleton,
   Pagination,
@@ -200,36 +202,55 @@ export default function InvoicesListSection() {
                     </p>
                   )}
                 </div>
-                <div className="flex flex-col sm:flex-row gap-2 mt-2 sm:mt-0">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      togglePaid.mutate({ id: inv.id, current: inv.isPaid })
-                    }
-                    className={`px-3 py-1 rounded disabled:opacity-50 ${
-                      inv.isPaid
-                        ? "bg-yellow-600 hover:bg-yellow-700"
-                        : "bg-green-600 hover:bg-green-700"
-                    } text-white cursor-pointer`}
-                    disabled={togglePaid.isPending}
-                  >
-                    {inv.isPaid ? "Offen setzen" : "Bezahlt setzen"}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => downloadPDF(inv.id)}
-                    className="bg-blue-600 text-white px-3 py-1 rounded cursor-pointer hover:bg-blue-700"
-                  >
-                    PDF herunterladen
-                  </button>
-                </div>
+                <ActionMenu
+                  options={[
+                    {
+                      id: `${inv.id}-toggle`,
+                      text: inv.isPaid ? "Offen setzen" : "Bezahlt setzen",
+                      node: (
+                        <span className="flex items-center">
+                          {inv.isPaid ? (
+                            <>
+                              <span aria-hidden="true">
+                                <Square className="w-4 h-4 mr-2" />
+                              </span>{" "}
+                              <span>Offen setzen</span>
+                            </>
+                          ) : (
+                            <>
+                              <span aria-hidden="true">
+                                <SquareCheckBig className="w-4 h-4 mr-2" />
+                              </span>{" "}
+                              <span>Bezahlt setzen</span>
+                            </>
+                          )}
+                        </span>
+                      ),
+                      onClick: () =>
+                        togglePaid.mutate({ id: inv.id, current: inv.isPaid }),
+                    },
+                    {
+                      id: `${inv.id}-download`,
+                      text: "PDF herunterladen",
+                      node: (
+                        <span className="flex items-center">
+                          <span aria-hidden="true">
+                            <FileText className="w-4 h-4 mr-2" />
+                          </span>
+                          <span>PDF herunterladen</span>
+                        </span>
+                      ),
+                      onClick: () => downloadPDF(inv.id),
+                    },
+                  ]}
+                />
               </li>
             ))}
           </ul>
         )}
         <Pagination page={page} totalPages={totalPages} onChange={setPage} />
       </div>
-      {pdfLoading && <PdfLoadingModal />}
+      <PdfLoadingModal isLoading={pdfLoading} />
     </>
   );
 }
