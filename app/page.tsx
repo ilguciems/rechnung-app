@@ -22,6 +22,8 @@ export default function Home() {
     },
   });
 
+  if (isLoading) return <StartLoadingScreen />;
+
   return (
     <main
       role={isLoading ? "status" : undefined}
@@ -30,8 +32,6 @@ export default function Home() {
       aria-busy={isLoading}
       aria-hidden={isLoading}
     >
-      {isLoading && <StartLoadingScreen />}
-
       <UploadLogoSection />
       <CompanySection />
 
