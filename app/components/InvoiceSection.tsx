@@ -33,6 +33,7 @@ export default function InvoiceSection() {
   });
 
   const invoiceFormRef = useRef<HTMLDivElement | null>(null);
+  const deleteButtonsRef = useRef<(HTMLButtonElement | null)[]>([]);
 
   useEffect(() => {
     if (company) {
@@ -53,6 +54,7 @@ export default function InvoiceSection() {
     formState: { errors },
     reset,
     setValue,
+    setFocus,
   } = useForm<Invoice>({
     resolver: zodResolver(invoiceSchema),
     defaultValues: {
@@ -277,13 +279,28 @@ export default function InvoiceSection() {
           />
           <div>
             <button
+              ref={(el) => {
+                deleteButtonsRef.current[idx] = el;
+              }}
               aria-label="Artikel entfernen"
               type="button"
               className={`grid ${
                 withVat ? "col-span-3" : "col-span-4"
               } sm:col-span-1 mt-2 sm:mt-0 text-white bg-red-600 font-bold text-xxl hover:bg-red-700 cursor-pointer border p-2 rounded disabled:opacity-50 disabled:cursor-not-allowed`}
               disabled={fields.length === 1}
-              onClick={() => remove(idx)}
+              onClick={() => {
+                const willBeSingleItem = fields.length === 2;
+                const indexToFocus = idx > 0 ? idx - 1 : 0;
+
+                remove(idx);
+                setTimeout(() => {
+                  if (willBeSingleItem) {
+                    setFocus(`items.0.description`);
+                  } else {
+                    deleteButtonsRef.current[indexToFocus]?.focus();
+                  }
+                }, 0);
+              }}
             >
               <span className="block sm:hidden">
                 {withVat ? "✕" : "Löschen"}
