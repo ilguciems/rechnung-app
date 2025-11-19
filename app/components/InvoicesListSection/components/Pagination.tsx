@@ -27,7 +27,7 @@ export default function Pagination({
         aria-disabled={page <= 1}
         aria-label="Zur vorherigen Seite"
         onClick={() => onChange(page - 1)}
-        className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+        className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50 cursor-pointer"
       >
         <span className="flex items-center gap-1">
           <ChevronLeft className="w-4 h-4" /> Zurück
@@ -46,7 +46,7 @@ export default function Pagination({
         aria-disabled={page >= totalPages}
         aria-label="Zur nächsten Seite"
         onClick={() => onChange(page + 1)}
-        className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+        className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50 cursor-pointer"
       >
         <span className="flex items-center gap-1">
           Weiter <ChevronRight className="w-4 h-4" />
