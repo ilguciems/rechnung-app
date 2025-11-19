@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { ROUTES } from "@/lib/api-routes";
 
@@ -13,6 +13,9 @@ export default function DeleteLastInvoiceButton({
   const [open, setOpen] = useState(false);
   const queryClient = useQueryClient();
 
+  const triggerButtonRef = useRef<HTMLButtonElement>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
+
   const deleteLastInvoice = useMutation({
     mutationFn: async () => {
       const res = await fetch(ROUTES.INVOICES_LAST, { method: "DELETE" });
@@ -21,20 +24,84 @@ export default function DeleteLastInvoiceButton({
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["invoices"] });
-      setOpen(false); // close if success
+      setOpen(false);
       toast.success("Rechnung gelöscht!");
     },
-    onError: (err) => {
-      console.error(err);
+    onError: () => {
       toast.error("Fehler beim Löschen der Rechnung");
-      setOpen(false); // close if error
+      setOpen(false);
     },
   });
+
+  useEffect(() => {
+    if (!open) return;
+
+    const preventScroll = (e: Event) => {
+      e.preventDefault();
+    };
+    document.addEventListener("wheel", preventScroll, { passive: false });
+    document.addEventListener("touchmove", preventScroll, { passive: false });
+    document.addEventListener("keydown", (e) => {
+      if (["ArrowUp", "ArrowDown", "PageUp", "PageDown", " "].includes(e.key)) {
+        e.preventDefault();
+      }
+    });
+
+    return () => {
+      document.removeEventListener("wheel", preventScroll);
+      document.removeEventListener("touchmove", preventScroll);
+    };
+  }, [open]);
+
+  useEffect(() => {
+    if (open) {
+      const focusables = modalRef.current?.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+      );
+
+      focusables?.[0]?.focus();
+    } else {
+      triggerButtonRef.current?.focus();
+    }
+  }, [open]);
+
+  const trapFocus = (e: React.KeyboardEvent) => {
+    if (!open) return;
+
+    if (e.key === "Escape") {
+      setOpen(false);
+      return;
+    }
+
+    if (e.key !== "Tab") return;
+
+    const focusables = modalRef.current?.querySelectorAll<HTMLElement>(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+    );
+    if (!focusables || focusables.length === 0) return;
+
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+
+    if (e.shiftKey) {
+      if (document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      }
+      return;
+    }
+
+    if (document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  };
 
   return (
     <>
       {/* Trigger */}
       <button
+        ref={triggerButtonRef}
         type="button"
         onClick={() => setOpen(true)}
         disabled={!hasInvoices || deleteLastInvoice.isPending}
@@ -45,8 +112,16 @@ export default function DeleteLastInvoiceButton({
 
       {/* Modal */}
       {open && (
-        <div className="fixed inset-0 bg-black-rgba flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full !opacity-100">
+        <div
+          className="fixed inset-0 bg-black-rgba flex items-center justify-center z-50"
+          role="dialog"
+          aria-modal="true"
+          onKeyDown={trapFocus}
+        >
+          <div
+            ref={modalRef}
+            className="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full !opacity-100"
+          >
             <h2 className="text-lg font-semibold mb-2">Sicher löschen?</h2>
             <p className="text-sm text-gray-600 mb-4">
               Diese Aktion kann <strong>nicht</strong> rückgängig gemacht

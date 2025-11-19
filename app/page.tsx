@@ -22,14 +22,16 @@ export default function Home() {
     },
   });
 
+  if (isLoading) return <StartLoadingScreen />;
+
   return (
     <main
       role={isLoading ? "status" : undefined}
       aria-live={isLoading ? "polite" : undefined}
       className="p-6 max-w-3xl mx-auto space-y-8"
+      aria-busy={isLoading}
+      aria-hidden={isLoading}
     >
-      {isLoading && <StartLoadingScreen />}
-
       <UploadLogoSection />
       <CompanySection />
 

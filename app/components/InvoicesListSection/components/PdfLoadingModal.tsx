@@ -1,4 +1,27 @@
-export default function PdfLoadingModal() {
+import { useEffect } from "react";
+
+export default function PdfLoadingModal({ isLoading }: { isLoading: boolean }) {
+  useEffect(() => {
+    if (!isLoading) return;
+
+    const preventScroll = (e: Event) => {
+      e.preventDefault();
+    };
+    document.addEventListener("wheel", preventScroll, { passive: false });
+    document.addEventListener("touchmove", preventScroll, { passive: false });
+    document.addEventListener("keydown", (e) => {
+      if (["ArrowUp", "ArrowDown", "PageUp", "PageDown", " "].includes(e.key)) {
+        e.preventDefault();
+      }
+    });
+
+    return () => {
+      document.removeEventListener("wheel", preventScroll);
+      document.removeEventListener("touchmove", preventScroll);
+    };
+  }, [isLoading]);
+
+  if (!isLoading) return null;
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black-rgba">
       <div className="bg-white rounded-lg shadow-lg p-6 flex flex-col items-center">
