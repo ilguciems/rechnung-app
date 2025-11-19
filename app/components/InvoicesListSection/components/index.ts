@@ -1,3 +1,4 @@
+import ActionMenu from "./ActionMenu";
 import DeleteLastInvoiceButton from "./DeleteLastInvoiceButton";
 import InvoicesSkeleton, { SKELETON_KEYS } from "./InvoicesSkeleton";
 import Pagination from "./Pagination";
@@ -9,4 +10,5 @@ export {
   Pagination,
   PdfLoadingModal,
   SKELETON_KEYS,
+  ActionMenu,
 };
