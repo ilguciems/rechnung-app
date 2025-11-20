@@ -12,6 +12,7 @@ import type { Company, Invoice } from "@/lib/zod-schema";
 
 interface CreatedInvoice extends Invoice {
   invoiceNumber: string;
+  customerNumber: string;
   createdAt: Date;
   isPaid: boolean;
   paidAt: Date | null;
@@ -200,7 +201,7 @@ export async function generateInvoicePDF(
   }
 
   // top: invoice number and date
-  page.drawText(`Rechnung Nr. ${invoice.invoiceNumber}`, {
+  page.drawText(`Rechnungs-Nr. ${invoice.invoiceNumber}`, {
     x: 400,
     y,
     size: 9,
@@ -213,6 +214,15 @@ export async function generateInvoicePDF(
     )}`,
     { x: 400, y, size: 9, font },
   );
+  if (invoice.customerNumber) {
+    y -= 15;
+    page.drawText(`Kunden-Nr.: ${invoice.customerNumber}`, {
+      x: 400,
+      y,
+      size: 9,
+      font,
+    });
+  }
   if (invoice.isPaid && invoice.paidAt) {
     y -= 15;
     page.drawText(

@@ -26,6 +26,7 @@ export async function GET(req: Request) {
                 OR: [
                   { customerName: { contains: search, mode: "insensitive" } },
                   { invoiceNumber: { contains: search, mode: "insensitive" } },
+                  { customerNumber: { contains: search, mode: "insensitive" } },
                 ],
               }
             : {},
@@ -56,10 +57,10 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    // validate request
+    // 1. Validate input
     const data = createInvoiceSchema.parse(await req.json());
 
-    // check if company exists
+    // 2. Check company exists
     const company = await prisma.company.findFirst();
     if (!company) {
       return NextResponse.json(
@@ -68,20 +69,85 @@ export async function POST(req: Request) {
       );
     }
 
-    // make invoice number
+    // Normalization helper
+    const normalize = (v: string) =>
+      v.trim().replace(/\s+/g, " ").toLowerCase();
+
+    const normalizedInput = {
+      name: normalize(data.customerName),
+      street: normalize(data.customerStreet),
+      house: normalize(data.customerHouseNumber),
+      zip: normalize(data.customerZipCode),
+      city: normalize(data.customerCity),
+      country: normalize(data.customerCountry),
+    };
+
+    // Load all unique customers (one record per customerNumber)
+    const existingCustomers = await prisma.invoice.findMany({
+      select: {
+        customerName: true,
+        customerStreet: true,
+        customerHouseNumber: true,
+        customerZipCode: true,
+        customerCity: true,
+        customerCountry: true,
+        customerNumber: true,
+      },
+      distinct: ["customerNumber"],
+    });
+
+    // Try to find exact match after normalization
+    const matched = existingCustomers.find((c) => {
+      return (
+        normalize(c.customerName) === normalizedInput.name &&
+        normalize(c.customerStreet) === normalizedInput.street &&
+        normalize(String(c.customerHouseNumber)) === normalizedInput.house &&
+        normalize(c.customerZipCode) === normalizedInput.zip &&
+        normalize(c.customerCity) === normalizedInput.city &&
+        normalize(c.customerCountry) === normalizedInput.country
+      );
+    });
+
+    let customerNumber: string;
+
+    if (matched) {
+      // Use existing KND-xxxx
+      customerNumber = matched.customerNumber as string;
+    } else {
+      // Generate new KND-xxxx
+      const lastNumber =
+        existingCustomers
+          .map((c) => Number(c.customerNumber?.replace(/\D/g, "")))
+          .filter((n) => !Number.isNaN(n))
+          .sort((a, b) => b - a)[0] ?? 0;
+
+      customerNumber = `KND-${String(lastNumber + 1).padStart(4, "0")}`;
+    }
+
+    // 3. Create invoice
+
     const count = await prisma.invoice.count();
     const invoiceNumber = `INV-${new Date().getFullYear()}-${count + 1}`;
 
-    // make invoice
     const invoice = await prisma.invoice.create({
       data: {
         invoiceNumber,
-        ...data,
         companyId: company.id,
         isPaid: false,
+
+        // Insert customer fields + computed customerNumber
+        customerNumber,
+        customerName: data.customerName.trim(),
+        customerStreet: data.customerStreet.trim(),
+        customerHouseNumber: data.customerHouseNumber.trim(),
+        customerZipCode: data.customerZipCode.trim(),
+        customerCity: data.customerCity.trim(),
+        customerCountry: data.customerCountry.trim(),
+
+        // Insert items
         items: {
           create: data.items.map((item) => ({
-            description: item.description,
+            description: item.description.trim(),
             quantity: item.quantity,
             unitPrice: item.unitPrice,
             taxRate: item.taxRate,

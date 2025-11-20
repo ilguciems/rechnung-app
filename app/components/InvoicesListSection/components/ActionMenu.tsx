@@ -55,27 +55,6 @@ export default function ActionMenu({ options }: { options: MenuOption[] }) {
     el?.focus();
   }, [activeIndex, open]);
 
-  useEffect(() => {
-    if (!open) return;
-
-    const preventScroll = (e: Event) => {
-      e.preventDefault();
-    };
-
-    document.addEventListener("wheel", preventScroll, { passive: false });
-    document.addEventListener("touchmove", preventScroll, { passive: false });
-    document.addEventListener("keydown", (e) => {
-      if (["ArrowUp", "ArrowDown", "PageUp", "PageDown", " "].includes(e.key)) {
-        e.preventDefault();
-      }
-    });
-
-    return () => {
-      document.removeEventListener("wheel", preventScroll);
-      document.removeEventListener("touchmove", preventScroll);
-    };
-  }, [open]);
-
   const handleMenuKey = (e: React.KeyboardEvent) => {
     if (!open) return;
 

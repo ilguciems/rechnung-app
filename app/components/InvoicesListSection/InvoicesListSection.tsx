@@ -24,6 +24,7 @@ type Invoice = {
   createdAt: string;
   items: InvoiceItem[];
   isPaid: boolean;
+  customerNumber: string;
 };
 
 const PER_PAGE = 5;
@@ -142,7 +143,7 @@ export default function InvoicesListSection() {
         <div className="flex gap-2 my-3">
           <input
             type="text"
-            placeholder="Suche nach Kunde oder Rechnungsnummer..."
+            placeholder="Suche nach Kunde, Kunden-Nr. oder Rechnungs-Nr..."
             onChange={handleSearch}
             className="border p-2 rounded flex-1"
           />
@@ -179,7 +180,11 @@ export default function InvoicesListSection() {
                 className="flex items-center justify-between border p-3 rounded bg-white"
               >
                 <div>
-                  <p className="font-medium">{inv.invoiceNumber}</p>
+                  <p className="font-medium">
+                    <span>{inv.invoiceNumber}</span>
+                    <span> / </span>
+                    <span>{inv.customerNumber}</span>
+                  </p>
                   <p className="text-sm text-gray-600">
                     {inv.customerName} –{" "}
                     {new Date(inv.createdAt).toLocaleDateString("de-DE")}

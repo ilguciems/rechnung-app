@@ -34,35 +34,23 @@ export default function DeleteLastInvoiceButton({
   });
 
   useEffect(() => {
-    if (!open) return;
-
-    const preventScroll = (e: Event) => {
-      e.preventDefault();
-    };
-    document.addEventListener("wheel", preventScroll, { passive: false });
-    document.addEventListener("touchmove", preventScroll, { passive: false });
-    document.addEventListener("keydown", (e) => {
-      if (["ArrowUp", "ArrowDown", "PageUp", "PageDown", " "].includes(e.key)) {
-        e.preventDefault();
-      }
-    });
-
-    return () => {
-      document.removeEventListener("wheel", preventScroll);
-      document.removeEventListener("touchmove", preventScroll);
-    };
-  }, [open]);
-
-  useEffect(() => {
     if (open) {
+      document.body.style.overflow = "hidden";
+
       const focusables = modalRef.current?.querySelectorAll<HTMLElement>(
         'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
       );
-
       focusables?.[0]?.focus();
     } else {
-      triggerButtonRef.current?.focus();
+      document.body.style.overflow = "";
+      if (triggerButtonRef.current) {
+        triggerButtonRef.current.focus();
+      }
     }
+
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [open]);
 
   const trapFocus = (e: React.KeyboardEvent) => {

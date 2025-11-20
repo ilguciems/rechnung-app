@@ -11,6 +11,7 @@ const customers = [
     customerZipCode: "98765",
     customerCity: "Vienna",
     customerCountry: "Österreich",
+    customerNumber: "KND-123",
   },
   {
     id: 2,
@@ -20,6 +21,7 @@ const customers = [
     customerZipCode: "54321",
     customerCity: "Hamburg",
     customerCountry: "Deutschland",
+    customerNumber: "KND-124",
   },
 ];
 
@@ -61,6 +63,7 @@ const invoicePayload = {
     {
       id: 1,
       invoiceNumber: "INV-123",
+      customerNumber: "KND-123",
       customerName: "John Doe",
       createdAt: "2022-01-01T00:00:00.000Z",
       isPaid: false,
