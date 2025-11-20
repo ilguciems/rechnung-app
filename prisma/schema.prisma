@@ -62,9 +62,10 @@ model Company {
 }
 
 model Invoice {
-  id            Int    @id @default(autoincrement())
-  invoiceNumber String @unique
-  customerName  String
+  id             Int     @id @default(autoincrement())
+  invoiceNumber  String  @unique
+  customerName   String
+  customerNumber String?
 
   customerStreet      String
   customerHouseNumber String

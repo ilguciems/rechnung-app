@@ -25,6 +25,10 @@ describe("InvoicesListSection", () => {
       expect(screen.getByText("INV-123")).toBeInTheDocument(),
     );
 
+    await waitFor(() =>
+      expect(screen.getByText("KND-123")).toBeInTheDocument(),
+    );
+
     expect(screen.getByText("Offen")).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: /aktionen/i }));
