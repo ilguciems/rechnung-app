@@ -1,11 +1,11 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import _ from "lodash";
 import { FileText, Square, SquareCheckBig } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
-import { toast } from "react-hot-toast";
-import { ROUTES } from "@/lib/api-routes";
+import {
+  useDownloadInvoicePdf,
+  useInvoicesList,
+  useToggleInvoicePaid,
+} from "@/hooks";
 import type { InvoiceItem } from "@/lib/zod-schema";
 import {
   ActionMenu,
@@ -27,108 +27,16 @@ type Invoice = {
   customerNumber: string;
 };
 
-const PER_PAGE = 5;
-
 export default function InvoicesListSection() {
-  const [search, setSearch] = useState("");
-  const [isPaid, setIsPaid] = useState<string>(""); // "", "true", "false"
-  const [page, setPage] = useState(1);
-  const [pdfLoading, setPdfLoading] = useState(false);
+  const { setSearchDebounced, isPaid, setIsPaid, page, setPage, query } =
+    useInvoicesList();
+  const togglePaid = useToggleInvoicePaid();
 
-  const queryClient = useQueryClient();
-
-  // Debounce for search
-  const debouncedSearch = useMemo(
-    () =>
-      _.debounce((val: string) => {
-        setSearch(val);
-      }, 500),
-    [],
-  );
-
-  useEffect(() => {
-    const filterApplied =
-      (search && search.trim() !== "") ||
-      isPaid === "true" ||
-      isPaid === "false" ||
-      isPaid === "";
-
-    if (filterApplied) {
-      setPage(1);
-    }
-  }, [search, isPaid]);
-
-  // load invoices
-  const { data, isLoading, error } = useQuery({
-    queryKey: ["invoices", search, isPaid, page],
-    queryFn: async () => {
-      const params = new URLSearchParams();
-      if (search) params.set("search", search);
-      if (isPaid) params.set("isPaid", isPaid);
-      params.set("page", String(page));
-      params.set("pageSize", PER_PAGE.toString());
-
-      const res = await fetch(ROUTES.INVOICES_SEARCH(params));
-
-      if (!res.ok) throw new Error("Fehler beim Laden");
-      return res.json();
-    },
-  });
-
+  const data = query.data;
   const invoices = data?.data ?? [];
   const totalPages = data?.totalPages ?? 1;
 
-  // Change paid status
-  const togglePaid = useMutation({
-    mutationFn: async ({ id, current }: { id: number; current: boolean }) => {
-      const res = await fetch(ROUTES.INVOICE(id), {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ isPaid: !current }),
-      });
-      if (!res.ok) throw new Error("Fehler beim Aktualisieren");
-      return res.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["invoices"] });
-      toast.success("Status aktualisiert!");
-    },
-    onError: () => {
-      toast.error("Fehler beim Aktualisieren");
-    },
-  });
-
-  // PDF download
-  const downloadPDF = async (id: number) => {
-    try {
-      setPdfLoading(true);
-      const res = await fetch(ROUTES.INVOICE_PDF(id));
-      if (!res.ok) {
-        toast.error("Fehler beim PDF-Export");
-        return;
-      }
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `invoice-${id}.pdf`;
-      link.click();
-      URL.revokeObjectURL(url);
-    } catch (err) {
-      console.error(err);
-      toast.error("Fehler beim PDF-Export");
-    } finally {
-      setPdfLoading(false);
-    }
-  };
-
-  // Handlers
-
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setPage(1);
-    debouncedSearch(val);
-  };
+  const { downloadPDF, loading: pdfLoading } = useDownloadInvoicePdf();
 
   const handlePaidFilter = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setIsPaid(e.target.value);
@@ -144,7 +52,7 @@ export default function InvoicesListSection() {
           <input
             type="text"
             placeholder="Suche nach Kunde, Kunden-Nr. oder Rechnungs-Nr..."
-            onChange={handleSearch}
+            onChange={(e) => setSearchDebounced(e.target.value)}
             className="border p-2 rounded flex-1"
           />
           <select
@@ -158,7 +66,7 @@ export default function InvoicesListSection() {
             <option value="false">Offen</option>
           </select>
         </div>
-        {isLoading ? (
+        {query.isLoading ? (
           <ul
             className="space-y-3 bg-gray-100 rounded min-h-149"
             aria-busy="true"
@@ -168,7 +76,7 @@ export default function InvoicesListSection() {
               <InvoicesSkeleton key={key} />
             ))}
           </ul>
-        ) : error ? (
+        ) : query.error ? (
           <p className="text-red-600">Fehler beim Laden</p>
         ) : invoices.length === 0 ? (
           <p className="text-gray-600">Keine Rechnungen gefunden</p>
