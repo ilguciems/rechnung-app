@@ -1,13 +1,11 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowUp, Loader2 } from "lucide-react";
+import { ArrowUp } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
-import toast from "react-hot-toast";
+import { useCompany, useCreateInvoice } from "@/hooks";
 import { ROUTES } from "@/lib/api-routes";
-
 import { type Invoice, invoiceSchema } from "@/lib/zod-schema";
 import AutoCompleteInput from "./AutoCompleteInput";
 import Input from "./Input";
@@ -21,16 +19,7 @@ type Product = {
 };
 
 export default function InvoiceSection() {
-  const queryClient = useQueryClient();
-
-  const { data: company } = useQuery({
-    queryKey: ["company"],
-    queryFn: async () => {
-      const res = await fetch(ROUTES.COMPANY);
-      if (!res.ok) throw new Error("Fehler beim Laden der Firma");
-      return res.json();
-    },
-  });
+  const { data: company } = useCompany();
 
   const invoiceFormRef = useRef<HTMLDivElement | null>(null);
   const deleteButtonsRef = useRef<(HTMLButtonElement | null)[]>([]);
@@ -101,31 +90,15 @@ export default function InvoiceSection() {
     name: "items",
   });
 
-  const createInvoice = useMutation({
-    mutationFn: async (newInvoice: Invoice) => {
-      const res = await fetch(ROUTES.INVOICES, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newInvoice),
-      });
-      if (!res.ok) throw new Error("Fehler beim Erstellen");
-      return res.json();
-    },
-    onError: () => toast.error("Fehler beim Erstellen"),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["invoices"] });
-      toast.success("Rechnung erstellt!");
-      reset();
-    },
-  });
+  const createInvoice = useCreateInvoice(() => reset());
 
   const onSubmit = (data: Invoice) => {
     createInvoice.mutate(data);
   };
 
   const withVat = company?.isSubjectToVAT ?? false;
-  const firstTaxRate = parseFloat(company?.firstTaxRate ?? "0");
-  const secondTaxRate = parseFloat(company?.secondTaxRate ?? "0");
+  const firstTaxRate = Number(company?.firstTaxRate ?? "0");
+  const secondTaxRate = Number(company?.secondTaxRate ?? "0");
 
   const handleCustomerSelect = (customer: Invoice) => {
     setValue("customerName", customer.customerName);
@@ -324,13 +297,7 @@ export default function InvoiceSection() {
         className="block w-full bg-blue-600 text-white py-2 rounded mt-4 cursor-pointer hover:bg-blue-700"
         disabled={createInvoice.isPending}
       >
-        {createInvoice.isPending ? (
-          <>
-            <Loader2 className="h-5 w-5 animate-spin" /> Speichern...
-          </>
-        ) : (
-          "Speichern"
-        )}
+        {createInvoice.isPending ? <>Speichern...</> : "Speichern"}
       </button>
     </form>
   );

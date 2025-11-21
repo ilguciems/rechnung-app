@@ -1,0 +1,29 @@
+"use client";
+
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+import { ROUTES } from "@/lib/api-routes";
+
+export function useToggleInvoicePaid() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, current }: { id: number; current: boolean }) => {
+      const res = await fetch(ROUTES.INVOICE(id), {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isPaid: !current }),
+      });
+
+      if (!res.ok) throw new Error("Fehler beim Aktualisieren");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["invoices"] });
+      toast.success("Status aktualisiert!");
+    },
+    onError: () => {
+      toast.error("Fehler beim Aktualisieren");
+    },
+  });
+}

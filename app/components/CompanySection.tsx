@@ -1,13 +1,11 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import toast from "react-hot-toast";
-import { ROUTES } from "@/lib/api-routes";
+import { useCompany, useSaveCompany } from "@/hooks";
 import { formatPhone } from "@/lib/phone-utils";
 import {
   type Company,
@@ -35,18 +33,12 @@ const legalFormsOptions = [
 ];
 
 export default function CompanySection() {
-  const queryClient = useQueryClient();
   const [vatToggledByUser, setVatToggledByUser] = useState(false);
 
   // Load company
-  const { data: company } = useQuery<Company>({
-    queryKey: ["company"],
-    queryFn: async () => {
-      const res = await fetch(ROUTES.COMPANY);
-      if (!res.ok) throw new Error("Fehler beim Laden der Firma");
-      return res.json();
-    },
-  });
+  const { data: company } = useCompany();
+  // Save company
+  const saveCompany = useSaveCompany(company);
 
   // Initialize form
   const {
@@ -160,36 +152,6 @@ export default function CompanySection() {
     clearErrors,
     setFocus,
   ]);
-
-  const saveCompany = useMutation({
-    mutationFn: async (form: Partial<Company>) => {
-      const method = company ? "PATCH" : "POST";
-      const res = await fetch(ROUTES.COMPANY, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
-      if (!res.ok) throw new Error("Fehler beim Speichern der Firma");
-      return res.json();
-    },
-    onMutate: async (newData) => {
-      await queryClient.cancelQueries({ queryKey: ["company"] });
-      const prev = queryClient.getQueryData<Company>(["company"]);
-      queryClient.setQueryData(["company"], { ...prev, ...newData });
-      return { prev };
-    },
-    onError: (_err, _newData, ctx) => {
-      if (ctx?.prev) queryClient.setQueryData(["company"], ctx.prev);
-      toast.error("Fehler beim Speichern");
-    },
-    onSuccess: (newCompany) => {
-      queryClient.setQueryData(["company"], newCompany);
-      toast.success("Unternehmensdaten gespeichert!");
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["company"] });
-    },
-  });
 
   // Submit
   const onSubmit = handleSubmit(async (data) => {

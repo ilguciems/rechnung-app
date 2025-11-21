@@ -1,8 +1,7 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
-import { ROUTES } from "@/lib/api-routes";
+import { useCompany } from "@/hooks";
 import {
   CompanySection,
   InvoiceSection,
@@ -13,14 +12,7 @@ import {
 import StartLoadingScreen from "./components/StartLoadingScreen";
 
 export default function Home() {
-  const { data: company, isLoading } = useQuery({
-    queryKey: ["company"],
-    queryFn: async () => {
-      const res = await fetch(ROUTES.COMPANY);
-      if (!res.ok) throw new Error("Fehler beim Laden der Firma");
-      return res.json();
-    },
-  });
+  const { data: company, isLoading } = useCompany();
 
   if (isLoading) return <StartLoadingScreen />;
 
