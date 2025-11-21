@@ -5,14 +5,14 @@ export default function InvoicesSkeleton() {
       aria-hidden="true"
     >
       <div className="flex-1">
-        <div className="h-4 bg-gray-300 rounded w-32 mb-2"></div>
-        <div className="h-3 bg-gray-200 rounded w-48 mb-2"></div>
-        <div className="h-3 bg-gray-200 rounded w-40 mb-2"></div>
-        <div className="h-3 bg-gray-200 rounded w-20"></div>
+        <div className="h-4 bg-gray-300 rounded w-36 mb-2"></div>
+        <div className="h-3 bg-gray-200 rounded w-56 mb-2"></div>
+        <div className="h-4 bg-gray-200 rounded w-32 mb-2"></div>
+        <div className="h-4 bg-gray-200 rounded w-24"></div>
       </div>
-      <div className="flex flex-col sm:flex-row gap-2 ml-4 w-40">
-        <div className="h-8 bg-gray-300 rounded w-full"></div>
-        <div className="h-8 bg-gray-300 rounded w-full"></div>
+
+      <div className="flex w-20 justify-end">
+        <div className="h-8 w-8 bg-gray-300 rounded-full"></div>
       </div>
     </li>
   );
