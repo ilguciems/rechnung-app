@@ -1,50 +1,23 @@
 import fs from "fs";
 import path from "path";
-import {
-  PDFDocument,
-  type PDFFont,
-  type PDFPage,
-  rgb,
-  StandardFonts,
-} from "pdf-lib";
-import { formatPhone } from "@/lib/phone-utils";
+import { PDFDocument, type PDFPage, rgb, StandardFonts } from "pdf-lib";
 import type { Company, Invoice } from "@/lib/zod-schema";
+import {
+  drawFooter,
+  drawTableHeader,
+  drawWrappedText,
+  LEGAL_FORM_VALUES,
+  measureWrappedHeight,
+  NAMED_REQUIRED_FORMS,
+} from "./helpers";
 
 interface CreatedInvoice extends Invoice {
   invoiceNumber: string;
+  customerNumber: string | null;
   createdAt: Date;
   isPaid: boolean;
   paidAt: Date | null;
 }
-
-const NAMED_REQUIRED_FORMS = [
-  "GBR",
-  "GMBH",
-  "UG",
-  "AG",
-  "OHG",
-  "KG",
-  "GMBH_CO_KG",
-  "KGaA",
-  "SE",
-  "EWIV",
-];
-
-const LEGAL_FORM_VALUES = {
-  KLEINGEWERBE: "Kleingewerbe",
-  FREIBERUFLER: "Freiberufler",
-  GBR: "GbR",
-  EINZELKAUFMANN: "Einzelkaufmann",
-  OHG: "OhG",
-  KG: "KG",
-  GMBH_CO_KG: "Gmbh & Co. KG",
-  GMBH: "GmbH",
-  UG: "UG",
-  AG: "AG",
-  KGaA: "KGaA",
-  SE: "SE",
-  EWIV: "EWIV",
-};
 
 const PAGE_WIDTH = 600;
 const PAGE_HEIGHT = 800;
@@ -73,120 +46,12 @@ export async function generateInvoicePDF(
     y = PAGE_HEIGHT - TOP_MARGIN;
   };
 
-  // helper: measure wrapped height for description column without drawing
-  function measureWrappedHeight(
-    text: string,
-    maxWidth: number,
-    fontObj: PDFFont,
-    fontSize: number,
-    lineGap = 2,
-  ): number {
-    if (!text) return fontSize;
-    const words = text.split(" ");
-    let line = "";
-    let lines = 0;
-    for (let i = 0; i < words.length; i++) {
-      const word = words[i];
-      const testLine = line ? `${line} ${word}` : word;
-      const testWidth = fontObj.widthOfTextAtSize(testLine, fontSize);
-      if (testWidth > maxWidth && line !== "") {
-        lines++;
-        line = word;
-      } else {
-        line = testLine;
-      }
-    }
-    if (line.trim() !== "") lines++;
-    const lineHeight = fontSize + lineGap;
-    return lines * lineHeight;
-  }
-
-  // helper: draw wrapped text and return drawn height
-  function drawWrappedText(
-    pg: PDFPage,
-    text: string,
-    x: number,
-    yTop: number,
-    maxWidth: number,
-    fontObj: PDFFont,
-    fontSize: number,
-    lineGap = 2,
-  ): number {
-    if (!text) {
-      pg.drawText("", { x, y: yTop, size: fontSize, font: fontObj });
-      return fontSize;
-    }
-    const words = text.split(" ");
-    let line = "";
-    let offsetLines = 0;
-    const lineHeight = fontSize + lineGap;
-    for (let i = 0; i < words.length; i++) {
-      const word = words[i];
-      const testLine = line ? `${line} ${word}` : word;
-      const testWidth = fontObj.widthOfTextAtSize(testLine, fontSize);
-      if (testWidth > maxWidth && line !== "") {
-        pg.drawText(line.trim(), {
-          x,
-          y: yTop - offsetLines * lineHeight,
-          size: fontSize,
-          font: fontObj,
-        });
-        offsetLines++;
-        line = word;
-      } else {
-        line = testLine;
-      }
-    }
-    if (line.trim() !== "") {
-      pg.drawText(line.trim(), {
-        x,
-        y: yTop - offsetLines * lineHeight,
-        size: fontSize,
-        font: fontObj,
-      });
-      offsetLines++;
-    }
-    return offsetLines * lineHeight;
-  }
-
-  // helper: draw table header and return new y (after header)
-  function drawTableHeader(
-    pg: PDFPage,
-    yTop: number,
-    headers: string[],
-    colWidths: number[],
-    startX: number,
-    tableWidth: number,
-    _fontObj: PDFFont,
-    boldObj: PDFFont,
-  ): number {
-    let xPos = startX;
-    const headerFontSize = 12;
-    for (let i = 0; i < headers.length; i++) {
-      pg.drawText(headers[i], {
-        x: xPos,
-        y: yTop,
-        size: headerFontSize,
-        font: boldObj,
-      });
-      xPos += colWidths[i];
-    }
-    // thin line under header
-    pg.drawLine({
-      start: { x: startX, y: yTop - 6 },
-      end: { x: startX + tableWidth, y: yTop - 6 },
-      thickness: 1,
-      color: rgb(0, 0, 0),
-    });
-    return yTop - 20; // move cursor down after header
-  }
-
   // ---------------------------
   // Start drawing content (first page)
   // ---------------------------
 
   // logo (if exists)
-  const logoPath = path.join(process.cwd(), "public", "logo.png");
+  const logoPath = path.join(process.cwd(), "public", "assets/logo.png");
   if (fs.existsSync(logoPath)) {
     const logoImageBytes = fs.readFileSync(logoPath);
     const logoImage = await pdfDoc.embedPng(logoImageBytes);
@@ -199,6 +64,37 @@ export async function generateInvoicePDF(
     });
   }
 
+  // top: invoice number and date
+  page.drawText(`Rechnungs-Nr. ${invoice.invoiceNumber}`, {
+    x: 400,
+    y,
+    size: 9,
+    font,
+  });
+  y -= 15;
+  page.drawText(
+    `Rechnungsdatum: ${new Date(invoice.createdAt).toLocaleDateString(
+      "de-DE",
+    )}`,
+    { x: 400, y, size: 9, font },
+  );
+  if (invoice.customerNumber) {
+    y -= 15;
+    page.drawText(`Kunden-Nr.: ${invoice.customerNumber}`, {
+      x: 400,
+      y,
+      size: 9,
+      font,
+    });
+  }
+  if (invoice.isPaid && invoice.paidAt) {
+    y -= 15;
+    page.drawText(
+      `Bezahlt am: ${new Date(invoice.paidAt).toLocaleDateString("de-DE")}`,
+      { x: 400, y, size: 9, font },
+    );
+  }
+
   const showLegalForm =
     company.legalForm && NAMED_REQUIRED_FORMS.includes(company.legalForm);
 
@@ -206,8 +102,8 @@ export async function generateInvoicePDF(
     ? `${company.name} ${LEGAL_FORM_VALUES[company.legalForm]}`
     : company.name;
 
-  // top: small company address (if you still want it)
-  y -= 80;
+  // top: small company address and invoice address
+  y -= 40;
   const companyAddress = `${companyName}, ${company.street} ${
     company.houseNumber
   }, ${company.zipCode} ${company.city} ${
@@ -248,24 +144,10 @@ export async function generateInvoicePDF(
 
   // metadata
   y -= 30;
-  page.drawText(
-    `Rechnungsdatum: ${new Date(invoice.createdAt).toLocaleDateString(
-      "de-DE",
-    )}`,
-    { x: 50, y, size: 12, font },
-  );
-  y -= 15;
   const paymentText = invoice.isPaid
     ? "Rechnung ist bereits vollständig bezahlt."
     : "Zahlungsziel: 14 Tage ab Rechnungsdatum";
   page.drawText(paymentText, { x: 50, y, size: 12, font });
-  if (invoice.isPaid && invoice.paidAt) {
-    y -= 15;
-    page.drawText(
-      `Bezahlt am: ${new Date(invoice.paidAt).toLocaleDateString("de-DE")}`,
-      { x: 50, y, size: 12, font },
-    );
-  }
 
   // ===================
   // Table headers
@@ -332,10 +214,12 @@ export async function generateInvoicePDF(
 
     // now actually draw the row on current `page`
     let xPos = startX;
-    const itemNet = item.quantity * item.unitPrice;
+    const itemTaxRate = item.taxRate ?? 0;
+    const netUnitPrice = item.unitPrice / (1 + itemTaxRate / 100);
+    const itemNet = item.quantity * netUnitPrice;
     const vatRate = item.taxRate ?? 0;
     const vatAmount = (itemNet * vatRate) / 100;
-    const itemTotal = company.isSubjectToVAT ? itemNet + vatAmount : itemNet;
+    const itemTotal = item.quantity * item.unitPrice;
 
     netTotal += itemNet;
     if (company.isSubjectToVAT && vatRate > 0) {
@@ -469,100 +353,4 @@ export async function generateInvoicePDF(
 
   const pdfBytes = await pdfDoc.save();
   return new Uint8Array(pdfBytes);
-}
-
-// footer helper (kept simple; tweak as you like)
-function drawFooter(
-  page: PDFPage,
-  company: Company,
-  footerY: number,
-  font: PDFFont,
-  boldFont: PDFFont,
-) {
-  const { width } = page.getSize();
-  const leftX = 30;
-  const centerX = width / 3 + 40;
-  const rightX = (width / 3) * 2;
-
-  const showLegalForm =
-    company.legalForm && NAMED_REQUIRED_FORMS.includes(company.legalForm);
-
-  const companyName = showLegalForm
-    ? `${company.name} ${LEGAL_FORM_VALUES[company.legalForm]}`
-    : company.name;
-
-  page.drawText(companyName, {
-    x: leftX,
-    y: footerY + 30,
-    size: 9,
-    font: boldFont,
-  });
-  page.drawText(`${company.street} ${company.houseNumber}`, {
-    x: leftX,
-    y: footerY + 15,
-    size: 9,
-    font,
-  });
-  page.drawText(
-    `${company.zipCode} ${company.city}${
-      company.country !== "Deutschland" ? `, ${company.country}` : ""
-    }`,
-    { x: leftX, y: footerY, size: 9, font },
-  );
-
-  let contactY = footerY + 30;
-  if (company.phone) {
-    page.drawText(`Tel: ${formatPhone(company.phone)}`, {
-      x: centerX,
-      y: contactY,
-      size: 9,
-      font,
-    });
-    contactY -= 15;
-  }
-  if (company.email) {
-    page.drawText(`E-Mail: ${company.email}`, {
-      x: centerX,
-      y: contactY,
-      size: 9,
-      font,
-    });
-    contactY -= 15;
-  }
-  if (company.steuernummer || company.ustId) {
-    const taxText = company.ustId
-      ? `USt-IdNr: ${company.ustId}`
-      : `Steuernummer: ${company.steuernummer}`;
-    page.drawText(taxText, { x: centerX, y: contactY, size: 9, font });
-    contactY -= 15;
-  }
-  if (company.handelsregisternummer) {
-    page.drawText(`HrNr: ${company.handelsregisternummer}`, {
-      x: centerX,
-      y: contactY,
-      size: 9,
-      font,
-    });
-  }
-
-  if (company.bank && company.iban && company.bic) {
-    page.drawText(`${company.bank}`, {
-      x: rightX,
-      y: footerY + 30,
-      size: 9,
-      font,
-    });
-    page.drawText(`IBAN: ${company.iban}`, {
-      x: rightX,
-      y: footerY + 15,
-      size: 9,
-      font,
-    });
-    page.drawText(`BIC: ${company.bic}`, {
-      x: rightX,
-      y: footerY,
-      size: 9,
-      font,
-    });
-  }
 }
