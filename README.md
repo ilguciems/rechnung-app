@@ -32,7 +32,7 @@
 
 ### Tech Stack
 
-* Framework: Next.js 15 (App Router)
+* Framework: Next.js 16 (App Router)
 * Language: TypeScript
 * Styling: Tailwind CSS
 * Forms: react-hook-form + Zod
@@ -128,42 +128,86 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum LegalForm {
+  KLEINGEWERBE
+  FREIBERUFLER
+  GBR
+  EINZELKAUFMANN
+  OHG
+  KG
+  GMBH_CO_KG
+  GMBH
+  UG
+  AG
+  KGaA
+  SE
+  EWIV
+}
+
 model Company {
-  id                    String   @id @default(cuid())
-  name                  String
-  legalForm             String
-  street                String
-  houseNumber           String
-  zipCode               String
-  city                  String
-  country               String
-  phone                 String?
-  email                 String?
-  iban                  String?
-  bic                   String?
-  bank                  String?
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  name        String
+  street      String
+  houseNumber String
+  zipCode     String
+  city        String
+  country     String @default("Deutschland")
+
+  phone   String
+  email   String
+  iban    String
+  bic     String
+  bank    String
+  logoUrl String?
+
+  isSubjectToVAT Boolean @default(false)
+  firstTaxRate   Float?
+  secondTaxRate  Float?
+
+  legalForm LegalForm @default(KLEINGEWERBE)
+
   steuernummer          String?
   ustId                 String?
   handelsregisternummer String?
-  isSubjectToVAT        Boolean  @default(false)
-  invoices              Invoice[]
+
+  invoices Invoice[]
+
+  @@index([createdAt])
+  @@index([updatedAt])
 }
 
 model Invoice {
-  id               String   @id @default(cuid())
-  invoiceNumber    String
-  createdAt        DateTime @default(now())
-  isPaid           Boolean  @default(false)
-  paidAt           DateTime?
-  customerName     String
-  customerStreet   String
+  id             Int     @id @default(autoincrement())
+  invoiceNumber  String  @unique
+  customerName   String
+  customerNumber String?
+
+  customerStreet      String
   customerHouseNumber String
-  customerZipCode  String
-  customerCity     String
-  customerCountry  String
-  items            Json
-  companyId        String
-  company          Company @relation(fields: [companyId], references: [id])
+  customerZipCode     String
+  customerCity        String
+  customerCountry     String @default("Deutschland")
+
+  createdAt DateTime  @default(now())
+  isPaid    Boolean   @default(false)
+  paidAt    DateTime?
+
+  items     Item[]
+  companyId Int
+  company   Company @relation(fields: [companyId], references: [id])
+}
+
+model Item {
+  id          Int     @id @default(autoincrement())
+  description String
+  quantity    Int
+  unitPrice   Float
+  taxRate     Float?
+  invoiceId   Int
+  invoice     Invoice @relation(fields: [invoiceId], references: [id])
 }
 ```
 3. Generate & migrate
