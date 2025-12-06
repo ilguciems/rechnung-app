@@ -87,11 +87,11 @@ export const companySchema = z
     handelsregisternummer: z.string().optional().nullable(),
 
     iban: z
-      .string("IBAN ist erforderlich")
+      .string()
+      .min(2, "IBAN ist erforderlich")
       .transform((v) => v?.replace(/\s+/g, "").toUpperCase() ?? null)
       .refine(
         (v) => {
-          if (!v) return true;
           if (!genericIbanRegex.test(v)) return false;
           if (v.startsWith("DE") && !germanIbanRegex.test(v)) return false;
           return isValidIbanChecksum(v);
@@ -103,10 +103,11 @@ export const companySchema = z
         return v.replace(/(.{4})/g, "$1 ").trim();
       }),
     bic: z
-      .string("BIC ist erforderlich")
+      .string()
+      .min(2, "BIC ist erforderlich")
       .trim()
       .transform((v) => v?.toUpperCase() ?? null)
-      .refine((v) => !v || bicRegex.test(v), {
+      .refine((v) => bicRegex.test(v), {
         message: "Ungültiges BIC-Format",
       }),
 
