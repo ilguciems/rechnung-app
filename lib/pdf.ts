@@ -12,7 +12,7 @@ import type { Company, Invoice } from "@/lib/zod-schema";
 
 interface CreatedInvoice extends Invoice {
   invoiceNumber: string;
-  customerNumber: string;
+  customerNumber: string | null;
   createdAt: Date;
   isPaid: boolean;
   paidAt: Date | null;
