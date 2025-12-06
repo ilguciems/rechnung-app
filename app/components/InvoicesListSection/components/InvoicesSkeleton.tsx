@@ -11,7 +11,7 @@ export default function InvoicesSkeleton() {
         <div className="h-4 bg-gray-200 rounded w-24"></div>
       </div>
 
-      <div className="flex w-20 justify-end">
+      <div className="flex w-20 justify-end pr-[0.688rem]">
         <div className="h-8 w-8 bg-gray-300 rounded-full"></div>
       </div>
     </li>
