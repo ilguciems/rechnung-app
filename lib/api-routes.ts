@@ -5,7 +5,7 @@ export const ROUTES = {
   INVOICES_SEARCH: (params: URLSearchParams) =>
     `/api/invoices?${params.toString()}`,
   INVOICE: (id: number) => `/api/invoices/${id}`,
-  INVOICE_PDF: (id: number) => `/api/invoices/${id}/pdf`,
+  INVOICE_PDF: (id: number) => `/api/invoices/${id}/pdf-invoice`,
   COMPANY_LOGO: "/api/company/logo",
   CUSTOMERS_SEARCH: (type: string) =>
     `/api/customers/search?${type === "customers" ? "type=customers" : type === "products" ? "type=products" : ""}`,
