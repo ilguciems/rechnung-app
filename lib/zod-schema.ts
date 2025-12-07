@@ -197,6 +197,21 @@ export const invoiceSchema = z.object({
   customerCity: z.string().min(2, "Stadt ist erforderlich"),
   customerZipCode: z.string().min(2, "PLZ ist erforderlich"),
   customerCountry: z.string().min(2, "Land ist erforderlich"),
+  customerPhone: z
+    .string()
+    .transform((val) => normalizePhone(val))
+    .refine(
+      (val) => val === "" || /^\+\d{8,15}$/.test(val),
+      "Bitte geben Sie eine gültige Telefonnummer im internationalen Format ein",
+    )
+    .optional()
+    .nullish(),
+
+  customerEmail: z
+    .email("Ungültige E-Mail")
+    .or(z.literal(""))
+    .optional()
+    .nullish(),
   items: z
     .array(invoiceItemSchema)
     .min(1, "Mindestens eine Position erforderlich"),

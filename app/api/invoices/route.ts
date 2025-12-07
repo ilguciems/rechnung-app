@@ -80,6 +80,8 @@ export async function POST(req: Request) {
       zip: normalize(data.customerZipCode),
       city: normalize(data.customerCity),
       country: normalize(data.customerCountry),
+      email: data.customerEmail ? normalize(data.customerEmail) : "",
+      phone: data.customerPhone ? normalize(data.customerPhone) : "",
     };
 
     // Load all unique customers (one record per customerNumber)
@@ -92,6 +94,8 @@ export async function POST(req: Request) {
         customerCity: true,
         customerCountry: true,
         customerNumber: true,
+        customerEmail: true,
+        customerPhone: true,
       },
       distinct: ["customerNumber"],
     });
@@ -104,7 +108,9 @@ export async function POST(req: Request) {
         normalize(String(c.customerHouseNumber)) === normalizedInput.house &&
         normalize(c.customerZipCode) === normalizedInput.zip &&
         normalize(c.customerCity) === normalizedInput.city &&
-        normalize(c.customerCountry) === normalizedInput.country
+        normalize(c.customerCountry) === normalizedInput.country &&
+        normalize(c.customerEmail ?? "") === normalizedInput.email &&
+        normalize(c.customerPhone ?? "") === normalizedInput.phone
       );
     });
 
@@ -143,6 +149,8 @@ export async function POST(req: Request) {
         customerZipCode: data.customerZipCode.trim(),
         customerCity: data.customerCity.trim(),
         customerCountry: data.customerCountry.trim(),
+        customerEmail: data.customerEmail ? data.customerEmail.trim() : null,
+        customerPhone: data.customerPhone ? data.customerPhone.trim() : null,
 
         // Insert items
         items: {
