@@ -215,7 +215,7 @@ export default function AutoCompleteInput<
                 }`}
               >
                 {displayKey === "customerName"
-                  ? Object.values(rest).join(", ")
+                  ? Object.values(rest).filter(Boolean).join(", ")
                   : displayKey === "description"
                     ? String(item[displayKey])
                     : JSON.stringify(item)}

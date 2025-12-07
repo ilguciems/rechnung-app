@@ -53,6 +53,8 @@ export default function InvoiceSection() {
       customerCity: "",
       customerZipCode: "",
       customerCountry: "Deutschland",
+      customerEmail: "",
+      customerPhone: "",
       items: [
         {
           description: "",
@@ -74,6 +76,8 @@ export default function InvoiceSection() {
       customerCity: "",
       customerZipCode: "",
       customerCountry: "Deutschland",
+      customerEmail: "",
+      customerPhone: "",
       items: [
         {
           description: "",
@@ -107,6 +111,8 @@ export default function InvoiceSection() {
     setValue("customerCity", customer.customerCity);
     setValue("customerZipCode", customer.customerZipCode);
     setValue("customerCountry", customer.customerCountry);
+    setValue("customerEmail", customer.customerEmail);
+    setValue("customerPhone", customer.customerPhone);
   };
 
   return (
@@ -183,6 +189,25 @@ export default function InvoiceSection() {
           className="col-span-2"
           register={register}
           errors={errors}
+        />
+        <Input
+          bgWhite
+          name="customerPhone"
+          type="phone"
+          label="Telefon (optional)"
+          className="col-span-2 sm:col-span-1"
+          setValue={setValue}
+          register={register}
+          errors={errors}
+        />
+        <Input
+          bgWhite
+          name="customerEmail"
+          label="E-Mail (optional)"
+          className="col-span-2 sm:col-span-1"
+          register={register}
+          errors={errors}
+          type="email"
         />
       </div>
 

@@ -73,6 +73,9 @@ model Invoice {
   customerCity        String
   customerCountry     String @default("Deutschland")
 
+  customerEmail String?
+  customerPhone String?
+
   createdAt DateTime  @default(now())
   isPaid    Boolean   @default(false)
   paidAt    DateTime?

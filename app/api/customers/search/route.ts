@@ -25,6 +25,8 @@ export async function GET(req: Request) {
           customerZipCode: true,
           customerCity: true,
           customerCountry: true,
+          customerEmail: true,
+          customerPhone: true,
         },
         distinct: [
           "customerName",
@@ -33,6 +35,8 @@ export async function GET(req: Request) {
           "customerZipCode",
           "customerCity",
           "customerCountry",
+          "customerEmail",
+          "customerPhone",
         ],
         take: 10,
       });
