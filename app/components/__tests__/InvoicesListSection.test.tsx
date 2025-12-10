@@ -34,7 +34,7 @@ describe("InvoicesListSection", () => {
     await user.click(screen.getByRole("button", { name: /aktionen/i }));
 
     expect(await screen.findByText("Bezahlt setzen")).toBeInTheDocument();
-    expect(await screen.findByText("PDF herunterladen")).toBeInTheDocument();
+    expect(await screen.findByText("Rechnung")).toBeInTheDocument();
 
     await user.click(screen.getByText("Bezahlt setzen"));
 
@@ -42,7 +42,7 @@ describe("InvoicesListSection", () => {
 
     await user.click(screen.getByRole("button", { name: /aktionen/i }));
 
-    await user.click(screen.getByText("PDF herunterladen"));
+    await user.click(screen.getByText("Rechnung"));
 
     await waitFor(() => {
       expect(window.URL.createObjectURL).toHaveBeenCalled();

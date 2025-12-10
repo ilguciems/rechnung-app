@@ -14,6 +14,22 @@ const querySchema = z.object({
 
 type QueryType = z.infer<typeof querySchema>;
 
+function calculateOverduePaymentLevel(invoice: {
+  isPaid: boolean;
+  createdAt: Date | string;
+}): number | null {
+  if (invoice.isPaid) return null;
+
+  const now = Date.now();
+  const days =
+    (now - new Date(invoice.createdAt).getTime()) / (24 * 60 * 60 * 1000);
+
+  if (days >= 30) return 3;
+  if (days >= 14) return 2;
+  if (days >= 7) return 1;
+  return null;
+}
+
 export async function GET(req: Request) {
   return validateQuery(
     req,
@@ -43,9 +59,13 @@ export async function GET(req: Request) {
         skip: (page - 1) * pageSize,
         take: pageSize,
       });
+      const invoicesWithOverduePaymentLevel = invoices.map((invoice) => ({
+        ...invoice,
+        overduePaymentLevel: calculateOverduePaymentLevel(invoice),
+      }));
 
       return NextResponse.json({
-        data: invoices,
+        data: invoicesWithOverduePaymentLevel,
         page,
         pageSize,
         total,

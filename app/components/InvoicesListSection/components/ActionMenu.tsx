@@ -3,7 +3,7 @@
 "use client";
 
 import { MoreVertical } from "lucide-react";
-import { type JSX, useEffect, useRef, useState } from "react";
+import { type JSX, useEffect, useLayoutEffect, useRef, useState } from "react";
 
 type MenuOption = {
   id: string;
@@ -15,13 +15,34 @@ type MenuOption = {
 export default function ActionMenu({ options }: { options: MenuOption[] }) {
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [openUpwards, setOpenUpwards] = useState(false);
+  const [isPositioned, setIsPositioned] = useState(false);
 
   const buttonRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLUListElement>(null);
 
+  useLayoutEffect(() => {
+    if (!open) {
+      setIsPositioned(false);
+      return;
+    }
+
+    if (!buttonRef.current || !menuRef.current || !options.length) return;
+
+    const buttonRect = buttonRef.current.getBoundingClientRect();
+    const menuHeight = menuRef.current.offsetHeight;
+
+    const spaceBelow = window.innerHeight - buttonRect.bottom;
+    const spaceAbove = buttonRect.top;
+
+    const shouldOpenUp = spaceBelow < menuHeight && spaceAbove > menuHeight;
+    setOpenUpwards(shouldOpenUp);
+    setIsPositioned(true);
+  }, [open, options.length]);
+
   const closeMenu = () => {
     setOpen(false);
-    buttonRef.current?.focus();
+    buttonRef.current?.focus({ preventScroll: true });
   };
 
   useEffect(() => {
@@ -32,7 +53,7 @@ export default function ActionMenu({ options }: { options: MenuOption[] }) {
         !buttonRef.current?.contains(e.target as Node)
       ) {
         setOpen(false);
-        buttonRef.current?.focus();
+        buttonRef.current?.focus({ preventScroll: true });
       }
     };
     document.addEventListener("mousedown", handler);
@@ -41,18 +62,20 @@ export default function ActionMenu({ options }: { options: MenuOption[] }) {
 
   // When menu opens → focus first item
   useEffect(() => {
-    if (open) {
+    if (open && isPositioned) {
       setActiveIndex(0);
-      const first = menuRef.current?.children[0] as HTMLLIElement;
-      first?.focus();
+      requestAnimationFrame(() => {
+        const first = menuRef.current?.children[0] as HTMLLIElement;
+        first?.focus({ preventScroll: true });
+      });
     }
-  }, [open]);
+  }, [open, isPositioned]);
 
   // Arrow nav focus
   useEffect(() => {
     if (!open) return;
     const el = menuRef.current?.children[activeIndex] as HTMLLIElement | null;
-    el?.focus();
+    el?.focus({ preventScroll: true });
   }, [activeIndex, open]);
 
   const handleMenuKey = (e: React.KeyboardEvent) => {
@@ -105,7 +128,18 @@ export default function ActionMenu({ options }: { options: MenuOption[] }) {
           ref={menuRef}
           role="menu"
           tabIndex={-1}
-          className="absolute right-0 mt-1 w-44 bg-white shadow-xl rounded border border-gray-200 text-sm py-1 z-50"
+          className={`absolute right-0 w-44 bg-white shadow-xl rounded border border-gray-200 text-sm py-1 z-50
+          ${
+            isPositioned
+              ? "opacity-100 scale-100"
+              : "opacity-0 pointer-events-none"
+          }
+          ${
+            isPositioned && openUpwards
+              ? "-translate-y-full -mt-10"
+              : "translate-y-1"
+          }
+          `}
           onKeyDown={handleMenuKey}
         >
           {options.map((opt, i) => (

@@ -1,2 +1,2 @@
-import { generateInvoicePDF } from "./pdf";
-export { generateInvoicePDF };
+import { generateInvoicePDF, generateMahnungPDF } from "./pdf";
+export { generateInvoicePDF, generateMahnungPDF };
