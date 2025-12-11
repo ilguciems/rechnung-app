@@ -1,5 +1,6 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { togglePaidSpy } from "@/tests/mocks/handlers";
 import Providers from "../../providers";
 import InvoicesListSection from "../InvoicesListSection";
 
@@ -10,7 +11,7 @@ HTMLAnchorElement.prototype.click = vi.fn();
 describe("InvoicesListSection", () => {
   const user = userEvent.setup();
 
-  it("renders invoice and interacts", async () => {
+  it("renders invoice and interacts (toggle paid and download)", async () => {
     render(
       <Providers>
         <InvoicesListSection />
@@ -21,28 +22,37 @@ describe("InvoicesListSection", () => {
       await screen.findByText("Gespeicherte Rechnungen"),
     ).toBeInTheDocument();
 
-    await waitFor(() =>
-      expect(screen.getByText("INV-123")).toBeInTheDocument(),
-    );
+    const invoiceNumberElement = await screen.findByText("INV-123");
+    expect(invoiceNumberElement).toBeInTheDocument();
 
-    await waitFor(() =>
-      expect(screen.getByText("KND-123")).toBeInTheDocument(),
-    );
+    const invoiceRow = invoiceNumberElement.closest("li");
+    expect(invoiceRow).toBeInTheDocument();
 
-    expect(screen.getByText("Offen")).toBeInTheDocument();
+    expect(
+      within(invoiceRow as HTMLElement).getByText("Offen"),
+    ).toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: /aktionen/i }));
+    const actionButton = within(invoiceRow as HTMLElement).getByRole("button", {
+      name: /aktionen/i,
+    });
+    await user.click(actionButton);
 
-    expect(await screen.findByText("Bezahlt setzen")).toBeInTheDocument();
-    expect(await screen.findByText("PDF herunterladen")).toBeInTheDocument();
+    const setPaidMenuItem = await screen.findByText(/Bezahlt setzen/i);
+    expect(setPaidMenuItem).toBeInTheDocument();
 
-    await user.click(screen.getByText("Bezahlt setzen"));
+    await user.click(setPaidMenuItem);
 
-    expect(await screen.findByText("Bezahlt")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(togglePaidSpy).toHaveBeenCalledTimes(1);
+      expect(togglePaidSpy).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 1 }),
+      );
+    });
 
-    await user.click(screen.getByRole("button", { name: /aktionen/i }));
+    await user.click(actionButton);
 
-    await user.click(screen.getByText("PDF herunterladen"));
+    const downloadMenuItem = await screen.findByText("Rechnung");
+    await user.click(downloadMenuItem);
 
     await waitFor(() => {
       expect(window.URL.createObjectURL).toHaveBeenCalled();

@@ -1,8 +1,9 @@
 "use client";
 
-import { FileText, Square, SquareCheckBig } from "lucide-react";
+import { Bell, BellRing, FileText, Square, SquareCheckBig } from "lucide-react";
 import {
   useDownloadInvoicePdf,
+  useDownloadReminderPdf,
   useInvoicesList,
   useToggleInvoicePaid,
 } from "@/hooks";
@@ -25,6 +26,17 @@ type Invoice = {
   items: InvoiceItem[];
   isPaid: boolean;
   customerNumber: string;
+  overduePaymentLevel: number | null;
+};
+
+type MahnungTitles = {
+  [key: number]: { title: string; color: string };
+};
+
+const MAHNUNG_OPTIONS: MahnungTitles = {
+  1: { title: "Zahlungserinnerung", color: "text-blue-500" },
+  2: { title: "1. Mahnung", color: "text-orange-500" },
+  3: { title: "2. Mahnung", color: "text-red-500" },
 };
 
 export default function InvoicesListSection() {
@@ -36,7 +48,9 @@ export default function InvoicesListSection() {
   const invoices = data?.data ?? [];
   const totalPages = data?.totalPages ?? 1;
 
-  const { downloadPDF, loading: pdfLoading } = useDownloadInvoicePdf();
+  const { downloadInvoice, loading: invoiceLoading } = useDownloadInvoicePdf();
+  const { downloadReminder, loading: reminderLoading } =
+    useDownloadReminderPdf();
 
   const handlePaidFilter = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setIsPaid(e.target.value);
@@ -82,88 +96,131 @@ export default function InvoicesListSection() {
           <p className="text-gray-600">Keine Rechnungen gefunden</p>
         ) : (
           <ul className="space-y-3 bg-gray-100 rounded min-h-149">
-            {invoices.map((inv: Invoice) => (
-              <li
-                key={inv.id}
-                className="flex items-center justify-between border p-3 rounded bg-white"
-              >
-                <div>
-                  <p className="font-medium">
-                    <span>{inv.invoiceNumber}</span>
-                    <span> / </span>
-                    <span>{inv.customerNumber}</span>
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    {inv.customerName} –{" "}
-                    {new Date(inv.createdAt).toLocaleDateString("de-DE")}
-                  </p>
-                  <p className="text-sm font-semibold">
-                    Gesamt:{" "}
-                    {inv.items
-                      .map((it) => it.quantity * it.unitPrice)
-                      .reduce((a, b) => a + b, 0)
-                      .toFixed(2)}{" "}
-                    €
-                  </p>
-                  {inv.isPaid ? (
-                    <p className="text-green-600 font-semibold text-sm">
-                      ✔ Bezahlt
+            {invoices.map((inv: Invoice) => {
+              const allowedLevels =
+                inv.overduePaymentLevel === null
+                  ? []
+                  : Array.from(
+                      { length: inv.overduePaymentLevel },
+                      (_, i) => i + 1,
+                    );
+              const reminderOptions = allowedLevels.map((level) => ({
+                id: `${inv.id}-mahnung-${level}`,
+                text: MAHNUNG_OPTIONS[level].title,
+                node: (
+                  <span className="flex items-center">
+                    <span aria-hidden="true">
+                      <Bell
+                        className={`w-4 h-4 mr-2 ${MAHNUNG_OPTIONS[level].color}`}
+                      />
+                    </span>
+                    <span>{MAHNUNG_OPTIONS[level].title}</span>
+                  </span>
+                ),
+                onClick: () => downloadReminder(inv.id, level),
+              }));
+              return (
+                <li
+                  key={inv.id}
+                  className="flex items-center justify-between border p-3 rounded bg-white"
+                >
+                  <div>
+                    <p className="font-medium">
+                      <span>{inv.invoiceNumber}</span>
+                      <span> / </span>
+                      <span>{inv.customerNumber}</span>
                     </p>
-                  ) : (
-                    <p className="text-red-600 font-semibold text-sm">
-                      ❌ Offen
+                    <p className="text-sm text-gray-600">
+                      {inv.customerName} –{" "}
+                      {new Date(inv.createdAt).toLocaleDateString("de-DE")}
                     </p>
-                  )}
-                </div>
-                <ActionMenu
-                  options={[
-                    {
-                      id: `${inv.id}-toggle`,
-                      text: inv.isPaid ? "Offen setzen" : "Bezahlt setzen",
-                      node: (
+                    <p className="text-sm font-semibold">
+                      Gesamt:{" "}
+                      {inv.items
+                        .map((it) => it.quantity * it.unitPrice)
+                        .reduce((a, b) => a + b, 0)
+                        .toFixed(2)}{" "}
+                      €
+                    </p>
+                    {inv.isPaid ? (
+                      <p className="text-green-600 text-sm font-semibold">
                         <span className="flex items-center">
-                          {inv.isPaid ? (
-                            <>
-                              <span aria-hidden="true">
-                                <Square className="w-4 h-4 mr-2" />
-                              </span>{" "}
-                              <span>Offen setzen</span>
-                            </>
-                          ) : (
-                            <>
-                              <span aria-hidden="true">
-                                <SquareCheckBig className="w-4 h-4 mr-2" />
-                              </span>{" "}
-                              <span>Bezahlt setzen</span>
-                            </>
-                          )}
+                          <SquareCheckBig className="w-4 h-4 mr-2" /> Bezahlt
                         </span>
-                      ),
-                      onClick: () =>
-                        togglePaid.mutate({ id: inv.id, current: inv.isPaid }),
-                    },
-                    {
-                      id: `${inv.id}-download`,
-                      text: "PDF herunterladen",
-                      node: (
-                        <span className="flex items-center">
-                          <span aria-hidden="true">
-                            <FileText className="w-4 h-4 mr-2" />
+                      </p>
+                    ) : (
+                      <p className="text-sm font-semibold">
+                        {inv.overduePaymentLevel &&
+                        inv.overduePaymentLevel > 0 ? (
+                          <span
+                            title={`für ${MAHNUNG_OPTIONS[inv.overduePaymentLevel].title} qualifiziert`}
+                            className={`${MAHNUNG_OPTIONS[inv.overduePaymentLevel].color} flex items-center`}
+                          >
+                            <BellRing className="w-4 h-4 mr-2" />
+                            <span>Zahlung überfällig</span>
                           </span>
-                          <span>PDF herunterladen</span>
-                        </span>
-                      ),
-                      onClick: () => downloadPDF(inv.id),
-                    },
-                  ]}
-                />
-              </li>
-            ))}
+                        ) : (
+                          <span className="flex items-center text-sm text-gray-600">
+                            <Square className="w-4 h-4 mr-2" /> Offen
+                          </span>
+                        )}
+                      </p>
+                    )}
+                  </div>
+                  <ActionMenu
+                    options={[
+                      {
+                        id: `${inv.id}-toggle`,
+                        text: inv.isPaid ? "Offen setzen" : "Bezahlt setzen",
+                        node: (
+                          <span className="flex items-center">
+                            {inv.isPaid ? (
+                              <>
+                                <span aria-hidden="true">
+                                  <Square className="w-4 h-4 mr-2" />
+                                </span>{" "}
+                                <span>Offen setzen</span>
+                              </>
+                            ) : (
+                              <>
+                                <span aria-hidden="true">
+                                  <SquareCheckBig className="w-4 h-4 mr-2" />
+                                </span>{" "}
+                                <span>Bezahlt setzen</span>
+                              </>
+                            )}
+                          </span>
+                        ),
+                        onClick: () =>
+                          togglePaid.mutate({
+                            id: inv.id,
+                            current: inv.isPaid,
+                          }),
+                      },
+                      {
+                        id: `${inv.id}-download`,
+                        text: "PDF herunterladen",
+                        node: (
+                          <span className="flex items-center">
+                            <span aria-hidden="true">
+                              <FileText className="w-4 h-4 mr-2" />
+                            </span>
+                            <span>Rechnung</span>
+                          </span>
+                        ),
+                        onClick: () => downloadInvoice(inv.id),
+                      },
+                      ...reminderOptions,
+                    ]}
+                  />
+                </li>
+              );
+            })}
           </ul>
         )}
         <Pagination page={page} totalPages={totalPages} onChange={setPage} />
       </div>
-      <PdfLoadingModal isLoading={pdfLoading} />
+      <PdfLoadingModal isLoading={invoiceLoading || reminderLoading} />
     </>
   );
 }

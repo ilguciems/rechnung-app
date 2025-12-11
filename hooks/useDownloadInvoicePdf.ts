@@ -7,7 +7,7 @@ import { ROUTES } from "@/lib/api-routes";
 export function useDownloadInvoicePdf() {
   const [loading, setLoading] = useState(false);
 
-  const downloadPDF = async (id: number) => {
+  const downloadInvoice = async (id: number) => {
     try {
       setLoading(true);
       const res = await fetch(ROUTES.INVOICE_PDF(id));
@@ -34,5 +34,5 @@ export function useDownloadInvoicePdf() {
     }
   };
 
-  return { downloadPDF, loading };
+  return { downloadInvoice, loading };
 }

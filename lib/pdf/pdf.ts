@@ -354,3 +354,201 @@ export async function generateInvoicePDF(
   const pdfBytes = await pdfDoc.save();
   return new Uint8Array(pdfBytes);
 }
+
+interface MahnungOptions {
+  mahngebuehr?: number;
+  deadlineDays?: number;
+  level?: 1 | 2 | 3;
+}
+
+export async function generateMahnungPDF(
+  invoice: CreatedInvoice,
+  company: Company,
+  options: MahnungOptions = {},
+): Promise<Uint8Array> {
+  const { mahngebuehr = 0, deadlineDays = 7, level = 1 } = options;
+
+  let title = "Zahlungserinnerung";
+  let introText = `uns ist aufgefallen, dass unsere Rechnung Nr. ${invoice.invoiceNumber} vom ${new Date(invoice.createdAt).toLocaleDateString("de-DE")} noch nicht beglichen wurde. Sicherlich haben Sie dies in der Hektik des Alltags nur übersehen.`;
+
+  if (level === 2) {
+    title = "1. Mahnung";
+    introText = `auf unsere Zahlungserinnerung zur Rechnung Nr. ${invoice.invoiceNumber} konnten wir leider keinen Zahlungseingang feststellen. Wir bitten Sie nun, den offenen Betrag umgehend zu begleichen.`;
+  } else if (level === 3) {
+    title = "2. Mahnung / Letzte Aufforderung";
+    introText = `da Sie auf unsere bisherigen Schreiben zur Rechnung Nr. ${invoice.invoiceNumber} nicht reagiert haben, fordern wir Sie hiermit letztmalig auf, den offenen Betrag zu überweisen.`;
+  }
+
+  const newDeadline = new Date();
+  newDeadline.setDate(newDeadline.getDate() + deadlineDays);
+  const deadlineDateStr = newDeadline.toLocaleDateString("de-DE");
+
+  const pdfDoc = await PDFDocument.create();
+  const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+  const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+
+  const page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
+  let y = PAGE_HEIGHT - TOP_MARGIN;
+
+  const logoPath = path.join(process.cwd(), "public", "assets/logo.png");
+  if (fs.existsSync(logoPath)) {
+    const logoImageBytes = fs.readFileSync(logoPath);
+    const logoImage = await pdfDoc.embedPng(logoImageBytes);
+    const logoDims = logoImage.scale(0.25);
+    page.drawImage(logoImage, {
+      x: 50,
+      y: y - logoDims.height + 20,
+      width: logoDims.width,
+      height: logoDims.height,
+    });
+  }
+
+  page.drawText(`${title}`, { x: 400, y, size: 9, font: boldFont });
+  y -= 15;
+  page.drawText(`Datum: ${new Date().toLocaleDateString("de-DE")}`, {
+    x: 400,
+    y,
+    size: 9,
+    font,
+  });
+  y -= 15;
+  page.drawText(`Orig. Rechnungs-Nr.: ${invoice.invoiceNumber}`, {
+    x: 400,
+    y,
+    size: 9,
+    font,
+  });
+
+  if (invoice.customerNumber) {
+    y -= 15;
+    page.drawText(`Kunden-Nr.: ${invoice.customerNumber}`, {
+      x: 400,
+      y,
+      size: 9,
+      font,
+    });
+  }
+  const showLegalForm =
+    company.legalForm && NAMED_REQUIRED_FORMS.includes(company.legalForm);
+  const companyName = showLegalForm
+    ? `${company.name} ${LEGAL_FORM_VALUES[company.legalForm]}`
+    : company.name;
+
+  y -= 40;
+  const companyAddress = `${companyName}, ${company.street} ${company.houseNumber}, ${company.zipCode} ${company.city}`;
+  y -= 40;
+  page.drawText(companyAddress, { x: 50, y, size: 7, font });
+  y -= 15;
+
+  page.drawText(invoice.customerName, { x: 50, y, size: 12, font });
+  y -= 15;
+  page.drawText(`${invoice.customerStreet} ${invoice.customerHouseNumber}`, {
+    x: 50,
+    y,
+    size: 12,
+    font,
+  });
+  y -= 15;
+  page.drawText(`${invoice.customerZipCode} ${invoice.customerCity}`, {
+    x: 50,
+    y,
+    size: 12,
+    font,
+  });
+
+  y -= 60;
+
+  page.drawText(title, { x: 50, y, size: 14, font: boldFont });
+  y -= 25;
+
+  const textHeight = drawWrappedText(
+    page,
+    `Sehr geehrte Damen und Herren,`,
+    50,
+    y,
+    500,
+    font,
+    11,
+  );
+  y -= textHeight + 10;
+
+  const introHeight = drawWrappedText(page, introText, 50, y, 500, font, 11);
+  y -= introHeight + 20;
+
+  const headers = ["Beschreibung", "Betrag"];
+  const colWidths = [400, 100];
+  const startX = 50;
+  const tableWidth = 500;
+
+  y = drawTableHeader(
+    page,
+    y,
+    headers,
+    colWidths,
+    startX,
+    tableWidth,
+    font,
+    boldFont,
+  );
+
+  let netTotal = 0;
+  let vatTotal = 0;
+  invoice.items.forEach((item) => {
+    const itemNet =
+      item.quantity * (item.unitPrice / (1 + (item.taxRate || 0) / 100));
+    const itemVat = itemNet * ((item.taxRate || 0) / 100);
+    netTotal += itemNet;
+    vatTotal += itemVat;
+  });
+
+  const grandTotal = company.isSubjectToVAT ? netTotal + vatTotal : netTotal;
+
+  page.drawText(`Offener Betrag aus Rechnung Nr. ${invoice.invoiceNumber}`, {
+    x: 50,
+    y,
+    size: 11,
+    font,
+  });
+  page.drawText(`${grandTotal.toFixed(2)} €`, { x: 450, y, size: 11, font });
+  y -= 20;
+
+  if (mahngebuehr > 0) {
+    page.drawText(`Mahngebühr`, { x: 50, y, size: 11, font });
+    page.drawText(`${mahngebuehr.toFixed(2)} €`, { x: 450, y, size: 11, font });
+    y -= 20;
+  }
+
+  page.drawLine({
+    start: { x: 350, y: y + 5 },
+    end: { x: 550, y: y + 5 },
+    thickness: 1,
+    color: rgb(0, 0, 0),
+  });
+
+  const totalDunning = grandTotal + mahngebuehr;
+
+  y -= 10;
+  page.drawText(`Zu zahlender Gesamtbetrag:`, {
+    x: 250,
+    y,
+    size: 12,
+    font: boldFont,
+  });
+  page.drawText(`${totalDunning.toFixed(2)} €`, {
+    x: 450,
+    y,
+    size: 12,
+    font: boldFont,
+    color: rgb(0.8, 0, 0),
+  });
+
+  y -= 40;
+
+  const closingText = `Bitte überweisen Sie den Gesamtbetrag in Höhe von ${totalDunning.toFixed(2)} € bis zum ${deadlineDateStr} auf das unten genannte Konto.`;
+  drawWrappedText(page, closingText, 50, y, 500, font, 11);
+
+  drawFooter(page, company, FOOTER_Y, font, boldFont);
+
+  const pdfBytes = await pdfDoc.save();
+  return new Uint8Array(pdfBytes);
+}
