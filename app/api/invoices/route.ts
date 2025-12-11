@@ -81,12 +81,53 @@ export async function POST(req: Request) {
     const data = createInvoiceSchema.parse(await req.json());
 
     // 2. Check company exists
-    const company = await prisma.company.findFirst();
-    if (!company) {
+
+    const companyData = await prisma.company.findFirst({
+      select: {
+        id: true,
+        name: true,
+        street: true,
+        houseNumber: true,
+        zipCode: true,
+        city: true,
+        country: true,
+        phone: true,
+        email: true,
+        iban: true,
+        bic: true,
+        bank: true,
+        logoUrl: true,
+        isSubjectToVAT: true,
+        firstTaxRate: true,
+        secondTaxRate: true,
+        legalForm: true,
+        steuernummer: true,
+        ustId: true,
+        handelsregisternummer: true,
+      },
+    });
+
+    if (!companyData) {
       return NextResponse.json(
-        { error: "No company data found. Please create company first." },
+        { error: "No company data found" },
         { status: 400 },
       );
+    }
+
+    // 2. Find latest snapshot
+    let snapshot = await prisma.companySnapshot.findFirst({
+      where: { companyId: companyData.id },
+      orderBy: { createdAt: "desc" },
+    });
+
+    // 3. Create snapshot if missing
+    if (!snapshot) {
+      snapshot = await prisma.companySnapshot.create({
+        data: {
+          ...companyData,
+          companyId: companyData.id,
+        },
+      });
     }
 
     // Normalization helper
@@ -158,7 +199,8 @@ export async function POST(req: Request) {
     const invoice = await prisma.invoice.create({
       data: {
         invoiceNumber,
-        companyId: company.id,
+        companyId: companyData.id,
+        companySnapshotId: snapshot.id,
         isPaid: false,
 
         // Insert customer fields + computed customerNumber

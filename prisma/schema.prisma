@@ -55,10 +55,45 @@ model Company {
   ustId                 String?
   handelsregisternummer String?
 
-  invoices Invoice[]
+  invoices         Invoice[]
+  companySnapshots CompanySnapshot[]
 
   @@index([createdAt])
   @@index([updatedAt])
+}
+
+model CompanySnapshot {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+
+  name        String
+  street      String
+  houseNumber String
+  zipCode     String
+  city        String
+  country     String
+
+  phone   String
+  email   String
+  iban    String
+  bic     String
+  bank    String
+  logoUrl String?
+
+  isSubjectToVAT Boolean
+  firstTaxRate   Float?
+  secondTaxRate  Float?
+
+  legalForm LegalForm
+
+  steuernummer          String?
+  ustId                 String?
+  handelsregisternummer String?
+
+  companyId Int
+  company   Company @relation(fields: [companyId], references: [id])
+
+  invoices Invoice[]
 }
 
 model Invoice {
@@ -80,9 +115,11 @@ model Invoice {
   isPaid    Boolean   @default(false)
   paidAt    DateTime?
 
-  items     Item[]
-  companyId Int
-  company   Company @relation(fields: [companyId], references: [id])
+  items             Item[]
+  companyId         Int
+  company           Company          @relation(fields: [companyId], references: [id])
+  companySnapshot   CompanySnapshot? @relation(fields: [companySnapshotId], references: [id])
+  companySnapshotId Int?
 }
 
 model Item {

@@ -17,7 +17,59 @@ export async function POST(req: Request) {
       { status: 400 },
     );
   }
+
   const company = await prisma.company.create({ data });
+
+  // Create snapshot
+  const snapshotData = (({
+    name,
+    street,
+    houseNumber,
+    zipCode,
+    city,
+    country,
+    phone,
+    email,
+    iban,
+    bic,
+    bank,
+    logoUrl,
+    isSubjectToVAT,
+    firstTaxRate,
+    secondTaxRate,
+    legalForm,
+    steuernummer,
+    ustId,
+    handelsregisternummer,
+  }) => ({
+    name,
+    street,
+    houseNumber,
+    zipCode,
+    city,
+    country,
+    phone,
+    email,
+    iban,
+    bic,
+    bank,
+    logoUrl,
+    isSubjectToVAT,
+    firstTaxRate,
+    secondTaxRate,
+    legalForm,
+    steuernummer,
+    ustId,
+    handelsregisternummer,
+  }))(company);
+
+  await prisma.companySnapshot.create({
+    data: {
+      companyId: company.id,
+      ...snapshotData,
+    },
+  });
+
   return NextResponse.json(company);
 }
 
@@ -36,6 +88,56 @@ export async function PATCH(req: Request) {
   const updated = await prisma.company.update({
     where: { id: company.id },
     data,
+  });
+
+  // snapshot
+  const snapshotFields = (({
+    name,
+    street,
+    houseNumber,
+    zipCode,
+    city,
+    country,
+    phone,
+    email,
+    iban,
+    bic,
+    bank,
+    logoUrl,
+    isSubjectToVAT,
+    firstTaxRate,
+    secondTaxRate,
+    legalForm,
+    steuernummer,
+    ustId,
+    handelsregisternummer,
+  }) => ({
+    name,
+    street,
+    houseNumber,
+    zipCode,
+    city,
+    country,
+    phone,
+    email,
+    iban,
+    bic,
+    bank,
+    logoUrl,
+    isSubjectToVAT,
+    firstTaxRate,
+    secondTaxRate,
+    legalForm,
+    steuernummer,
+    ustId,
+    handelsregisternummer,
+  }))(updated);
+
+  await prisma.companySnapshot.create({
+    data: {
+      companyId: updated.id,
+      ...snapshotFields,
+    },
   });
 
   return NextResponse.json(updated);
