@@ -15,23 +15,21 @@ export async function GET(
 
   const invoice = await prisma.invoice.findUnique({
     where: { id: Number(id) },
-    include: { items: true },
+    include: { items: true, companySnapshot: true },
   });
-
-  const company = await prisma.company.findFirst();
-
-  if (!company) {
-    return NextResponse.json(
-      { error: "No company data found" },
-      { status: 400 },
-    );
-  }
 
   if (!invoice) {
     return NextResponse.json({ error: "Invoice not found" }, { status: 404 });
   }
 
-  const pdfBuffer = await generateMahnungPDF(invoice, company, {
+  if (!invoice.companySnapshot) {
+    return NextResponse.json(
+      { error: "Company snapshot is missing for this invoice" },
+      { status: 500 },
+    );
+  }
+
+  const pdfBuffer = await generateMahnungPDF(invoice, invoice.companySnapshot, {
     mahngebuehr: fee,
     deadlineDays: days,
     level: level as 1 | 2 | 3,

@@ -30,19 +30,51 @@ CREATE TABLE "public"."Company" (
 );
 
 -- CreateTable
+CREATE TABLE "public"."CompanySnapshot" (
+    "id" SERIAL NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "name" TEXT NOT NULL,
+    "street" TEXT NOT NULL,
+    "houseNumber" TEXT NOT NULL,
+    "zipCode" TEXT NOT NULL,
+    "city" TEXT NOT NULL,
+    "country" TEXT NOT NULL,
+    "phone" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "iban" TEXT NOT NULL,
+    "bic" TEXT NOT NULL,
+    "bank" TEXT NOT NULL,
+    "logoUrl" TEXT,
+    "isSubjectToVAT" BOOLEAN NOT NULL,
+    "firstTaxRate" DOUBLE PRECISION,
+    "secondTaxRate" DOUBLE PRECISION,
+    "legalForm" "public"."LegalForm" NOT NULL,
+    "steuernummer" TEXT,
+    "ustId" TEXT,
+    "handelsregisternummer" TEXT,
+    "companyId" INTEGER NOT NULL,
+
+    CONSTRAINT "CompanySnapshot_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "public"."Invoice" (
     "id" SERIAL NOT NULL,
     "invoiceNumber" TEXT NOT NULL,
     "customerName" TEXT NOT NULL,
+    "customerNumber" TEXT,
     "customerStreet" TEXT NOT NULL,
     "customerHouseNumber" TEXT NOT NULL,
     "customerZipCode" TEXT NOT NULL,
     "customerCity" TEXT NOT NULL,
     "customerCountry" TEXT NOT NULL DEFAULT 'Deutschland',
+    "customerEmail" TEXT,
+    "customerPhone" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "isPaid" BOOLEAN NOT NULL DEFAULT false,
     "paidAt" TIMESTAMP(3),
     "companyId" INTEGER NOT NULL,
+    "companySnapshotId" INTEGER,
 
     CONSTRAINT "Invoice_pkey" PRIMARY KEY ("id")
 );
@@ -69,7 +101,13 @@ CREATE INDEX "Company_updatedAt_idx" ON "public"."Company"("updatedAt");
 CREATE UNIQUE INDEX "Invoice_invoiceNumber_key" ON "public"."Invoice"("invoiceNumber");
 
 -- AddForeignKey
+ALTER TABLE "public"."CompanySnapshot" ADD CONSTRAINT "CompanySnapshot_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "public"."Company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "public"."Invoice" ADD CONSTRAINT "Invoice_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "public"."Company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."Invoice" ADD CONSTRAINT "Invoice_companySnapshotId_fkey" FOREIGN KEY ("companySnapshotId") REFERENCES "public"."CompanySnapshot"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "public"."Item" ADD CONSTRAINT "Item_invoiceId_fkey" FOREIGN KEY ("invoiceId") REFERENCES "public"."Invoice"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
