@@ -18,7 +18,12 @@ export async function POST(req: Request) {
     );
   }
 
-  const company = await prisma.company.create({ data });
+  const company = await prisma.company.create({
+    data: {
+      logoUrl: "/assets/logo.png",
+      ...data,
+    },
+  });
 
   // Create snapshot
   const snapshotData = (({
