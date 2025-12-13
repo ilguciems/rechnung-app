@@ -1,9 +1,11 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
+import { useCompanyLogo } from "@/hooks";
 import { type UploadData, uploadSchema } from "@/lib/zod-schema";
 import ImageWithFallback from "./ImageWithFallback";
 import { useUpload } from "./useUpload";
@@ -17,7 +19,11 @@ export default function UploadLogoSection() {
     resolver: zodResolver(uploadSchema),
   });
 
+  const queryClient = useQueryClient();
+
   const [cacheBuster, setCacheBuster] = useState<number | null>(null);
+
+  const { data: logo } = useCompanyLogo();
 
   useEffect(() => {
     setCacheBuster(Date.now());
@@ -29,6 +35,7 @@ export default function UploadLogoSection() {
     upload(data.file[0], {
       onSuccess: () => {
         setCacheBuster(Date.now());
+        queryClient.invalidateQueries({ queryKey: ["company-logo"] });
         toast.success("Logo hochgeladen!");
       },
       onError: () => toast.error("Fehler beim Hochladen des Logos"),
@@ -40,7 +47,7 @@ export default function UploadLogoSection() {
         <div className="flex flex-col items-center sm:w-60 w-full">
           <div className="sm:w-60 w-full h-28 rounded border border-gray-300 bg-white flex items-center justify-center overflow-hidden shadow-sm">
             <ImageWithFallback
-              src={`/assets/logo.png?ts=${cacheBuster}`}
+              src={logo?.logoUrl ?? `/assets/logo.png?ts=${cacheBuster}`}
               fallBackSrc={`/assets/noimage.png?ts=${cacheBuster}`}
               height={0}
               alt="Logo"
