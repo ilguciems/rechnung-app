@@ -1,8 +1,8 @@
 -- CreateEnum
-CREATE TYPE "public"."LegalForm" AS ENUM ('KLEINGEWERBE', 'FREIBERUFLER', 'GBR', 'EINZELKAUFMANN', 'OHG', 'KG', 'GMBH_CO_KG', 'GMBH', 'UG', 'AG', 'KGaA', 'SE', 'EWIV');
+CREATE TYPE "LegalForm" AS ENUM ('KLEINGEWERBE', 'FREIBERUFLER', 'GBR', 'EINZELKAUFMANN', 'OHG', 'KG', 'GMBH_CO_KG', 'GMBH', 'UG', 'AG', 'KGaA', 'SE', 'EWIV');
 
 -- CreateTable
-CREATE TABLE "public"."Company" (
+CREATE TABLE "Company" (
     "id" SERIAL NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -21,7 +21,7 @@ CREATE TABLE "public"."Company" (
     "isSubjectToVAT" BOOLEAN NOT NULL DEFAULT false,
     "firstTaxRate" DOUBLE PRECISION,
     "secondTaxRate" DOUBLE PRECISION,
-    "legalForm" "public"."LegalForm" NOT NULL DEFAULT 'KLEINGEWERBE',
+    "legalForm" "LegalForm" NOT NULL DEFAULT 'KLEINGEWERBE',
     "steuernummer" TEXT,
     "ustId" TEXT,
     "handelsregisternummer" TEXT,
@@ -30,7 +30,7 @@ CREATE TABLE "public"."Company" (
 );
 
 -- CreateTable
-CREATE TABLE "public"."CompanySnapshot" (
+CREATE TABLE "CompanySnapshot" (
     "id" SERIAL NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "name" TEXT NOT NULL,
@@ -48,7 +48,7 @@ CREATE TABLE "public"."CompanySnapshot" (
     "isSubjectToVAT" BOOLEAN NOT NULL,
     "firstTaxRate" DOUBLE PRECISION,
     "secondTaxRate" DOUBLE PRECISION,
-    "legalForm" "public"."LegalForm" NOT NULL,
+    "legalForm" "LegalForm" NOT NULL,
     "steuernummer" TEXT,
     "ustId" TEXT,
     "handelsregisternummer" TEXT,
@@ -58,7 +58,7 @@ CREATE TABLE "public"."CompanySnapshot" (
 );
 
 -- CreateTable
-CREATE TABLE "public"."Invoice" (
+CREATE TABLE "Invoice" (
     "id" SERIAL NOT NULL,
     "invoiceNumber" TEXT NOT NULL,
     "customerName" TEXT NOT NULL,
@@ -80,7 +80,7 @@ CREATE TABLE "public"."Invoice" (
 );
 
 -- CreateTable
-CREATE TABLE "public"."Item" (
+CREATE TABLE "Item" (
     "id" SERIAL NOT NULL,
     "description" TEXT NOT NULL,
     "quantity" INTEGER NOT NULL,
@@ -92,22 +92,22 @@ CREATE TABLE "public"."Item" (
 );
 
 -- CreateIndex
-CREATE INDEX "Company_createdAt_idx" ON "public"."Company"("createdAt");
+CREATE INDEX "Company_createdAt_idx" ON "Company"("createdAt");
 
 -- CreateIndex
-CREATE INDEX "Company_updatedAt_idx" ON "public"."Company"("updatedAt");
+CREATE INDEX "Company_updatedAt_idx" ON "Company"("updatedAt");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Invoice_invoiceNumber_key" ON "public"."Invoice"("invoiceNumber");
+CREATE UNIQUE INDEX "Invoice_invoiceNumber_key" ON "Invoice"("invoiceNumber");
 
 -- AddForeignKey
-ALTER TABLE "public"."CompanySnapshot" ADD CONSTRAINT "CompanySnapshot_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "public"."Company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "CompanySnapshot" ADD CONSTRAINT "CompanySnapshot_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."Invoice" ADD CONSTRAINT "Invoice_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "public"."Company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Invoice" ADD CONSTRAINT "Invoice_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."Invoice" ADD CONSTRAINT "Invoice_companySnapshotId_fkey" FOREIGN KEY ("companySnapshotId") REFERENCES "public"."CompanySnapshot"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Invoice" ADD CONSTRAINT "Invoice_companySnapshotId_fkey" FOREIGN KEY ("companySnapshotId") REFERENCES "CompanySnapshot"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."Item" ADD CONSTRAINT "Item_invoiceId_fkey" FOREIGN KEY ("invoiceId") REFERENCES "public"."Invoice"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Item" ADD CONSTRAINT "Item_invoiceId_fkey" FOREIGN KEY ("invoiceId") REFERENCES "Invoice"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
