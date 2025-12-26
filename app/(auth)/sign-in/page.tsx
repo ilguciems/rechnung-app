@@ -1,13 +1,14 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
-import { MainPage } from "./components";
+import SignInForm from "./components/SignInForm";
 
-export default async function Home() {
+export default async function SignInPage() {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
 
-  if (!session) redirect("/sign-in");
-  return <MainPage />;
+  if (session) redirect("/");
+
+  return <SignInForm />;
 }

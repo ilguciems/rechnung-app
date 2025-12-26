@@ -117,10 +117,8 @@ export default function InvoiceSection() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      <div
-        ref={invoiceFormRef}
-        className="flex flex-col sm:flex-row gap-3 justify-between pt-3"
-      >
+      <div className="py-6" ref={invoiceFormRef} />
+      <div className="flex flex-col sm:flex-row gap-3 justify-between pt-3">
         <h2 className="text-xl font-semibold order-last sm:order-first">
           Neue Rechnung
         </h2>

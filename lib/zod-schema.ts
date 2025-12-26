@@ -240,3 +240,79 @@ export const uploadSchema = z.object({
 });
 
 export type UploadData = z.infer<typeof uploadSchema>;
+
+// Auth schemas
+
+export const signUpSchema = z
+  .object({
+    name: z.string().min(5, { message: "Muss mindestens 5 Zeichen lang sein" }),
+    email: z.email({ message: "Ungültige E-Mail" }),
+    password: z
+      .string()
+      .min(8, { message: "Muss mindestens 8 Zeichen lang sein" }),
+    confirmPassword: z
+      .string()
+      .min(8, { message: "Muss mindestens 8 Zeichen lang sein" }),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Die Passwörter stimmen nicht überein.",
+    path: ["confirmPassword"],
+  });
+
+export type SignUpType = z.infer<typeof signUpSchema>;
+
+export const signInSchema = z.object({
+  email: z.email({ message: "Ungültige E-Mail" }),
+  password: z
+    .string()
+    .min(8, { message: "Muss mindestens 8 Zeichen lang sein" }),
+});
+
+export type SignInType = z.infer<typeof signInSchema>;
+
+export const forgotPasswordSchema = z.object({
+  email: z.email({ message: "Ungültige E-Mail" }),
+});
+
+export type ForgotPasswordType = z.infer<typeof forgotPasswordSchema>;
+
+export const emailVerificationSchema = z.object({
+  email: z.email({ message: "Ungültige E-Mail" }),
+});
+
+export type emailVerificationType = z.infer<typeof emailVerificationSchema>;
+
+export const resetPasswordSchema = z
+  .object({
+    password: z
+      .string()
+      .min(8, { message: "Muss mindestens 8 Zeichen lang sein" }),
+    confirmPassword: z
+      .string()
+      .min(8, { message: "Muss mindestens 8 Zeichen lang sein" }),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Die Passwörter stimmen nicht überein.",
+    path: ["confirmPassword"],
+  });
+
+export type ResetPasswordType = z.infer<typeof resetPasswordSchema>;
+
+export const changePasswordSchema = z
+  .object({
+    currentPassword: z
+      .string()
+      .min(8, { message: "Muss mindestens 8 Zeichen lang sein" }),
+    newPassword: z
+      .string()
+      .min(8, { message: "Muss mindestens 8 Zeichen lang sein" }),
+    confirmPassword: z
+      .string()
+      .min(8, { message: "Muss mindestens 8 Zeichen lang sein" }),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Die Passwörter stimmen nicht überein.",
+    path: ["confirmPassword"],
+  });
+
+export type ChangePasswordType = z.infer<typeof changePasswordSchema>;
