@@ -6,17 +6,6 @@ import { admin } from "better-auth/plugins";
 import { prisma } from "@/lib/prisma-client";
 import { sendAuthorizationEmail } from "@/utils/authorization-email";
 
-async function getRole() {
-  try {
-    const usersCount = await prisma.user.count();
-    return usersCount === 0 ? "admin" : "user";
-  } catch (error) {
-    console.error("Error fetching users count:", error);
-    console.error("Database is not reachable. Defaulting to 'user' role.");
-    return "user";
-  }
-}
-
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql",
@@ -41,9 +30,27 @@ export const auth = betterAuth({
       });
     },
   },
+  databaseHooks: {
+    user: {
+      create: {
+        before: async (user) => {
+          const usersCount = await prisma.user.count();
+
+          if (usersCount === 0) {
+            return {
+              data: {
+                ...user,
+                role: "admin",
+              },
+            };
+          }
+        },
+      },
+    },
+  },
   plugins: [
     admin({
-      defaultRole: await getRole(),
+      defaultRole: "user",
     }),
     nextCookies(),
   ],
