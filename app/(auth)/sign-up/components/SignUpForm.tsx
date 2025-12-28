@@ -36,10 +36,12 @@ export default function SignUpForm() {
           setLoading(true);
         },
         onSuccess: () => {
-          reset();
-          setLoading(false);
           router.push(`/verify-email?email=${encodeURIComponent(email)}`);
           toast.success("Konto erstellt!");
+        },
+        onCallback: () => {
+          reset();
+          setLoading(false);
         },
         onError: (ctx) => {
           setLoading(false);
