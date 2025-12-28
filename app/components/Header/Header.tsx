@@ -1,5 +1,5 @@
 "use client";
-import { LogOut } from "lucide-react";
+import { Activity, LogOut, UserRoundCog } from "lucide-react";
 import Link from "next/link";
 import { useTimer } from "@/context/TimerContext";
 import { useSession } from "@/lib/auth-client";
@@ -16,16 +16,20 @@ export default function Header() {
   return (
     <nav className="flex justify-between items-center px-4 py-2 bg-gray-100 z-50 sticky top-0">
       <Link href="/">
-        <h1 className="text-2xl font-bold">Invoice App</h1>
+        <h1 className="text-2xl font-bold flex items-center hover:underline">
+          I<Activity />
+          voice
+        </h1>
       </Link>
       {session && (
         <div className="flex items-center gap-2">
           <HeaderTimer />
           <Link
-            className="text-sm hover:underline"
+            className="p-2 cursor-pointer bg-black rounded-full hover:bg-gray-800"
             href={`/profile/${session.user.id}`}
+            title={`Profile von ${session.user.name}`}
           >
-            {session.user.name}
+            <UserRoundCog color="white" className="w-6 h-6" />
           </Link>
           {session.user.role === "admin" && (
             <Link className="text-sm hover:underline" href="/admin">
