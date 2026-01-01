@@ -1,12 +1,9 @@
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { auth } from "@/lib/auth";
+import { getAuthData } from "@/lib/get-auth-data";
 import ResetPasswordForm from "./components/ResetPasswordForm";
 
 export default async function Profile({ params }: { params: { id: string } }) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await getAuthData();
 
   const { id: paramsId } = await params;
 
@@ -21,7 +18,8 @@ export default async function Profile({ params }: { params: { id: string } }) {
   const userName = session?.user.name;
   const userEmail = session?.user.email;
   const userId = session?.user.id;
-  const userRole = session?.user.role;
+  const userRole = session?.user.role || "-";
+  const orgRole = session?.org?.role || "-";
   const createdAt = (session?.user.createdAt as Date) || 0;
   const updatedAt = (session?.user.updatedAt as Date) || 0;
 
@@ -37,7 +35,10 @@ export default async function Profile({ params }: { params: { id: string } }) {
             <span className="font-semibold">E-Mail:</span> {userEmail}
           </p>
           <p className="text-sm text-gray-800">
-            <span className="font-semibold">Rolle:</span> {userRole}
+            <span className="font-semibold">Globale Rolle:</span> {userRole}
+          </p>
+          <p className="text-sm text-gray-800">
+            <span className="font-semibold">Organisationsrolle:</span> {orgRole}
           </p>
           <p className="text-sm text-gray-800">
             <span className="font-semibold">ID:</span> {userId}
