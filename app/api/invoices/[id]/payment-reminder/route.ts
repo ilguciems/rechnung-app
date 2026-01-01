@@ -14,7 +14,7 @@ export async function GET(
   const level = parseInt(searchParams.get("level") || "1", 10);
 
   const invoice = await prisma.invoice.findUnique({
-    where: { id: Number(id) },
+    where: { id },
     include: { items: true, companySnapshot: true },
   });
 

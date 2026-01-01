@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "react-hot-toast";
+import { TimerProvider } from "@/context/TimerContext";
+import { Header, LogoutWrapper, SessionTimerUI } from "./components";
 import Providers from "./providers";
 import "./globals.css";
 
@@ -30,10 +32,16 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         cz-shortcut-listen="true"
       >
-        <Providers>
-          {children}
-          <Toaster position="top-right" reverseOrder={false} />
-        </Providers>
+        <LogoutWrapper>
+          <TimerProvider>
+            <Providers>
+              <Header />
+              {children}
+              <Toaster position="top-right" reverseOrder={false} />
+              <SessionTimerUI />
+            </Providers>
+          </TimerProvider>
+        </LogoutWrapper>
       </body>
     </html>
   );

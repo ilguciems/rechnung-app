@@ -1,12 +1,43 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+import { headers } from "next/headers";
 import { NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma-client";
 
 export async function GET() {
-  const company = await prisma.company.findFirst({
-    select: { logoUrl: true },
+  const session = await auth.api.getSession({
+    headers: await headers(),
   });
+
+  if (!session) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const userId = session.user.id;
+
+  const organization = await prisma.organization.findFirst({
+    where: {
+      members: {
+        some: {
+          userId,
+        },
+      },
+    },
+    select: {
+      company: {
+        select: {
+          logoUrl: true,
+        },
+      },
+    },
+  });
+
+  if (!organization) {
+    return NextResponse.json(null);
+  }
+
+  const company = organization?.company;
 
   return NextResponse.json({
     logoUrl: company?.logoUrl ?? null,
@@ -15,6 +46,35 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const userId = session.user.id;
+
+    const organization = await prisma.organization.findFirst({
+      where: {
+        members: {
+          some: {
+            userId,
+          },
+        },
+      },
+      select: {
+        company: {
+          select: {
+            id: true,
+            logoUrl: true,
+          },
+        },
+      },
+    });
+
+    const company = organization?.company;
     const formData = await req.formData();
     const file = formData.get("file") as File;
 
@@ -25,14 +85,12 @@ export async function POST(req: Request) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = new Uint8Array(arrayBuffer);
 
-    const company = await prisma.company.findFirst();
-
     let fileName: string;
 
     if (!company) {
-      fileName = "logo.png";
+      fileName = `logo_${userId}.png`;
     } else {
-      fileName = `logo_${Date.now()}.png`;
+      fileName = `logo_${company.id}_${Date.now()}.png`;
     }
 
     const filePath = path.join(process.cwd(), "public", "assets", fileName);

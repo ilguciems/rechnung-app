@@ -1,9 +1,11 @@
-import type { Prisma } from "../../generated/prisma/client";
+import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma-client";
 import { validateQuery } from "@/lib/validateQuery";
 import { invoiceSchema as createInvoiceSchema } from "@/lib/zod-schema";
+import type { Prisma } from "../../generated/prisma/client";
 
 const querySchema = z.object({
   search: z.string().optional(),
@@ -31,11 +33,37 @@ function calculateOverduePaymentLevel(invoice: {
 }
 
 export async function GET(req: Request) {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  const userId = session.user.id;
+  const membership = await prisma.organizationMember.findFirst({
+    where: { userId },
+    include: {
+      organization: {
+        include: {
+          company: true,
+        },
+      },
+    },
+  });
+
+  if (!membership?.organization.company) {
+    return NextResponse.json({ error: "No company" }, { status: 400 });
+  }
+
+  const companyId = membership.organization.company.id;
+
   return validateQuery(
     req,
     querySchema,
     async ({ search, isPaid, page, pageSize }: QueryType) => {
       const where: Prisma.InvoiceWhereInput = {
+        companyId,
         AND: [
           search
             ? {
@@ -77,35 +105,63 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
     // 1. Validate input
     const data = createInvoiceSchema.parse(await req.json());
+    const userId = session.user.id;
+    const organization = await prisma.organization.findFirst({
+      where: {
+        members: {
+          some: {
+            userId,
+          },
+        },
+      },
+      select: {
+        company: {
+          select: {
+            id: true,
+            name: true,
+            street: true,
+            houseNumber: true,
+            zipCode: true,
+            city: true,
+            country: true,
+            phone: true,
+            email: true,
+            iban: true,
+            bic: true,
+            bank: true,
+            logoUrl: true,
+            isSubjectToVAT: true,
+            firstTaxRate: true,
+            secondTaxRate: true,
+            legalForm: true,
+            steuernummer: true,
+            ustId: true,
+            handelsregisternummer: true,
+          },
+        },
+      },
+    });
+
+    if (!organization?.company) {
+      return NextResponse.json(
+        { error: "Organization has no company" },
+        { status: 400 },
+      );
+    }
 
     // 2. Check company exists
 
-    const companyData = await prisma.company.findFirst({
-      select: {
-        id: true,
-        name: true,
-        street: true,
-        houseNumber: true,
-        zipCode: true,
-        city: true,
-        country: true,
-        phone: true,
-        email: true,
-        iban: true,
-        bic: true,
-        bank: true,
-        logoUrl: true,
-        isSubjectToVAT: true,
-        firstTaxRate: true,
-        secondTaxRate: true,
-        legalForm: true,
-        steuernummer: true,
-        ustId: true,
-        handelsregisternummer: true,
-      },
-    });
+    const companyData = organization?.company;
+    const companyId = companyData?.id;
 
     if (!companyData) {
       return NextResponse.json(
@@ -147,6 +203,7 @@ export async function POST(req: Request) {
 
     // Load all unique customers (one record per customerNumber)
     const existingCustomers = await prisma.invoice.findMany({
+      where: { companyId },
       select: {
         customerName: true,
         customerStreet: true,
@@ -199,7 +256,7 @@ export async function POST(req: Request) {
     const invoice = await prisma.invoice.create({
       data: {
         invoiceNumber,
-        companyId: companyData.id,
+        companyId,
         companySnapshotId: snapshot.id,
         isPaid: false,
 

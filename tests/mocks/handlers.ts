@@ -135,9 +135,9 @@ export const handlers = [
 
   http.patch("/api/invoices/:id", async ({ request, params }) => {
     const { id } = params;
-    togglePaidSpy({ id: Number(id), request: request.clone() });
+    togglePaidSpy({ id, request: request.clone() });
 
-    return HttpResponse.json({ id: Number(id), isPaid: true }, { status: 200 });
+    return HttpResponse.json({ id, isPaid: true }, { status: 200 });
   }),
 
   http.all(/\/api\/.*/, ({ request }) => {

@@ -1,8 +1,29 @@
+import { headers } from "next/headers";
 import { NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma-client";
 
 export async function GET(req: Request) {
   try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const membership = await prisma.organizationMember.findFirst({
+      where: { userId: session.user.id },
+      include: { organization: { include: { company: true } } },
+    });
+
+    if (!membership?.organization.company) {
+      return NextResponse.json(null);
+    }
+
+    const company = membership.organization.company;
+
     const { searchParams } = new URL(req.url);
     const type = searchParams.get("type"); // 'customers' | 'products'
     const q = searchParams.get("search")?.trim().toLowerCase() ?? "";
@@ -16,7 +37,12 @@ export async function GET(req: Request) {
 
     if (type === "customers") {
       const customers = await prisma.invoice.findMany({
-        where: q ? { customerName: { contains: q, mode: "insensitive" } } : {},
+        where: q
+          ? {
+              companyId: company.id,
+              customerName: { contains: q, mode: "insensitive" },
+            }
+          : { companyId: company.id },
         select: {
           id: true,
           customerName: true,
@@ -46,7 +72,19 @@ export async function GET(req: Request) {
 
     if (type === "products") {
       const products = await prisma.item.findMany({
-        where: q ? { description: { contains: q, mode: "insensitive" } } : {},
+        where: {
+          invoice: {
+            companyId: company.id,
+          },
+          ...(q
+            ? {
+                description: {
+                  contains: q,
+                  mode: "insensitive",
+                },
+              }
+            : {}),
+        },
         select: {
           id: true,
           description: true,

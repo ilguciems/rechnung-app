@@ -6,7 +6,7 @@ export async function PATCH(req: Request, context: { params: { id: string } }) {
   const { isPaid } = await req.json();
 
   const invoice = await prisma.invoice.update({
-    where: { id: Number(id) },
+    where: { id },
     data: {
       isPaid,
       paidAt: isPaid ? new Date() : null,
