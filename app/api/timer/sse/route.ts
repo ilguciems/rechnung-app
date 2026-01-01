@@ -6,6 +6,7 @@ export async function GET(req: Request) {
   const responseStream = new ReadableStream({
     async start(controller) {
       const encoder = new TextEncoder();
+      let timeoutId: NodeJS.Timeout;
 
       const sendUpdate = async () => {
         const cookieStore = await cookies();
@@ -15,23 +16,35 @@ export async function GET(req: Request) {
           controller.enqueue(
             encoder.encode(`data: ${JSON.stringify({ timeLeft: null })}\n\n`),
           );
-          return;
+          return 1000;
         }
 
         const expiresAt = parseInt(timerCookie, 10);
-        const now = Date.now();
-        const timeLeft = Math.max(0, Math.floor((expiresAt - now) / 1000));
+        const timeLeft = Math.max(
+          0,
+          Math.floor((expiresAt - Date.now()) / 1000),
+        );
 
         controller.enqueue(
           encoder.encode(`data: ${JSON.stringify({ timeLeft })}\n\n`),
         );
+
+        return timeLeft > 360 ? 30000 : 1000;
       };
 
-      const interval = setInterval(sendUpdate, 1000);
-      await sendUpdate();
+      const run = async () => {
+        try {
+          const nextTick = await sendUpdate();
+          timeoutId = setTimeout(run, nextTick);
+        } catch (e) {
+          controller.error(e);
+        }
+      };
+
+      run();
 
       req.signal.addEventListener("abort", () => {
-        clearInterval(interval);
+        clearTimeout(timeoutId);
         controller.close();
       });
     },

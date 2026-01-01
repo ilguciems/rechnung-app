@@ -6,6 +6,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useRef,
   useState,
 } from "react";
 import { signOut, useSession } from "@/lib/auth-client";
@@ -20,13 +21,18 @@ interface TimerContextType {
 
 const TimerContext = createContext<TimerContextType | undefined>(undefined);
 
-export const WARNING_TIME = 300; // 5 минут
+export const WARNING_TIME = 300; // 5 min
 
 export function TimerProvider({ children }: { children: React.ReactNode }) {
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const [timerVersion, setTimerVersion] = useState(0);
   const { data: session, isPending } = useSession();
   const pathname = usePathname();
+
+  const isPendingRef = useRef(isPending);
+  useEffect(() => {
+    isPendingRef.current = isPending;
+  }, [isPending]);
 
   const handleLogout = useCallback(
     async (reason: "expired" | "manual" = "expired") => {
@@ -35,8 +41,6 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
       bc.close();
 
       const currentPath = window.location.pathname + window.location.search;
-      const encodedPath = encodeURIComponent(currentPath);
-
       await signOut();
 
       try {
@@ -47,8 +51,8 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
 
       const url =
         reason === "expired"
-          ? `/sign-in?callbackUrl=${encodedPath}&reason=session_expired`
-          : `/sign-in?callbackUrl=${encodedPath}`;
+          ? `/sign-in?callbackUrl=${encodeURIComponent(currentPath)}&reason=session_expired`
+          : `/sign-in?callbackUrl=${encodeURIComponent(currentPath)}`;
 
       window.location.href = url;
     },
@@ -57,9 +61,7 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
 
   const resetTimer = useCallback(async () => {
     const res = await fetch("/api/timer/reset", { method: "POST" });
-    if (res.ok) {
-      setTimerVersion((prev) => prev + 1);
-    }
+    if (res.ok) setTimerVersion((prev) => prev + 1);
   }, []);
 
   useEffect(() => {
@@ -68,31 +70,51 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    const eventSource = new EventSource(`/api/timer/sse?v=${timerVersion}`);
+    let eventSource: EventSource;
 
-    eventSource.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      const serverTime = data.timeLeft;
+    const connectSSE = () => {
+      if (eventSource) eventSource.close();
 
-      if (serverTime === null) {
-        if (session) {
-          console.warn("Timer cookie missing, recovering...");
-          resetTimer();
+      eventSource = new EventSource(
+        `/api/timer/sse?v=${timerVersion}&t=${Date.now()}`,
+      );
+
+      eventSource.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        const serverTime = data.timeLeft;
+
+        if (serverTime === null) {
+          if (session) resetTimer();
+          setTimeLeft(null);
+          return;
         }
-        setTimeLeft(null);
-        return;
-      }
 
-      setTimeLeft(serverTime);
+        setTimeLeft(serverTime);
 
-      if (serverTime <= 0) {
+        if (serverTime <= 0) {
+          eventSource.close();
+          handleLogout();
+        }
+      };
+
+      eventSource.onerror = () => {
         eventSource.close();
-        handleLogout();
-      }
+      };
     };
 
-    eventSource.onerror = () => eventSource.close();
-    return () => eventSource.close();
+    connectSSE();
+
+    const handleFocus = () => {
+      console.log("Window focused, syncing timer...");
+      connectSSE();
+    };
+
+    window.addEventListener("focus", handleFocus);
+
+    return () => {
+      window.removeEventListener("focus", handleFocus);
+      if (eventSource) eventSource.close();
+    };
   }, [session, isPending, timerVersion, pathname, handleLogout, resetTimer]);
 
   return (
