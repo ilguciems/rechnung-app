@@ -1,3 +1,4 @@
+import { useAuth } from "./useAuth";
 import { useCompany } from "./useCompany";
 import { useCompanyLogo } from "./useCompanyLogo";
 import { useCreateInvoice } from "./useCreateInvoice";
@@ -15,3 +16,4 @@ export { useCreateInvoice };
 export { useSaveCompany };
 export { useDownloadReminderPdf };
 export { useCompanyLogo };
+export { useAuth };
