@@ -316,3 +316,14 @@ export const changePasswordSchema = z
   });
 
 export type ChangePasswordType = z.infer<typeof changePasswordSchema>;
+
+export const sendInviteSchema = z.object({
+  email: z.email({ message: "Ungültige E-Mail" }),
+  role: z.enum(["admin", "member"]),
+});
+
+export type SendInviteType = z.infer<typeof sendInviteSchema>;
+
+export const organizationNameSchema = z.object({ name: z.string().min(2) });
+
+export type OrganizationNameType = z.infer<typeof organizationNameSchema>;
