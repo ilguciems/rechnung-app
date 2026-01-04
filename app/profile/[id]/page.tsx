@@ -24,7 +24,7 @@ export default async function Profile({ params }: { params: { id: string } }) {
   const updatedAt = (session?.user.updatedAt as Date) || 0;
 
   return (
-    <main className="p-6 max-w-3xl mx-auto space-y-8">
+    <div className="p-6 max-w-3xl mx-auto space-y-8">
       <section className="border border-gray-100 p-4 rounded-xl">
         <div className="grid grid-cols-1 gap-3 max-w-md mx-auto">
           <h1 className="text-2xl mb-6">Profile</h1>
@@ -54,6 +54,6 @@ export default async function Profile({ params }: { params: { id: string } }) {
         </div>
       </section>
       <ResetPasswordForm />
-    </main>
+    </div>
   );
 }

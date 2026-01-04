@@ -36,7 +36,7 @@ export default function RootLayout({
           <TimerProvider>
             <Providers>
               <Header />
-              {children}
+              <main>{children}</main>
               <Toaster position="top-right" reverseOrder={false} />
               <SessionTimerUI />
             </Providers>
