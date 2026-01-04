@@ -1,12 +1,14 @@
-"use client";
 import { Activity, ShieldUser, UserRoundCog } from "lucide-react";
 import Link from "next/link";
+import { getAuthData } from "@/lib/get-auth-data";
 
-import { useAuth } from "@/hooks";
 import { HeaderTimer, LogoutButton } from "./components";
 
-export default function Header() {
-  const { session, isLoading, isGlobalAdmin, isOrgAdmin, orgId } = useAuth();
+export default async function Header() {
+  const session = await getAuthData();
+  const isGlobalAdmin = session?.user.role === "admin";
+  const isOrgAdmin = session?.org?.role === "admin";
+  const orgId = session?.org?.id;
 
   return (
     <header className="sticky top-0 z-[200]">
@@ -17,7 +19,7 @@ export default function Header() {
             voice
           </h1>
         </Link>
-        {session && !isLoading && (
+        {session && (
           <div className="flex items-center gap-2">
             <HeaderTimer />
             <Link
