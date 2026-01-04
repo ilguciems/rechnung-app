@@ -15,12 +15,24 @@ export default async function Home() {
     redirect("/admin");
   }
 
-  const memberships = await prisma.organizationMember.findMany({
+  const membership = await prisma.organizationMember.findFirst({
     where: { userId: session.user.id },
   });
 
-  if (memberships.length === 0) {
-    redirect("/onboarding");
+  let hasPendingInvite = false;
+
+  if (!membership) {
+    const invite = await prisma.organizationInvite.findFirst({
+      where: {
+        email: session.user.email,
+        acceptedAt: null,
+        expiresAt: { gt: new Date() },
+      },
+    });
+
+    hasPendingInvite = !!invite;
   }
-  return <MainPage />;
+  return (
+    <MainPage hasPendingInvite={hasPendingInvite} user={session.user.name} />
+  );
 }

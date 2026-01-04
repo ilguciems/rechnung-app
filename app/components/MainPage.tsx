@@ -4,25 +4,47 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useCompany } from "@/hooks";
 import {
   CompanySection,
+  InviteWarningModal,
   InvoiceSection,
   InvoicesListSection,
   StartLoadingScreen,
   UploadLogoSection,
 } from "./";
 
-export default function MainPage() {
+type MainPageProps = {
+  hasPendingInvite: boolean;
+  user: string;
+};
+
+export default function MainPage({ hasPendingInvite, user }: MainPageProps) {
   const { data: company, isLoading } = useCompany();
 
   if (isLoading) return <StartLoadingScreen />;
 
   return (
-    <main
+    <div
       role={isLoading ? "status" : undefined}
       aria-live={isLoading ? "polite" : undefined}
       className="p-6 max-w-3xl mx-auto space-y-8"
       aria-busy={isLoading}
       aria-hidden={isLoading}
     >
+      {hasPendingInvite && <InviteWarningModal />}
+      {!isLoading && !company && (
+        <div className="p-5 border border-gray-200 rounded-lg bg-red-100 text-gray-700 space-y-2">
+          <p className="font-medium text-gray-900">Willkommen, {user}!</p>
+          <p>
+            Sie können entweder ein neues Unternehmen erstellen oder auf eine
+            Einladung warten, um einer bestehenden Organisation beizutreten.
+          </p>
+          <p className="text-sm text-gray-600">
+            <strong>Hinweis:</strong> Wenn Sie ein eigenes Unternehmen
+            erstellen, können Sie mit diesem Konto später keiner anderen
+            Organisation mehr beitreten.
+          </p>
+        </div>
+      )}
+
       <UploadLogoSection />
       <CompanySection />
 
@@ -55,6 +77,6 @@ export default function MainPage() {
           </motion.section>
         )}
       </AnimatePresence>
-    </main>
+    </div>
   );
 }
