@@ -1,6 +1,7 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
+import { LoaderCircle } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
@@ -9,11 +10,14 @@ import {
   type ForgotPasswordType,
   forgotPasswordSchema,
 } from "@/lib/zod-schema";
-import Input from "../../../components/Input";
+import { Input } from "../../../components";
 
 export default function ForgotPasswordForm() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const token = searchParams.get("token");
+
   const { register, handleSubmit, formState, reset } =
     useForm<ForgotPasswordType>({
       resolver: zodResolver(forgotPasswordSchema),
@@ -27,7 +31,7 @@ export default function ForgotPasswordForm() {
     await requestPasswordReset(
       {
         email,
-        redirectTo: "/reset-password",
+        redirectTo: `/reset-password${token ? `?inviteToken=${token}` : ""}`,
       },
       {
         onRequest: () => {
@@ -98,12 +102,9 @@ export default function ForgotPasswordForm() {
         </div>
       </form>
 
-      {/* Оверлей загрузки */}
       {loading && (
         <div className="absolute inset-0 bg-white/80 z-50 flex items-center justify-center rounded-xl">
-          <span className="text-sm font-medium text-gray-700 animate-pulse">
-            Loading...
-          </span>
+          <LoaderCircle className="animate-spin w-12 h-12 text-blue-500" />
         </div>
       )}
     </div>

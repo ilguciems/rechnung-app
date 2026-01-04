@@ -1,5 +1,6 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { LoaderCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -11,7 +12,13 @@ import {
 } from "@/lib/zod-schema";
 import { Output } from "../../../components";
 
-export default function ResfreshVerificationForm({ email }: { email: string }) {
+export default function ResfreshVerificationForm({
+  email,
+  token,
+}: {
+  email: string;
+  token?: string;
+}) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { register, handleSubmit, reset, formState } =
@@ -29,7 +36,7 @@ export default function ResfreshVerificationForm({ email }: { email: string }) {
       await sendVerificationEmail(
         {
           email,
-          callbackURL: "/",
+          callbackURL: token ? `/organization/invite?token=${token}` : "/",
         },
         {
           onSuccess: () => {
@@ -91,7 +98,7 @@ export default function ResfreshVerificationForm({ email }: { email: string }) {
       </form>
       {loading && (
         <div className="absolute inset-0 bg-white/80 z-50 flex items-center justify-center rounded-xl">
-          <span className="text-sm font-medium text-gray-700">Loading...</span>
+          <LoaderCircle className="animate-spin w-12 h-12 text-blue-500" />
         </div>
       )}
     </div>

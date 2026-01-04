@@ -1,37 +1,40 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { LoaderCircle } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-import { signIn, useSession } from "@/lib/auth-client";
+import { useAuth } from "@/hooks";
+import { signIn } from "@/lib/auth-client";
 import { type SignInType, signInSchema } from "@/lib/zod-schema";
-import Input from "../../../components/Input";
+import { Input, Output } from "../../../components";
 
 export default function SignInForm() {
   const [loading, setLoading] = useState(false);
-  const { data: session } = useSession();
+  const { session } = useAuth();
   const router = useRouter();
 
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl");
   const reason = searchParams.get("reason");
+  const token = searchParams.get("token");
+  const email = searchParams.get("email");
 
   const { register, handleSubmit, formState, reset } = useForm<SignInType>({
     resolver: zodResolver(signInSchema),
     defaultValues: {
-      email: "",
+      email: token ? decodeURIComponent(email as string) : "",
       password: "",
     },
   });
 
   useEffect(() => {
-    if (session) {
-      const destination = callbackUrl ? decodeURIComponent(callbackUrl) : "/";
-      window.location.href = destination;
+    if (session && !token && callbackUrl) {
+      window.location.href = decodeURIComponent(callbackUrl);
     }
-  }, [session, callbackUrl]);
+  }, [session, token, callbackUrl]);
 
   useEffect(() => {
     if (reason === "session_expired") {
@@ -53,7 +56,9 @@ export default function SignInForm() {
       {
         email,
         password,
-        callbackURL: destination,
+        callbackURL: token
+          ? `/organization/invite?token=${token}`
+          : destination,
       },
       {
         onRequest: () => {
@@ -61,7 +66,9 @@ export default function SignInForm() {
         },
         onSuccess: async () => {
           await fetch("/api/timer/reset", { method: "POST" });
-          window.location.href = destination;
+          window.location.href = token
+            ? `/organization/invite?token=${token}`
+            : destination;
         },
         onCallback: () => {
           reset();
@@ -73,7 +80,9 @@ export default function SignInForm() {
           setLoading(false);
           if (ctx.error.code === "EMAIL_NOT_VERIFIED") {
             router.push(
-              `/refresh-email-verification?email=${encodeURIComponent(email)}`,
+              `/refresh-email-verification?email=${encodeURIComponent(email)}${
+                token ? `&token=${token}` : ""
+              }`,
             );
           }
         },
@@ -90,19 +99,36 @@ export default function SignInForm() {
                 <h3 className="text-lg font-bold text-gray-900 leading-6">
                   Einloggen
                 </h3>
-                <p className="text-sm text-gray-500 mt-1">
-                  Bitte geben Sie Ihre E-Mail-Adresse und Ihr Passwort ein, um
-                  sich anzumelden.
-                </p>
+                {token ? (
+                  <p className="text-sm text-gray-500 mt-1 bg-red-100 p-2 rounded">
+                    Sie haben eine Einladung erhalten. Bitte melden Sie sich an,
+                    um sie zu akzeptieren.
+                  </p>
+                ) : (
+                  <p className="text-sm text-gray-500 mt-1">
+                    Bitte geben Sie Ihre E-Mail-Adresse und Ihr Passwort ein, um
+                    sich anzumelden.
+                  </p>
+                )}
               </div>
-              <Input
-                name="email"
-                type="email"
-                label="E-Mail"
-                register={register}
-                errors={formState.errors}
-                bgWhite
-              />
+              {token ? (
+                <Output
+                  name="email"
+                  label="E-Mail"
+                  register={register}
+                  errors={formState.errors}
+                  bgWhite
+                />
+              ) : (
+                <Input
+                  name="email"
+                  type="email"
+                  label="E-Mail"
+                  register={register}
+                  errors={formState.errors}
+                  bgWhite
+                />
+              )}
               <Input
                 name="password"
                 type="password"
@@ -124,15 +150,17 @@ export default function SignInForm() {
                   Einloggen
                 </button>
                 <hr className="w-full border-t-2 border-gray-200" />
-                <Link
-                  href="/sign-up"
-                  className="w-full py-2 px-4 rounded-md font-medium text-sm transition-colors text-center duration-200
+                {!token && (
+                  <Link
+                    href="/sign-up"
+                    className="w-full py-2 px-4 rounded-md font-medium text-sm transition-colors text-center duration-200
                                bg-gray-100 text-gray-900 hover:bg-gray-200"
-                >
-                  Ich habe kein Konto
-                </Link>
+                  >
+                    Ich habe kein Konto
+                  </Link>
+                )}
                 <Link
-                  href="/forgot-password"
+                  href={`/forgot-password${token ? `?token=${token}` : ""}`}
                   className="w-full py-2 px-4 rounded-md font-medium text-sm transition-colors text-center duration-200
                                bg-gray-100 text-gray-900 hover:bg-gray-200"
                 >
@@ -145,7 +173,7 @@ export default function SignInForm() {
       </form>
       {loading && (
         <div className="absolute inset-0 bg-white/80 z-50 flex items-center justify-center rounded-xl">
-          <span className="text-sm font-medium text-gray-700">Loading...</span>
+          <LoaderCircle className="animate-spin w-12 h-12 text-blue-500" />
         </div>
       )}
     </div>

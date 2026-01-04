@@ -1,18 +1,20 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { LoaderCircle } from "lucide-react";
 import { redirect, useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { resetPassword } from "@/lib/auth-client";
 import { type ResetPasswordType, resetPasswordSchema } from "@/lib/zod-schema";
-import Input from "../../../components/Input";
+import { Input } from "../../../components";
 
-export default function SignUpForm() {
+export default function ResetPasswordForm() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token") as string;
+  const inviteToken = searchParams.get("inviteToken");
   const { register, handleSubmit, formState, reset } =
     useForm<ResetPasswordType>({
       resolver: zodResolver(resetPasswordSchema),
@@ -35,7 +37,11 @@ export default function SignUpForm() {
         onSuccess: () => {
           reset();
           setLoading(false);
-          router.push("/sign-in");
+          router.push(
+            inviteToken
+              ? `/organization/invite?token=${inviteToken}`
+              : "/sign-in",
+          );
           toast.success("Password reset successful!");
         },
         onError: (ctx) => {
@@ -99,9 +105,7 @@ export default function SignUpForm() {
       {loading && (
         <div className="absolute inset-0 bg-white/80 z-50 flex items-center justify-center rounded-xl">
           <div className="flex flex-col items-center gap-2">
-            <span className="text-sm font-medium text-gray-700">
-              Loading...
-            </span>
+            <LoaderCircle className="animate-spin w-12 h-12 text-blue-500" />
           </div>
         </div>
       )}

@@ -14,9 +14,10 @@ export default async function ResetPasswordPage({
   });
 
   const email = ((await searchParams).email as string) || "";
+  const token = ((await searchParams).token as string) || "";
 
   if (session || !emailVerificationSchema.safeParse({ email }).success)
     redirect("/");
 
-  return <ResfreshVerificationForm email={email} />;
+  return <ResfreshVerificationForm email={email} token={token} />;
 }

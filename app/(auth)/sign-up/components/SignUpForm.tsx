@@ -1,22 +1,28 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { LoaderCircle } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { signUp } from "@/lib/auth-client";
 import { type SignUpType, signUpSchema } from "@/lib/zod-schema";
-import Input from "../../../components/Input";
+import { Input, Output } from "../../../components";
 
 export default function SignUpForm() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+
+  const searchParams = useSearchParams();
+  const token = searchParams.get("token");
+  const email = searchParams.get("email");
+
   const { register, handleSubmit, formState, reset } = useForm<SignUpType>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
       name: "",
-      email: "",
+      email: token ? decodeURIComponent(email as string) : "",
       password: "",
       confirmPassword: "",
     },
@@ -29,7 +35,9 @@ export default function SignUpForm() {
         name,
         email,
         password,
-        callbackURL: "/sign-in",
+        callbackURL: token
+          ? `/organization/invite/?token=${token}`
+          : "/sign-in",
       },
       {
         onRequest: () => {
@@ -61,9 +69,16 @@ export default function SignUpForm() {
                 <h3 className="text-lg font-bold text-gray-900 leading-6">
                   Benutzerkonto erstellen
                 </h3>
-                <p className="text-sm text-gray-500 mt-1">
-                  Bitte geben Sie Ihre Daten ein
-                </p>
+                {token ? (
+                  <p className="text-sm text-gray-500 mt-1 bg-red-100 p-2 rounded">
+                    Sie haben eine Einladung zur Organisation erhalten.
+                    Erstellen Sie ein Konto, um die Einladung zu akzeptieren.
+                  </p>
+                ) : (
+                  <p className="text-sm text-gray-500 mt-1">
+                    Bitte geben Sie Ihre Daten ein.
+                  </p>
+                )}
               </div>
               <Input
                 name="name"
@@ -72,13 +87,23 @@ export default function SignUpForm() {
                 errors={formState.errors}
                 bgWhite
               />
-              <Input
-                name="email"
-                label="Email"
-                register={register}
-                errors={formState.errors}
-                bgWhite
-              />
+              {token ? (
+                <Output
+                  name="email"
+                  label="Email"
+                  register={register}
+                  errors={formState.errors}
+                  bgWhite
+                />
+              ) : (
+                <Input
+                  name="email"
+                  label="Email"
+                  register={register}
+                  errors={formState.errors}
+                  bgWhite
+                />
+              )}
 
               <Input
                 name="password"
@@ -112,14 +137,18 @@ export default function SignUpForm() {
                 >
                   Erstellen
                 </button>
-                <hr className="w-full border-t-2 border-gray-200" />
-                <Link
-                  href="/sign-in"
-                  className="w-full py-2 px-4 rounded-md font-medium text-sm transition-colors text-center duration-200
+                {!token && (
+                  <>
+                    <hr className="w-full border-t-2 border-gray-200" />
+                    <Link
+                      href="/sign-in"
+                      className="w-full py-2 px-4 rounded-md font-medium text-sm transition-colors text-center duration-200
                                bg-gray-100 text-gray-900 hover:bg-gray-200"
-                >
-                  Ich habe bereits ein Konto
-                </Link>
+                    >
+                      Ich habe bereits ein Konto
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           </div>
@@ -128,7 +157,7 @@ export default function SignUpForm() {
 
       {loading && (
         <div className="absolute inset-0 bg-white/80 z-50 flex items-center justify-center rounded-xl">
-          <span className="text-sm font-medium text-gray-700">Loading...</span>
+          <LoaderCircle className="animate-spin w-12 h-12 text-blue-500" />
         </div>
       )}
     </div>
