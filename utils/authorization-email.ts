@@ -24,7 +24,7 @@ export async function sendAuthorizationEmail({
         {
           From: {
             Email: emailFrom,
-            Name: "Hey from HeyApp by Xeradea",
+            Name: "Grüße von der Rechnung-App",
           },
           To: [
             {

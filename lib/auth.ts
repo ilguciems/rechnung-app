@@ -16,8 +16,8 @@ export const auth = betterAuth({
     sendResetPassword: async ({ user, url }) => {
       await sendAuthorizationEmail({
         to: user.email,
-        subject: "Reset your password",
-        text: `Click the link to reset your password: ${url}`,
+        subject: "Setzen Sie Ihr Passwort zurück",
+        text: `Hallo ${user.name},\n\nKlicken Sie auf den unten stehenden Link, um Ihr Passwort zurückzusetzen:\n\n${url}`,
       });
     },
   },
@@ -25,8 +25,8 @@ export const auth = betterAuth({
     sendVerificationEmail: async ({ user, url }) => {
       await sendAuthorizationEmail({
         to: user.email,
-        subject: "Verify your email address",
-        text: `Hello ${user.name},\n\nClick the link below to verify your email:\n\n${url}`,
+        subject: "Bestätigen Sie Ihre E-Mail-Adresse",
+        text: `Hallo ${user.name},\n\nKlicken Sie auf den unten stehenden Link, um Ihre E-Mail-Adresse zu bestätigen:\n\n${url}`,
       });
     },
   },
