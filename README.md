@@ -1,270 +1,250 @@
 ## 🧾 Rechnung App (Next.js 16)
 
-* A modern Next.js 16 application for generating professional invoices (PDF) compliant with German tax law.
-* The app runs locally by design — ensuring full control and data privacy (Datenschutz).
+A modern Next.js 16 application for creating professional PDF invoices compliant with German tax law (DE).
 
-## Features:
+The application is designed with data privacy (Datenschutz) and local-first development in mind, while being fully extensible towards a secure multi-user web application.
 
-### Company management
+## ✨ Key Features
+### 🏢 Organization & Company Management
 
-* Save company legal form, tax numbers, contact and bank info.
-* Handelsregister number required dynamically depending on legal form.
+* Users belong to exactly one organization
 
-### Invoice creation
+* Each organization owns one company profile
 
-* Multiple line items with different tax rates.
-* Automatic calculation of net, VAT, and total.
-* Kleinunternehmerregelung support.
+* Store complete company information:
 
-### PDF generation using pdf-lib
+* Legal form
 
-* Company info fixed in the footer (on every page).
-* Page break support for long invoices.
-* Page numbering.
+* Tax numbers (Steuernummer, USt-ID)
 
-### UI / UX niceties
+* Contact and bank details
 
-* Smooth scroll to invoice form if company exists.
-* Automatic error reset on legal form change.
-* Dynamic select components with react-hook-form.
-* PostgreSQL via docker-compose
-* Prisma ORM with Next.js Server Actions
+### Dynamic validation:
 
-### Tech Stack
+* Handelsregister number required depending on legal form
 
-* Framework: Next.js 16 (App Router)
-* Language: TypeScript
-* Styling: Tailwind CSS
-* Forms: react-hook-form + Zod
-* PDF: pdf-lib
-* ORM: Prisma
-* Database: PostgreSQL (Docker)
-* UI utils: Framer Motion
+## 🧑‍🤝‍🧑 User Management & Invitations
 
-### Getting Started
-* Clone the repo
-* git clone https://github.com/ilguciems/rechnung-app.git
-* cd rechnung-app
+* Email-based authentication
 
-### Option 1: Local Development
-### Run only PostgreSQL with Docker (recommended for dev)
- 
-The app uses a local Postgres database.
-Start it via:
+* Email verification required
+
+* Organization invites via secure token links
+
+### Invite flow supports:
+
+* Existing users
+
+* New users (registration via invite)
+
+* One user can only belong to one organization (by design)
+
+### 🧾 Invoice Creation
+
+- Multiple line items per invoice
+
+- Support for different VAT rates per item
+
+- Automatic calculation of:
+
+   - Net amount
+
+   - VAT
+
+   - Total amount
+
+- Kleinunternehmerregelung support
+
+- Paid / unpaid invoice status
+
+- 📄 PDF Generation (pdf-lib)
+
+- Fully server-side PDF generation
+
+### Features:
+
+- Automatic page breaks
+
+- Footer with company data on every page
+
+- Page numbering
+
+- Correct VAT display
+
+- PDF logic lives in:
+```bash
+src/lib/pdf/generateInvoicePDF.ts
+```
+
+## 🎨 UI / UX Highlights
+
+- Clean, minimal UI (Tailwind CSS)
+
+- Smooth scrolling to invoice form when company exists
+
+- Dynamic form behavior with react-hook-form
+
+- Automatic error reset on legal form changes
+
+- Animated UI elements via Framer Motion
+
+- Context-aware onboarding hints for new users
+
+## 🧰 Tech Stack
+
+- Framework: Next.js 16 (App Router)
+
+- Language: TypeScript
+
+- Styling: Tailwind CSS
+
+- Forms & Validation: react-hook-form + Zod
+
+- Authentication: Email-based with **better-auth** lib & email verification with **Mailjet**
+
+- PDF: pdf-lib
+
+- ORM: Prisma
+
+- Database: PostgreSQL (Docker)
+
+- UI Utilities: Framer Motion
+
+- Testing: Vitest
+
+State / Data Fetching: TanStack Query
+
+## 🚀 Getting Started
+### 1️⃣ Clone the repository
+
+```bash
+git clone https://github.com/ilguciems/rechnung-app.git
+cd rechnung-app
+```
+
+### 🐘 Option 1 — Local Development (recommended)
+
+Run PostgreSQL only via Docker:
 ```bash
 docker-compose up -d
 ```
-* afterwards:
+
+Then:
 ```bash
 npm install
 npx prisma generate
 npx prisma migrate dev
 npm run dev
 ```
-Stop the database:
+
+Open:
+```bash
+http://localhost:3000
+```
+
+Stop database:
 ```bash
 docker-compose down
 ```
-Open http://localhost:3000
- in your browser.
 
-Optional — open Prisma Studio (DB UI):
+Optional — Prisma Studio:
 ```bash
 npx prisma studio
 ```
-docker-compose.yml:
-```yaml
-services:
-  postgres:
-    image: postgres:18
-    container_name: postgres-invoice
-    restart: always
-    ports:
-      - "5432:5432"
-    environment:
-      POSTGRES_USER: myuser
-      POSTGRES_PASSWORD: mypassword
-      POSTGRES_DB: invoicedb
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
 
-  app:
-    build: .
-    container_name: next-invoice
-    ports:
-      - "3000:3000"
-    depends_on:
-      - postgres
-    environment:
-      DATABASE_URL: ${DATABASE_URL}
-      NODE_ENV: production
+### 🐳 Option 2 — Full Docker Setup (App + DB)
 
-volumes:
-  postgres_data:
+Suitable for testing or production-like environments:
+```bash
+docker-compose up --build
 ```
 
-#### Default connection:
+.env:
+```bash
+DATABASE_URL="postgresql://myuser:mypassword@postgres:5432/invoicedb?schema=public"
+```
+> Important: postgres is used as host because both services run in the same Docker network.
 
+### 🗄 Database & Prisma
+Default local DB connection
+```bash
 Host: localhost
+
 Port: 5432
+
 User: myuser
+
 Password: mypassword
-DB: invoicedb
 
-### Prisma ORM Setup
-1. .env file
+Database: invoicedb
+```
 
+Prisma Setup
 ```bash
 DATABASE_URL="postgresql://myuser:mypassword@localhost:5432/invoicedb?schema=public"
 ```
-2. Example prisma/schema.prisma
-```prisma
-generator client {
-  provider = "prisma-client-js"
-}
-
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-
-enum LegalForm {
-  KLEINGEWERBE
-  FREIBERUFLER
-  GBR
-  EINZELKAUFMANN
-  OHG
-  KG
-  GMBH_CO_KG
-  GMBH
-  UG
-  AG
-  KGaA
-  SE
-  EWIV
-}
-
-model Company {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  name        String
-  street      String
-  houseNumber String
-  zipCode     String
-  city        String
-  country     String @default("Deutschland")
-
-  phone   String
-  email   String
-  iban    String
-  bic     String
-  bank    String
-  logoUrl String?
-
-  isSubjectToVAT Boolean @default(false)
-  firstTaxRate   Float?
-  secondTaxRate  Float?
-
-  legalForm LegalForm @default(KLEINGEWERBE)
-
-  steuernummer          String?
-  ustId                 String?
-  handelsregisternummer String?
-
-  invoices Invoice[]
-
-  @@index([createdAt])
-  @@index([updatedAt])
-}
-
-model Invoice {
-  id             Int     @id @default(autoincrement())
-  invoiceNumber  String  @unique
-  customerName   String
-  customerNumber String?
-
-  customerStreet      String
-  customerHouseNumber String
-  customerZipCode     String
-  customerCity        String
-  customerCountry     String @default("Deutschland")
-
-  createdAt DateTime  @default(now())
-  isPaid    Boolean   @default(false)
-  paidAt    DateTime?
-
-  items     Item[]
-  companyId Int
-  company   Company @relation(fields: [companyId], references: [id])
-}
-
-model Item {
-  id          Int     @id @default(autoincrement())
-  description String
-  quantity    Int
-  unitPrice   Float
-  taxRate     Float?
-  invoiceId   Int
-  invoice     Invoice @relation(fields: [invoiceId], references: [id])
-}
-```
-3. Generate & migrate
 ```bash
 npx prisma generate
 npx prisma migrate dev --name init
 ```
-### Option 2 — Everything in Docker (both the application and the database)  (for production or test environments)
 
-```bash
-docker-compose up --build
-```
-.env file:
-```bash
-DATABASE_URL="postgresql://myuser:mypassword@postgres:5432/invoicedb?schema=public"
-```
-* Important! Here, host = postgres because the containers are on the same Docker network.
+Prisma schema includes:
 
-Open http://localhost:3000
- in your browser.
+- Users
 
-### PDF Generation
+- Organizations
 
-The app uses pdf-lib
- to generate invoices fully on the server.
+- Organization members
 
-### Features:
+- Company
 
-* Automatic page breaks
-* Footer with company data
-* Page numbering
-* VAT calculations
-* Handelsregister and Steuernummer handling
-* PDF generation code lives in:
-```ts
-src/lib/pdf/generateInvoicePDF.ts
-```
-### Why Local Version?
+- Invoices
 
-* 🛡 Datenschutz — sensitive business data stays on your machine
-* 🔐 No authentication required
-* 🧰 Full control — local Postgres, local Prisma client
-* 🌐 Easy to extend to a secure web version later
+- Invoice items
 
-### Roadmap: Web Version
+- Organization invites
 
-* Authentication & roles
-* Encrypted cloud storage
-* Multi-user access
-* Invoice templates
-* Email sending & tracking
-* Dashboard with stats
+### 🔐 Authentication Notes
 
-### 📝 License
+- Email verification is required before login
+
+- Invite links handle:
+
+  - Login
+
+  - Registration
+
+  - Email verification
+
+Invite tokens are validated server-side
+
+No localStorage hacks — everything works via URLs & server validation
+
+### 🛡 Why Local-First?
+
+1. 🛡 Datenschutz — sensitive business data stays under your control
+
+2. 🔐 Secure authentication & access control
+
+3. 🧰 Full control over database & schema
+
+4. 🌱 Easy transition to hosted SaaS later
+
+## 🛣 Roadmap
+### Planned / In Progress
+
+Email sending & invoice delivery
+
+Invoice templates
+
+Dashboard & statistics
+
+Organization role management
+
+Audit logs
+
+Cloud deployment options
+
+📝 License
 
 MIT License © 2025
-
-
-
-
