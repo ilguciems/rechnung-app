@@ -4,6 +4,26 @@ A modern Next.js 16 application for creating professional PDF invoices compliant
 
 The application is designed with data privacy (Datenschutz) and local-first development in mind, while being fully extensible towards a secure multi-user web application.
 
+.env example:
+```bash
+# Database
+DATABASE_URL="postgresql://myuser:mypassword@localhost:5432/invoicedb?schema=public"
+PORT=3000
+DB_ENCRYPTION_KEY=YOUR_ENCRYPTION_KEY
+
+# Auth
+BETTER_AUTH_SECRET=YOUR_ENCRYPTION_KEY
+BETTER_AUTH_URL=http://localhost:3000
+
+# Mailjet
+MAILJET_API_KEY=YOUR_ENCRYPTION_KEY
+MAILJET_API_SECRET=YOUR_ENCRYPTION_KEY
+EMAIL_FROM=YOUR_EMAIL
+
+# App
+APP_URL=http://localhost:3000
+```
+
 ## ✨ Key Features
 ### 🏢 Organization & Company Management
 
@@ -25,11 +45,21 @@ The application is designed with data privacy (Datenschutz) and local-first deve
 
 ## 🧑‍🤝‍🧑 User Management & Invitations
 
+* User registration
+
+* Global admin role
+
+* Organization admin role
+
 * Email-based authentication
 
 * Email verification required
 
 * Organization invites via secure token links
+
+### Session Management:
+
+* Automatic logout after a certain period of time with modal warning
 
 ### Invite flow supports:
 
