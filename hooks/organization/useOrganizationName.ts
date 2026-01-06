@@ -8,7 +8,8 @@ export const useOrganizationName = () => {
     queryFn: async () => {
       const res = await fetch(ROUTES.ORGANIZATION_NAME);
       if (!res.ok) {
-        throw new Error("Failed to fetch organization name");
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.error ?? "Fehler beim Laden");
       }
       return res.json();
     },
