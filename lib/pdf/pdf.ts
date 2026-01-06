@@ -51,7 +51,7 @@ export async function generateInvoicePDF(
   // ---------------------------
 
   // logo (if exists)
-  const logoUrl = company.logoUrl || "/assets/logo.png";
+  const logoUrl = company.logoUrl ?? "";
   const logoPath = path.join(process.cwd(), "public", logoUrl);
   if (fs.existsSync(logoPath)) {
     const logoImageBytes = fs.readFileSync(logoPath);
@@ -391,7 +391,7 @@ export async function generateMahnungPDF(
   const page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
   let y = PAGE_HEIGHT - TOP_MARGIN;
 
-  const logoUrl = company.logoUrl || "/assets/logo.png";
+  const logoUrl = company.logoUrl ?? "";
   const logoPath = path.join(process.cwd(), "public", logoUrl);
   if (fs.existsSync(logoPath)) {
     const logoImageBytes = fs.readFileSync(logoPath);

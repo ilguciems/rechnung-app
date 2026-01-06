@@ -10,4 +10,11 @@ export const ROUTES = {
   COMPANY_LOGO: "/api/company/logo",
   CUSTOMERS_SEARCH: (type: string) =>
     `/api/customers/search?${type === "customers" ? "type=customers" : type === "products" ? "type=products" : ""}`,
+
+  // ORGANIZATION: "/api/organization",
+
+  INVITE_ORGANIZATION: "/api/organization/invite",
+  INVITE_ORGANIZATION_ACCEPT: "/api/organization/invite/accept",
+  ORGANIZATION_NAME: "/api/organization/name",
+  ORGANIZATION_MEMBERSHIP: "/api/organization/membership",
 };

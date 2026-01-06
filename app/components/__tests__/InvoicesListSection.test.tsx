@@ -45,7 +45,7 @@ describe("InvoicesListSection", () => {
     await waitFor(() => {
       expect(togglePaidSpy).toHaveBeenCalledTimes(1);
       expect(togglePaidSpy).toHaveBeenCalledWith(
-        expect.objectContaining({ id: 1 }),
+        expect.objectContaining({ id: "1" }),
       );
     });
 

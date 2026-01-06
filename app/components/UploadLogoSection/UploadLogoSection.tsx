@@ -6,11 +6,14 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { useCompanyLogo } from "@/hooks";
+import { useSession } from "@/lib/auth-client";
 import { type UploadData, uploadSchema } from "@/lib/zod-schema";
 import ImageWithFallback from "./ImageWithFallback";
 import { useUpload } from "./useUpload";
 
 export default function UploadLogoSection() {
+  const { data: session } = useSession();
+  const userId = session?.user?.id;
   const {
     register,
     handleSubmit,
@@ -23,7 +26,10 @@ export default function UploadLogoSection() {
 
   const [cacheBuster, setCacheBuster] = useState<number | null>(null);
 
-  const { data: logo } = useCompanyLogo();
+  const { data: logo, isLoading } = useCompanyLogo();
+
+  const logoUrl =
+    logo?.logoUrl || `/assets/logo_${userId}.png?ts=${cacheBuster}`;
 
   useEffect(() => {
     setCacheBuster(Date.now());
@@ -46,13 +52,15 @@ export default function UploadLogoSection() {
       <div className="flex flex-col sm:flex-row items-start gap-6">
         <div className="flex flex-col items-center sm:w-60 w-full">
           <div className="sm:w-60 w-full h-28 rounded border border-gray-300 bg-white flex items-center justify-center overflow-hidden shadow-sm">
-            <ImageWithFallback
-              src={logo?.logoUrl ?? `/assets/logo.png?ts=${cacheBuster}`}
-              fallBackSrc={`/assets/noimage.png?ts=${cacheBuster}`}
-              height={0}
-              alt="Logo"
-              className="object-contain h-50 w-50"
-            />
+            {!isLoading && (
+              <ImageWithFallback
+                src={logoUrl}
+                fallBackSrc={`/assets/noimage.png?ts=${cacheBuster}`}
+                height={0}
+                alt="Logo"
+                className="object-contain h-50 w-50"
+              />
+            )}
           </div>
           <p className="text-xs text-gray-500 mt-2">Aktuelles Logo</p>
         </div>

@@ -26,8 +26,144 @@ enum LegalForm {
   EWIV
 }
 
+enum OrgRole {
+  admin
+  member
+}
+
+model User {
+  id            String    @id
+  name          String
+  email         String
+  emailVerified Boolean
+  image         String?
+  createdAt     DateTime
+  updatedAt     DateTime
+  sessions      Session[]
+  accounts      Account[]
+
+  role       String?
+  banned     Boolean?
+  banReason  String?
+  banExpires DateTime?
+
+  memberships   OrganizationMember[]
+  organizations Organization[]
+
+  @@unique([email])
+  @@map("user")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime
+  updatedAt DateTime
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime
+  updatedAt             DateTime
+
+  @@map("account")
+}
+
+model Verification {
+  id         String    @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime?
+  updatedAt  DateTime?
+
+  @@map("verification")
+}
+
+model Organization {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime
+
+  ownerId String
+  owner   User   @relation(fields: [ownerId], references: [id])
+
+  companyId String?
+  company   Company? @relation(fields: [companyId], references: [id])
+
+  members             OrganizationMember[]
+  mailjet             MailjetConfig?
+  organizationInvites OrganizationInvite[]
+
+  @@map("organization")
+}
+
+model OrganizationMember {
+  id             String  @id @default(cuid())
+  userId         String
+  organizationId String
+  role           OrgRole // admin or member
+
+  user         User         @relation(fields: [userId], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
+
+  @@unique([userId, organizationId])
+  @@index([organizationId])
+  @@index([userId])
+  @@map("organization_member")
+}
+
+model MailjetConfig {
+  id             String @id @default(cuid())
+  organizationId String @unique
+
+  publicKeyEnc  String
+  privateKeyEnc String
+  fromEmail     String
+  fromName      String
+
+  isEnabled Boolean @default(false)
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+
+  @@map("mailjet_config")
+}
+
+model OrganizationInvite {
+  id             String    @id @default(cuid())
+  organizationId String
+  email          String
+  role           OrgRole
+  token          String    @unique
+  expiresAt      DateTime
+  acceptedAt     DateTime?
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+
+  @@map("organization_invite")
+}
+
 model Company {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(cuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -57,13 +193,15 @@ model Company {
 
   invoices         Invoice[]
   companySnapshots CompanySnapshot[]
+  organizations    Organization[]
 
   @@index([createdAt])
   @@index([updatedAt])
+  @@map("company")
 }
 
 model CompanySnapshot {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(cuid())
   createdAt DateTime @default(now())
 
   name        String
@@ -90,14 +228,17 @@ model CompanySnapshot {
   ustId                 String?
   handelsregisternummer String?
 
-  companyId Int
+  companyId String
   company   Company @relation(fields: [companyId], references: [id])
 
   invoices Invoice[]
+
+  @@index([createdAt])
+  @@map("company_snapshot")
 }
 
 model Invoice {
-  id             Int     @id @default(autoincrement())
+  id             String  @unique @default(cuid())
   invoiceNumber  String  @unique
   customerName   String
   customerNumber String?
@@ -116,18 +257,23 @@ model Invoice {
   paidAt    DateTime?
 
   items             Item[]
-  companyId         Int
+  companyId         String
   company           Company          @relation(fields: [companyId], references: [id])
   companySnapshot   CompanySnapshot? @relation(fields: [companySnapshotId], references: [id])
-  companySnapshotId Int?
+  companySnapshotId String?
+
+  @@index([createdAt])
+  @@map("invoice")
 }
 
 model Item {
-  id          Int     @id @default(autoincrement())
+  id          String  @id @default(cuid())
   description String
   quantity    Int
   unitPrice   Float
   taxRate     Float?
-  invoiceId   Int
+  invoiceId   String
   invoice     Invoice @relation(fields: [invoiceId], references: [id])
+
+  @@map("item")
 }
