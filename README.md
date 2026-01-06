@@ -25,6 +25,7 @@ APP_URL=http://localhost:3000
 ```
 
 ## ✨ Key Features
+
 ### 🏢 Organization & Company Management
 
 * Users belong to exactly one organization
@@ -69,7 +70,7 @@ APP_URL=http://localhost:3000
 
 * One user can only belong to one organization (by design)
 
-### 🧾 Invoice Creation
+### 🧾 Invoice and payment reminder(three levels) Creation
 
 - Multiple line items per invoice
 
@@ -145,6 +146,7 @@ src/lib/pdf/generateInvoicePDF.ts
 State / Data Fetching: TanStack Query
 
 ## 🚀 Getting Started
+
 ### 1️⃣ Clone the repository
 
 ```bash
@@ -237,6 +239,8 @@ Prisma schema includes:
 ### 🔐 Authentication Notes
 
 - Email verification is required before login
+
+- A Mailjet account (app.mailjet.com) is required (free for up to 6 000 emails per month, sufficient for testing and small businesses).
 
 - Invite links handle:
 
