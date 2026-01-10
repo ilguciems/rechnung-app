@@ -35,7 +35,7 @@ export function useDownloadReminderPdf() {
       link.click();
 
       URL.revokeObjectURL(url);
-      queryClient.invalidateQueries({ queryKey: ["organisation-logs"] });
+      queryClient.invalidateQueries({ queryKey: ["organization-logs"] });
       toast.success("Mahnung erfolgreich erstellt");
     } catch (err) {
       console.error(err);

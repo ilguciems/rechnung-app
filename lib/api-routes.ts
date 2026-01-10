@@ -17,5 +17,5 @@ export const ROUTES = {
   INVITE_ORGANIZATION_ACCEPT: "/api/organization/invite/accept",
   ORGANIZATION_NAME: "/api/organization/name",
   ORGANIZATION_MEMBERSHIP: "/api/organization/membership",
-  ORGANISATION_LOGS: "/api/organization/logs",
+  ORGANIZATION_LOGS: "/api/organization/logs",
 };

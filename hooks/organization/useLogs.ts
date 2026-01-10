@@ -31,9 +31,9 @@ export type ActivityLogType = {
 
 export const useLogs = () => {
   return useQuery<ActivityLogType[]>({
-    queryKey: ["organisation-logs"],
+    queryKey: ["organization-logs"],
     queryFn: async () => {
-      const res = await fetch(ROUTES.ORGANISATION_LOGS);
+      const res = await fetch(ROUTES.ORGANIZATION_LOGS);
       if (!res.ok) {
         const data = await res.json().catch(() => null);
         throw new Error(data?.error ?? "Fehler beim Laden der Logs");

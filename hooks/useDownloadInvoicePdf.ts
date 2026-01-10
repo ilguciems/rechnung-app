@@ -28,7 +28,7 @@ export function useDownloadInvoicePdf() {
       link.click();
 
       URL.revokeObjectURL(url);
-      queryClient.invalidateQueries({ queryKey: ["organisation-logs"] });
+      queryClient.invalidateQueries({ queryKey: ["organization-logs"] });
     } catch (err) {
       console.error(err);
       toast.error("Fehler beim PDF-Export");

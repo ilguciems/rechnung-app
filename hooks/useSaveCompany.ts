@@ -53,7 +53,7 @@ export function useSaveCompany(company?: Company) {
       await queryClient.invalidateQueries({
         predicate: (query) =>
           query.queryKey[0] === "company" ||
-          query.queryKey[0] === "organisation-logs",
+          query.queryKey[0] === "organization-logs",
       });
     },
   });

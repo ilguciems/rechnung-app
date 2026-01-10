@@ -22,7 +22,7 @@ export function useToggleInvoicePaid() {
       await queryClient.invalidateQueries({
         predicate: (query) =>
           query.queryKey[0] === "invoices" ||
-          query.queryKey[0] === "organisation-logs",
+          query.queryKey[0] === "organization-logs",
       });
       toast.success("Status aktualisiert!");
     },

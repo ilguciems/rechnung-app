@@ -26,7 +26,7 @@ export default function DeleteLastInvoiceButton({
       await queryClient.invalidateQueries({
         predicate: (query) =>
           query.queryKey[0] === "invoices" ||
-          query.queryKey[0] === "organisation-logs",
+          query.queryKey[0] === "organization-logs",
       });
       setOpen(false);
       toast.success("Rechnung gelöscht!");
