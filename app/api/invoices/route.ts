@@ -1,11 +1,12 @@
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import type { Prisma } from "@/app/generated/prisma/client";
+import { logActivity } from "@/lib/activity-log";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma-client";
 import { validateQuery } from "@/lib/validateQuery";
 import { invoiceSchema as createInvoiceSchema } from "@/lib/zod-schema";
-import type { Prisma } from "../../generated/prisma/client";
 
 const querySchema = z.object({
   search: z.string().optional(),
@@ -124,6 +125,7 @@ export async function POST(req: Request) {
         },
       },
       select: {
+        id: true,
         company: {
           select: {
             id: true,
@@ -282,6 +284,19 @@ export async function POST(req: Request) {
         },
       },
       include: { items: true },
+    });
+
+    await logActivity({
+      userId: session.user.id,
+      organizationId: organization.id,
+      companyId,
+      action: "CREATE",
+      entityType: "INVOICE",
+      entityId: invoice.id,
+      metadata: {
+        type: "invoice",
+        invoiceNumber: invoice.invoiceNumber,
+      },
     });
 
     return NextResponse.json(invoice);

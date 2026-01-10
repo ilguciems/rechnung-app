@@ -2,7 +2,10 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
+import type { Prisma } from "@/app/generated/prisma/client";
+import { logActivity } from "@/lib/activity-log";
 import { auth } from "@/lib/auth";
+import diffObjects from "@/lib/diff-objects";
 import { prisma } from "@/lib/prisma-client";
 
 export async function GET() {
@@ -65,6 +68,7 @@ export async function POST(req: Request) {
         },
       },
       select: {
+        id: true,
         company: {
           select: {
             id: true,
@@ -73,7 +77,7 @@ export async function POST(req: Request) {
         },
       },
     });
-
+    const oldLogoUrl = organization?.company?.logoUrl ?? null;
     const company = organization?.company;
     const formData = await req.formData();
     const file = formData.get("file") as File;
@@ -153,6 +157,24 @@ export async function POST(req: Request) {
         },
       });
     }
+
+    const changes = diffObjects(
+      { logoUrl: oldLogoUrl } as Record<string, Prisma.InputJsonValue>,
+      { logoUrl: fileName } as Record<string, Prisma.InputJsonValue>,
+    );
+
+    await logActivity({
+      userId: session.user.id,
+      organizationId: organization?.id,
+      companyId: company?.id,
+      action: "UPDATE",
+      entityType: "COMPANY",
+      entityId: company?.id,
+      metadata: {
+        type: "company-logo",
+        changes,
+      },
+    });
     return NextResponse.json({ status: "success", fileName });
   } catch (e) {
     console.error(e);

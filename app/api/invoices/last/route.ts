@@ -2,6 +2,7 @@
 
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
+import { logActivity } from "@/lib/activity-log";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma-client";
 
@@ -45,6 +46,19 @@ export async function DELETE() {
 
     await prisma.invoice.delete({
       where: { id: lastInvoice.id },
+    });
+
+    await logActivity({
+      userId: session.user.id,
+      organizationId: membership.organizationId,
+      companyId: company.id,
+      action: "DELETE",
+      entityType: "INVOICE",
+      entityId: lastInvoice.id,
+      metadata: {
+        type: "invoice",
+        invoiceNumber: lastInvoice.invoiceNumber,
+      },
     });
 
     return NextResponse.json({ success: true, deletedId: lastInvoice.id });

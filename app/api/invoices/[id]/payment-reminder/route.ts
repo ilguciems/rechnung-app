@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { logActivity } from "@/lib/activity-log";
+import { getAuthData } from "@/lib/get-auth-data";
 import { generateMahnungPDF } from "@/lib/pdf";
 import { prisma } from "@/lib/prisma-client";
 
@@ -7,6 +9,11 @@ export async function GET(
   context: { params: Promise<{ id: string }> },
 ) {
   const { id } = await context.params;
+  const session = await getAuthData();
+
+  if (!session) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   const { searchParams } = new URL(req.url);
   const fee = parseFloat(searchParams.get("fee") || "2.50");
@@ -33,6 +40,21 @@ export async function GET(
     mahngebuehr: fee,
     deadlineDays: days,
     level: level as 1 | 2 | 3,
+  });
+
+  await logActivity({
+    userId: session.user.id,
+    organizationId: session.org?.id,
+    companyId: invoice.companyId,
+    action: "DOWNLOAD",
+    entityType: "INVOICE",
+    entityId: invoice.id,
+    metadata: {
+      type: "payment-reminder",
+      invoiceNumber: invoice.invoiceNumber,
+      format: "pdf",
+      level,
+    },
   });
 
   return new NextResponse(new Uint8Array(pdfBuffer), {
