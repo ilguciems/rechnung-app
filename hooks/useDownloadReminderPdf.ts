@@ -1,10 +1,12 @@
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { ROUTES } from "@/lib/api-routes";
 
 export function useDownloadReminderPdf() {
+  const queryClient = useQueryClient();
   const [loading, setLoading] = useState(false);
 
   const downloadReminder = async (id: number, level: number = 1) => {
@@ -33,6 +35,7 @@ export function useDownloadReminderPdf() {
       link.click();
 
       URL.revokeObjectURL(url);
+      queryClient.invalidateQueries({ queryKey: ["organization-logs"] });
       toast.success("Mahnung erfolgreich erstellt");
     } catch (err) {
       console.error(err);

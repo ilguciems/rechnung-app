@@ -31,6 +31,22 @@ enum OrgRole {
   member
 }
 
+enum ActivityAction {
+  CREATE
+  UPDATE
+  DELETE
+  DOWNLOAD
+  SEND
+}
+
+enum ActivityEntity {
+  INVOICE
+  COMPANY
+  CUSTOMER
+  USER
+  EMAIL
+}
+
 model User {
   id            String    @id
   name          String
@@ -49,6 +65,7 @@ model User {
 
   memberships   OrganizationMember[]
   organizations Organization[]
+  activityLogs  ActivityLog[]
 
   @@unique([email])
   @@map("user")
@@ -113,6 +130,7 @@ model Organization {
   members             OrganizationMember[]
   mailjet             MailjetConfig?
   organizationInvites OrganizationInvite[]
+  activityLogs        ActivityLog[]
 
   @@map("organization")
 }
@@ -194,6 +212,7 @@ model Company {
   invoices         Invoice[]
   companySnapshots CompanySnapshot[]
   organizations    Organization[]
+  activityLogs     ActivityLog[]
 
   @@index([createdAt])
   @@index([updatedAt])
@@ -276,4 +295,30 @@ model Item {
   invoice     Invoice @relation(fields: [invoiceId], references: [id])
 
   @@map("item")
+}
+
+model ActivityLog {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id])
+
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+
+  companyId String?
+  company   Company? @relation(fields: [companyId], references: [id])
+
+  action     ActivityAction
+  entityType ActivityEntity
+  entityId   String?
+
+  metadata Json?
+
+  @@index([createdAt])
+  @@index([userId])
+  @@index([organizationId])
+  @@index([companyId])
+  @@map("activity_log")
 }

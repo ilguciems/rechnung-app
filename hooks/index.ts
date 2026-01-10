@@ -1,6 +1,8 @@
 import { useGlobalUsersList } from "./admin";
 import {
+  type ActivityLogType,
   useInviteAccept,
+  useLogs,
   useOrganizationName,
   useSendInvite,
   useUpdateOrganizationName,
@@ -29,3 +31,4 @@ export { useUpdateOrganizationName };
 export { useOrganizationName };
 export { useGlobalUsersList };
 export { useInviteAccept };
+export { useLogs, type ActivityLogType };

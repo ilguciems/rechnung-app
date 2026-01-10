@@ -18,8 +18,12 @@ export function useToggleInvoicePaid() {
       if (!res.ok) throw new Error("Fehler beim Aktualisieren");
       return res.json();
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["invoices"] });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        predicate: (query) =>
+          query.queryKey[0] === "invoices" ||
+          query.queryKey[0] === "organization-logs",
+      });
       toast.success("Status aktualisiert!");
     },
     onError: () => {

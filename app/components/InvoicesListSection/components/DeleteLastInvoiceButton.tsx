@@ -22,8 +22,12 @@ export default function DeleteLastInvoiceButton({
       if (!res.ok) throw new Error("Fehler beim Löschen");
       return res.json();
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["invoices"] });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        predicate: (query) =>
+          query.queryKey[0] === "invoices" ||
+          query.queryKey[0] === "organization-logs",
+      });
       setOpen(false);
       toast.success("Rechnung gelöscht!");
     },

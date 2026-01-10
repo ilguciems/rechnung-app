@@ -23,8 +23,12 @@ export function useCreateInvoice(onSuccessReset?: () => void) {
       toast.error("Fehler beim Erstellen");
     },
 
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["invoices"] });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        predicate: (query) =>
+          query.queryKey[0] === "invoices" ||
+          query.queryKey[0] === "organization-logs",
+      });
       toast.success("Rechnung erstellt!");
 
       if (onSuccessReset) onSuccessReset();

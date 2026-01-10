@@ -1,6 +1,9 @@
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
+import type { Prisma } from "@/app/generated/prisma/client";
+import { logActivity } from "@/lib/activity-log";
 import { auth } from "@/lib/auth";
+import diffObjects from "@/lib/diff-objects";
 import { prisma } from "@/lib/prisma-client";
 
 // Get a company
@@ -110,6 +113,18 @@ export async function POST(req: Request) {
       },
     });
 
+    await logActivity({
+      userId: session.user.id,
+      organizationId: organization.id,
+      companyId: company.id,
+      action: "CREATE",
+      entityType: "COMPANY",
+      entityId: company.id,
+      metadata: {
+        type: "company",
+      },
+    });
+
     return company;
   });
 
@@ -142,6 +157,10 @@ export async function PATCH(req: Request) {
     return NextResponse.json({ error: "No company found" }, { status: 404 });
   }
 
+  const oldCompanyData = await prisma.company.findUniqueOrThrow({
+    where: { id: membership.organization.companyId },
+  });
+
   const updated = await prisma.company.update({
     where: { id: membership.organization.companyId },
     data,
@@ -169,6 +188,24 @@ export async function PATCH(req: Request) {
       steuernummer: updated.steuernummer,
       ustId: updated.ustId,
       handelsregisternummer: updated.handelsregisternummer,
+    },
+  });
+
+  const changes = diffObjects(
+    oldCompanyData as Record<string, Prisma.InputJsonValue>,
+    data as Record<string, Prisma.InputJsonValue>,
+  );
+
+  await logActivity({
+    userId: session.user.id,
+    organizationId: membership.organization.id,
+    companyId: updated.id,
+    action: "UPDATE",
+    entityType: "COMPANY",
+    entityId: updated.id,
+    metadata: {
+      type: "company",
+      changes,
     },
   });
 

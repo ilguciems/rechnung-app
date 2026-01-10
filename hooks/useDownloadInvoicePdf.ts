@@ -1,11 +1,13 @@
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { ROUTES } from "@/lib/api-routes";
 
 export function useDownloadInvoicePdf() {
   const [loading, setLoading] = useState(false);
+  const queryClient = useQueryClient();
 
   const downloadInvoice = async (id: number) => {
     try {
@@ -26,6 +28,7 @@ export function useDownloadInvoicePdf() {
       link.click();
 
       URL.revokeObjectURL(url);
+      queryClient.invalidateQueries({ queryKey: ["organization-logs"] });
     } catch (err) {
       console.error(err);
       toast.error("Fehler beim PDF-Export");

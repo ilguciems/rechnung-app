@@ -49,8 +49,12 @@ export function useSaveCompany(company?: Company) {
       toast.success("Unternehmensdaten gespeichert!");
     },
 
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["company"] });
+    onSettled: async () => {
+      await queryClient.invalidateQueries({
+        predicate: (query) =>
+          query.queryKey[0] === "company" ||
+          query.queryKey[0] === "organization-logs",
+      });
     },
   });
 }

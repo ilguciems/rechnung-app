@@ -10,6 +10,7 @@ import Output from "./Output";
 import { SelectField } from "./SelectField";
 import { SessionTimerUI } from "./SessionTimerUI";
 import StartLoadingScreen from "./StartLoadingScreen";
+import Tabs from "./Tabs";
 import UploadLogoSection from "./UploadLogoSection";
 
 export {
@@ -26,4 +27,5 @@ export {
   LogoutWrapper,
   SelectField,
   InviteWarningModal,
+  Tabs,
 };
