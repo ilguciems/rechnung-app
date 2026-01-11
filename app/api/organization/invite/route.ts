@@ -10,7 +10,7 @@ export async function POST(req: Request) {
   });
 
   if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "Nicht authorisiert" }, { status: 401 });
   }
 
   const { email, role } = await req.json();
@@ -35,7 +35,7 @@ export async function POST(req: Request) {
   });
 
   if (!membership) {
-    return NextResponse.json({ error: "Not an admin" }, { status: 403 });
+    return NextResponse.json({ error: "Kein Administrator" }, { status: 403 });
   }
 
   const token = crypto.randomUUID();

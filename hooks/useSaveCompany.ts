@@ -17,7 +17,8 @@ export function useSaveCompany(company?: Company) {
       });
 
       if (!res.ok) {
-        throw new Error("Fehler beim Speichern der Firma");
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.error ?? "Fehler beim Speichern");
       }
 
       return res.json();
@@ -37,11 +38,11 @@ export function useSaveCompany(company?: Company) {
       return { prev };
     },
 
-    onError: (_err, _newData, ctx) => {
+    onError: (err, _newData, ctx) => {
       if (ctx?.prev) {
         queryClient.setQueryData(["company"], ctx.prev);
       }
-      toast.error("Fehler beim Speichern");
+      toast.error(err.message);
     },
 
     onSuccess: (newCompany) => {

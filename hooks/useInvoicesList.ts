@@ -45,7 +45,10 @@ export function useInvoicesList() {
       params.set("pageSize", PER_PAGE.toString());
 
       const res = await fetch(ROUTES.INVOICES_SEARCH(params));
-      if (!res.ok) throw new Error("Fehler beim Laden");
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.error ?? "Fehler beim Laden");
+      }
 
       return res.json();
     },

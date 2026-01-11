@@ -12,7 +12,7 @@ export async function GET(
   const session = await getAuthData();
 
   if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "Nicht authorisiert" }, { status: 401 });
   }
 
   const { searchParams } = new URL(req.url);
@@ -26,12 +26,15 @@ export async function GET(
   });
 
   if (!invoice) {
-    return NextResponse.json({ error: "Invoice not found" }, { status: 404 });
+    return NextResponse.json(
+      { error: "Keine Rechnung gefunden" },
+      { status: 404 },
+    );
   }
 
   if (!invoice.companySnapshot) {
     return NextResponse.json(
-      { error: "Company snapshot is missing for this invoice" },
+      { error: "Company snapshot für diese Rechnung fehlt" },
       { status: 500 },
     );
   }

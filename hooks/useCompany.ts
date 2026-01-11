@@ -9,7 +9,8 @@ export function useCompany() {
       const res = await fetch(ROUTES.COMPANY);
 
       if (!res.ok) {
-        throw new Error("Fehler beim Laden der Firma");
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.error ?? "Fehler beim Laden");
       }
 
       return res.json();

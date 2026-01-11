@@ -11,9 +11,12 @@ export function useAuth() {
     queryKey: ["membership-data", session?.user?.id],
     queryFn: async () => {
       const res = await fetch(ROUTES.ORGANIZATION_MEMBERSHIP);
-      if (!res.ok) throw new Error("Failed to fetch membership data");
-      const data = await res.json();
-      return data;
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.error ?? "Fehler beim Laden");
+      }
+
+      return res.json();
     },
     enabled: !!session?.user?.id,
     staleTime: 10 * 60 * 1000,

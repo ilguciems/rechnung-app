@@ -6,7 +6,7 @@ export async function GET() {
   const session = await getAuthData();
 
   if (!session || !session.org || session.org.role !== "admin") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "Nicht authorisiert" }, { status: 401 });
   }
 
   const logs = await prisma.activityLog.findMany({

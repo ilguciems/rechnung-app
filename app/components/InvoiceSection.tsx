@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowUp } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
-import { useCompany, useCreateInvoice } from "@/hooks";
+import { useAuth, useCompany, useCreateInvoice } from "@/hooks";
 import { ROUTES } from "@/lib/api-routes";
 import { type Invoice, invoiceSchema } from "@/lib/zod-schema";
 import AutoCompleteInput from "./AutoCompleteInput";
@@ -20,6 +20,7 @@ type Product = {
 
 export default function InvoiceSection() {
   const { data: company } = useCompany();
+  const { isOrgAdmin } = useAuth();
 
   const invoiceFormRef = useRef<HTMLDivElement | null>(null);
   const deleteButtonsRef = useRef<(HTMLButtonElement | null)[]>([]);
@@ -128,7 +129,8 @@ export default function InvoiceSection() {
           onClick={() => scrollTo({ top: 0, behavior: "smooth" })}
         >
           <span className="flex">
-            Firmendaten bearbeiten <ArrowUp className="ml-1" />
+            {`Firmendaten ${isOrgAdmin ? "bearbeiten" : "ansehen"}`}
+            <ArrowUp className="ml-1" />
           </span>
         </button>
       </div>

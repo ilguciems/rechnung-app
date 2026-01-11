@@ -1,5 +1,6 @@
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
+import { Prisma } from "@/app/generated/prisma/client";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma-client";
 
@@ -29,10 +30,7 @@ export async function GET(req: Request) {
     const q = searchParams.get("search")?.trim().toLowerCase() ?? "";
 
     if (!type) {
-      return NextResponse.json(
-        { error: "Missing search type" },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: "Fehlender Suchtyp" }, { status: 400 });
     }
 
     if (type === "customers") {
@@ -98,12 +96,14 @@ export async function GET(req: Request) {
       return NextResponse.json(products);
     }
 
-    return NextResponse.json({ error: "Invalid search type" }, { status: 400 });
+    return NextResponse.json({ error: "Ungültiger Suchtyp" }, { status: 400 });
   } catch (error) {
-    console.error("Search API error:", error);
-    return NextResponse.json(
-      { error: "Internal Server Error" },
-      { status: 500 },
-    );
+    console.error(error);
+
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      return NextResponse.json({ error: "Datenbankfehler" }, { status: 400 });
+    }
+
+    return NextResponse.json({ error: "Serverfehler" }, { status: 500 });
   }
 }

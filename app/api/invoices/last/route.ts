@@ -2,6 +2,7 @@
 
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
+import { Prisma } from "@/app/generated/prisma/client";
 import { logActivity } from "@/lib/activity-log";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma-client";
@@ -13,7 +14,10 @@ export async function DELETE() {
     });
 
     if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { error: "Nicht authorisiert" },
+        { status: 401 },
+      );
     }
 
     const membership = await prisma.organizationMember.findFirst({
@@ -62,8 +66,13 @@ export async function DELETE() {
     });
 
     return NextResponse.json({ success: true, deletedId: lastInvoice.id });
-  } catch (e) {
-    console.error("DELETE last invoice error:", e);
-    return NextResponse.json({ error: "Fehler beim Löschen" }, { status: 500 });
+  } catch (error) {
+    console.error(error);
+
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      return NextResponse.json({ error: "Datenbankfehler" }, { status: 400 });
+    }
+
+    return NextResponse.json({ error: "Serverfehler" }, { status: 500 });
   }
 }

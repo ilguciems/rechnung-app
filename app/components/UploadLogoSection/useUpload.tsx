@@ -5,11 +5,12 @@ export const useUpload = () => {
   const uploadFn = async (file: File) => {
     const formData = new FormData();
     formData.append("file", file);
-    const response = await fetch(ROUTES.COMPANY_LOGO, {
+    const res = await fetch(ROUTES.COMPANY_LOGO, {
       method: "POST",
       body: formData,
     });
-    return response;
+    if (!res.ok) throw new Error("Fehler beim Hochladen des Logos");
+    return res;
   };
   return useMutation({
     mutationFn: uploadFn,

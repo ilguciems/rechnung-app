@@ -6,6 +6,7 @@ import InvoiceSection from "./InvoiceSection";
 import InvoicesListSection from "./InvoicesListSection";
 import LogoutWrapper from "./LogoutWrapper";
 import MainPage from "./MainPage";
+import MemberCompanyView from "./MemberCompanyView";
 import Output from "./Output";
 import { SelectField } from "./SelectField";
 import { SessionTimerUI } from "./SessionTimerUI";
@@ -28,4 +29,5 @@ export {
   SelectField,
   InviteWarningModal,
   Tabs,
+  MemberCompanyView,
 };
