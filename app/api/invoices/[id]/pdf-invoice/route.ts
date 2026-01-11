@@ -13,7 +13,7 @@ export async function GET(
   const session = await getAuthData();
 
   if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "Nicht authorisiert" }, { status: 401 });
   }
 
   const invoice = await prisma.invoice.findUnique({
@@ -25,12 +25,15 @@ export async function GET(
   });
 
   if (!invoice) {
-    return NextResponse.json({ error: "Invoice not found" }, { status: 404 });
+    return NextResponse.json(
+      { error: "Keine Rechnung gefunden" },
+      { status: 404 },
+    );
   }
 
   if (!invoice.companySnapshot) {
     return NextResponse.json(
-      { error: "Company snapshot is missing for this invoice" },
+      { error: "Company snapshot für diese Rechnung nicht gefunden" },
       { status: 500 },
     );
   }

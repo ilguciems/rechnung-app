@@ -1,7 +1,7 @@
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import type { Prisma } from "@/app/generated/prisma/client";
+import { Prisma } from "@/app/generated/prisma/client";
 import { logActivity } from "@/lib/activity-log";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma-client";
@@ -39,7 +39,7 @@ export async function GET(req: Request) {
   });
 
   if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "Nicht authorisiert" }, { status: 401 });
   }
   const userId = session.user.id;
   const membership = await prisma.organizationMember.findFirst({
@@ -54,7 +54,10 @@ export async function GET(req: Request) {
   });
 
   if (!membership?.organization.company) {
-    return NextResponse.json({ error: "No company" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Kein Unternehmen zugeordnet" },
+      { status: 400 },
+    );
   }
 
   const companyId = membership.organization.company.id;
@@ -111,7 +114,10 @@ export async function POST(req: Request) {
     });
 
     if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { error: "Nicht authorisiert" },
+        { status: 401 },
+      );
     }
     // 1. Validate input
     const data = createInvoiceSchema.parse(await req.json());
@@ -155,7 +161,7 @@ export async function POST(req: Request) {
 
     if (!organization?.company) {
       return NextResponse.json(
-        { error: "Organization has no company" },
+        { error: "Organisation hat kein Unternehmen" },
         { status: 400 },
       );
     }
@@ -167,7 +173,7 @@ export async function POST(req: Request) {
 
     if (!companyData) {
       return NextResponse.json(
-        { error: "No company data found" },
+        { error: "Keine Unternehmensdaten gefunden" },
         { status: 400 },
       );
     }
@@ -309,10 +315,12 @@ export async function POST(req: Request) {
       );
     }
 
-    console.error("❌ Unexpected error in POST /invoices:", error);
-    return NextResponse.json(
-      { error: "Internal Server Error" },
-      { status: 500 },
-    );
+    console.error(error);
+
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      return NextResponse.json({ error: "Datenbankfehler" }, { status: 400 });
+    }
+
+    return NextResponse.json({ error: "Serverfehler" }, { status: 500 });
   }
 }

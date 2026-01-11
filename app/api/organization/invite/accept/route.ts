@@ -9,7 +9,7 @@ export async function POST(req: Request) {
   });
 
   if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "Nicht authorisiert" }, { status: 401 });
   }
 
   if (!session.user.emailVerified) {
@@ -26,7 +26,7 @@ export async function POST(req: Request) {
   });
 
   if (!invite || invite.acceptedAt || invite.expiresAt < new Date()) {
-    return NextResponse.json({ error: "Invalid invite" }, { status: 400 });
+    return NextResponse.json({ error: "Ungültige Einladung" }, { status: 400 });
   }
 
   const existingMembership = await prisma.organizationMember.findFirst({
@@ -35,14 +35,14 @@ export async function POST(req: Request) {
 
   if (existingMembership) {
     return NextResponse.json(
-      { error: "User already in organization" },
+      { error: "Benutzer ist bereits in der Organisation" },
       { status: 400 },
     );
   }
 
   if (invite.email !== session.user.email) {
     return NextResponse.json(
-      { error: "Invite email mismatch" },
+      { error: "E-Mail für Einladung stimmt nicht überein" },
       { status: 403 },
     );
   }

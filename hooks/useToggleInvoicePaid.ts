@@ -15,7 +15,10 @@ export function useToggleInvoicePaid() {
         body: JSON.stringify({ isPaid: !current }),
       });
 
-      if (!res.ok) throw new Error("Fehler beim Aktualisieren");
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.error ?? "Fehler beim Aktualisieren");
+      }
       return res.json();
     },
     onSuccess: async () => {
@@ -26,8 +29,8 @@ export function useToggleInvoicePaid() {
       });
       toast.success("Status aktualisiert!");
     },
-    onError: () => {
-      toast.error("Fehler beim Aktualisieren");
+    onError: (error) => {
+      toast.error(error.message);
     },
   });
 }

@@ -8,19 +8,22 @@ import type { Invoice } from "@/lib/zod-schema";
 export function useCreateInvoice(onSuccessReset?: () => void) {
   const queryClient = useQueryClient();
 
-  return useMutation<Invoice, unknown, Invoice>({
+  return useMutation<Invoice, Error, Invoice>({
     mutationFn: async (newInvoice: Invoice) => {
       const res = await fetch(ROUTES.INVOICES, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newInvoice),
       });
-      if (!res.ok) throw new Error("Fehler beim Erstellen");
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.error ?? "Fehler beim Erstellen");
+      }
       return res.json();
     },
 
-    onError: () => {
-      toast.error("Fehler beim Erstellen");
+    onError: (error) => {
+      toast.error(error.message);
     },
 
     onSuccess: async () => {
