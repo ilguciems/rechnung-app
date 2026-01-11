@@ -1,23 +1,31 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { useCompany } from "@/hooks";
+import { useAuth, useCompany } from "@/hooks";
 import {
   CompanySection,
   InviteWarningModal,
   InvoiceSection,
   InvoicesListSection,
+  MemberCompanyView,
   StartLoadingScreen,
   UploadLogoSection,
 } from "./";
 
 type MainPageProps = {
   hasPendingInvite: boolean;
-  user: string;
+  userName: string;
 };
 
-export default function MainPage({ hasPendingInvite, user }: MainPageProps) {
-  const { data: company, isLoading } = useCompany();
+export default function MainPage({
+  hasPendingInvite,
+  userName,
+}: MainPageProps) {
+  const { data: company, isLoading: isCompanyLoading } = useCompany();
+  const { isOrgAdmin, orgId, isLoading: isAuthLoading } = useAuth();
+
+  const isLoading = isCompanyLoading || isAuthLoading;
+  const canCreateOrEditCompany = !orgId || isOrgAdmin;
 
   if (isLoading) return <StartLoadingScreen />;
 
@@ -32,7 +40,7 @@ export default function MainPage({ hasPendingInvite, user }: MainPageProps) {
       {hasPendingInvite && <InviteWarningModal />}
       {!isLoading && !company && (
         <div className="p-5 border border-gray-200 rounded-lg bg-red-100 text-gray-700 space-y-2">
-          <p className="font-medium text-gray-900">Willkommen, {user}!</p>
+          <p className="font-medium text-gray-900">Willkommen, {userName}!</p>
           <p>
             Sie können entweder ein neues Unternehmen erstellen oder auf eine
             Einladung warten, um einer bestehenden Organisation beizutreten.
@@ -45,8 +53,14 @@ export default function MainPage({ hasPendingInvite, user }: MainPageProps) {
         </div>
       )}
 
-      <UploadLogoSection />
-      <CompanySection />
+      {canCreateOrEditCompany ? (
+        <>
+          <UploadLogoSection />
+          <CompanySection />
+        </>
+      ) : (
+        <MemberCompanyView />
+      )}
 
       <AnimatePresence>
         {company && (

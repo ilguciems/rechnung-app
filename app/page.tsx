@@ -1,13 +1,10 @@
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { auth } from "@/lib/auth";
+import { getAuthData } from "@/lib/get-auth-data";
 import { prisma } from "@/lib/prisma-client";
 import { MainPage } from "./components";
 
 export default async function Home() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await getAuthData();
 
   if (!session) redirect("/sign-in");
 
@@ -15,9 +12,7 @@ export default async function Home() {
     redirect("/admin");
   }
 
-  const membership = await prisma.organizationMember.findFirst({
-    where: { userId: session.user.id },
-  });
+  const membership = session.org;
 
   let hasPendingInvite = false;
 
@@ -33,6 +28,9 @@ export default async function Home() {
     hasPendingInvite = !!invite;
   }
   return (
-    <MainPage hasPendingInvite={hasPendingInvite} user={session.user.name} />
+    <MainPage
+      hasPendingInvite={hasPendingInvite}
+      userName={session.user.name}
+    />
   );
 }
