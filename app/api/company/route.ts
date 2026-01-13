@@ -130,15 +130,17 @@ export async function POST(req: Request) {
         },
       });
 
-      await logActivity({
-        userId: session.user.id,
-        organizationId: organization.id,
-        companyId: company.id,
-        action: "CREATE",
-        entityType: "COMPANY",
-        entityId: company.id,
-        metadata: {
-          type: "company",
+      await tx.activityLog.create({
+        data: {
+          userId: session.user.id,
+          organizationId: organization.id,
+          companyId: company.id,
+          action: "CREATE",
+          entityType: "COMPANY",
+          entityId: company.id,
+          metadata: {
+            type: "company",
+          },
         },
       });
 

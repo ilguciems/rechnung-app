@@ -75,33 +75,29 @@ export async function POST(req: Request) {
 
     const userId = session.user.id;
 
-    const organization = await prisma.organization.findFirst({
+    const membership = await prisma.organizationMember.findFirst({
       where: {
-        members: {
-          some: {
-            userId,
-            role: "admin",
-          },
-        },
+        userId,
       },
-      select: {
-        id: true,
-        company: {
-          select: {
-            id: true,
-            logoUrl: true,
+      include: {
+        organization: {
+          include: {
+            company: true,
           },
         },
       },
     });
-    if (!organization) {
+
+    const organization = membership?.organization ?? null;
+    const company = organization?.company ?? null;
+
+    if (company && membership?.role !== "admin") {
       return NextResponse.json(
-        { error: "Nicht authorisiert" },
-        { status: 401 },
+        { error: "Keine Berechtigung" },
+        { status: 403 },
       );
     }
-    const oldLogoUrl = organization?.company?.logoUrl ?? null;
-    const company = organization?.company;
+
     const formData = await req.formData();
     const file = formData.get("file") as File;
 
@@ -123,7 +119,10 @@ export async function POST(req: Request) {
     const filePath = path.join(process.cwd(), "public", "assets", fileName);
     await fs.writeFile(filePath, buffer);
 
+    let oldLogoUrl: string | null = null;
+
     if (company) {
+      oldLogoUrl = company.logoUrl;
       const logoUrl = `/assets/${fileName}`;
 
       const updated = await prisma.company.update({
@@ -183,21 +182,26 @@ export async function POST(req: Request) {
 
     const changes = diffObjects(
       { logoUrl: oldLogoUrl } as Record<string, Prisma.InputJsonValue>,
-      { logoUrl: fileName } as Record<string, Prisma.InputJsonValue>,
+      { logoUrl: `/assets/${fileName}` } as Record<
+        string,
+        Prisma.InputJsonValue
+      >,
     );
 
-    await logActivity({
-      userId: session.user.id,
-      organizationId: organization?.id,
-      companyId: company?.id,
-      action: "UPDATE",
-      entityType: "COMPANY",
-      entityId: company?.id,
-      metadata: {
-        type: "company-logo",
-        changes,
-      },
-    });
+    if (company && organization) {
+      await logActivity({
+        userId,
+        organizationId: organization.id,
+        companyId: company.id,
+        action: "UPDATE",
+        entityType: "COMPANY",
+        entityId: company.id,
+        metadata: {
+          type: "company-logo",
+          changes,
+        },
+      });
+    }
     return NextResponse.json({ status: "success", fileName });
   } catch (error) {
     console.error(error);

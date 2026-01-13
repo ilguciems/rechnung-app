@@ -72,6 +72,10 @@ function renderLogMessage(log: ActivityLogType) {
       if (log.action === "UPDATE") {
         return "Firmendaten aktualisiert";
       }
+      if (log.action === "CREATE") {
+        return "Firma erstellt";
+      }
+      break;
   }
 
   return "Unbekannte Aktion";

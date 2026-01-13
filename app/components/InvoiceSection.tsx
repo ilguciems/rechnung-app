@@ -20,7 +20,7 @@ type Product = {
 
 export default function InvoiceSection() {
   const { data: company } = useCompany();
-  const { isOrgAdmin } = useAuth();
+  const { isOrgAdmin, orgRole } = useAuth();
 
   const invoiceFormRef = useRef<HTMLDivElement | null>(null);
   const deleteButtonsRef = useRef<(HTMLButtonElement | null)[]>([]);
@@ -116,6 +116,14 @@ export default function InvoiceSection() {
     setValue("customerPhone", customer.customerPhone);
   };
 
+  /* 
+  When creating a new company, the user automatically becomes the organization admin, 
+  but orgRole is not yet set by the hook during the first rendering,
+  so orgRole is set to null and isOrgAdmin is set to false.
+  In all other cases, the role is always present at the time of rendering.
+  */
+  const canEdit = !orgRole || isOrgAdmin; //TODO: probably a better way to do this
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div className="py-6" ref={invoiceFormRef} />
@@ -129,7 +137,7 @@ export default function InvoiceSection() {
           onClick={() => scrollTo({ top: 0, behavior: "smooth" })}
         >
           <span className="flex">
-            {`Firmendaten ${isOrgAdmin ? "bearbeiten" : "ansehen"}`}
+            {`Firmendaten ${canEdit ? "bearbeiten" : "ansehen"}`}
             <ArrowUp className="ml-1" />
           </span>
         </button>
