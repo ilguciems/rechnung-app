@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { getAuthData } from "@/lib/get-auth-data";
 import { prisma } from "@/lib/prisma-client";
+import { GLOBAL_ADMIN_ROLES, type GlobalRole } from "@/types/global-roles";
 import { MainPage } from "./components";
 
 export default async function Home() {
@@ -8,7 +9,10 @@ export default async function Home() {
 
   if (!session) redirect("/sign-in");
 
-  if (session.user.role === "admin") {
+  if (
+    session?.user?.role &&
+    GLOBAL_ADMIN_ROLES.includes(session.user.role as GlobalRole)
+  ) {
     redirect("/admin");
   }
 
