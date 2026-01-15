@@ -33,9 +33,23 @@ export function useGlobalUsersList(options?: { searchValue?: string }) {
   });
 
   const setBan = useMutation({
-    mutationFn: async ({ userId, ban }: { userId: string; ban: boolean }) => {
+    mutationFn: async ({
+      userId,
+      ban,
+      reason,
+      expires,
+    }: {
+      userId: string;
+      ban: boolean;
+      reason?: string;
+      expires?: number;
+    }) => {
       if (ban) {
-        await admin.banUser({ userId });
+        await admin.banUser({
+          userId,
+          banReason: reason,
+          banExpiresIn: expires,
+        });
       } else {
         await admin.unbanUser({ userId });
       }
