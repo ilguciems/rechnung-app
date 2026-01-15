@@ -6,9 +6,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
+import { Input, Output } from "@/app/components";
 import { signUp } from "@/lib/auth-client";
 import { type SignUpType, signUpSchema } from "@/lib/zod-schema";
-import { Input, Output } from "../../../components";
 
 export default function SignUpForm() {
   const [loading, setLoading] = useState(false);

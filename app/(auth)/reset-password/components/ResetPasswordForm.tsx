@@ -5,9 +5,9 @@ import { redirect, useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
+import { Input } from "@/app/components";
 import { resetPassword } from "@/lib/auth-client";
 import { type ResetPasswordType, resetPasswordSchema } from "@/lib/zod-schema";
-import { Input } from "../../../components";
 
 export default function ResetPasswordForm() {
   const [loading, setLoading] = useState(false);
@@ -15,6 +15,7 @@ export default function ResetPasswordForm() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token") as string;
   const inviteToken = searchParams.get("inviteToken");
+  const isWelcome = searchParams.get("welcome") === "true";
   const { register, handleSubmit, formState, reset } =
     useForm<ResetPasswordType>({
       resolver: zodResolver(resetPasswordSchema),
@@ -42,7 +43,11 @@ export default function ResetPasswordForm() {
               ? `/organization/invite?token=${inviteToken}`
               : "/sign-in",
           );
-          toast.success("Password reset successful!");
+          toast.success(
+            isWelcome
+              ? "Passwort erfolgreich gesetzt!"
+              : "Password erfolgreich geändert!",
+          );
         },
         onError: (ctx) => {
           toast.error(ctx.error.message);
@@ -60,10 +65,12 @@ export default function ResetPasswordForm() {
             <div className="p-6 flex flex-col gap-4">
               <div className="mb-2">
                 <h3 className="text-lg font-bold text-gray-900 leading-6">
-                  Passwort zur&uuml;cksetzen
+                  {isWelcome ? "Konto aktivieren" : "Passwort zurücksetzen"}
                 </h3>
                 <p className="text-sm text-gray-500 mt-1">
-                  Bitte geben Sie ein neues Passwort ein.
+                  {isWelcome
+                    ? "Willkommen! Bitte legen Sie Ihr Passwort fest, um Ihr Konto zu aktivieren."
+                    : "Bitte geben Sie ein neues Passwort ein."}
                 </p>
               </div>
               <Input
@@ -95,7 +102,7 @@ export default function ResetPasswordForm() {
                         : "bg-black text-white border-transparent hover:bg-gray-800 shadow-sm"
                     }`}
                 >
-                  Passwort zur&uuml;cksetzen
+                  {isWelcome ? "Passwort festlegen" : "Passwort zurücksetzen"}
                 </button>
               </div>
             </div>

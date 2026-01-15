@@ -1,9 +1,9 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { Input, SelectField } from "@/app/components";
 import { useSendInvite } from "@/hooks";
 import { type SendInviteType, sendInviteSchema } from "@/lib/zod-schema";
-import { Input, SelectField } from "../../../../components";
 
 export default function SendInviteForm() {
   const { register, handleSubmit, formState, reset } = useForm<SendInviteType>({
