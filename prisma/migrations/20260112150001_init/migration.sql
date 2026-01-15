@@ -4,6 +4,12 @@ CREATE TYPE "LegalForm" AS ENUM ('KLEINGEWERBE', 'FREIBERUFLER', 'GBR', 'EINZELK
 -- CreateEnum
 CREATE TYPE "OrgRole" AS ENUM ('admin', 'member');
 
+-- CreateEnum
+CREATE TYPE "ActivityAction" AS ENUM ('CREATE', 'UPDATE', 'DELETE', 'DOWNLOAD', 'SEND');
+
+-- CreateEnum
+CREATE TYPE "ActivityEntity" AS ENUM ('INVOICE', 'COMPANY', 'CUSTOMER', 'USER', 'EMAIL');
+
 -- CreateTable
 CREATE TABLE "user" (
     "id" TEXT NOT NULL,
@@ -201,6 +207,21 @@ CREATE TABLE "item" (
     CONSTRAINT "item_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "activity_log" (
+    "id" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "userId" TEXT,
+    "organizationId" TEXT,
+    "companyId" TEXT,
+    "action" "ActivityAction" NOT NULL,
+    "entityType" "ActivityEntity" NOT NULL,
+    "entityId" TEXT,
+    "metadata" JSONB,
+
+    CONSTRAINT "activity_log_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "user_email_key" ON "user"("email");
 
@@ -240,6 +261,18 @@ CREATE UNIQUE INDEX "invoice_invoiceNumber_key" ON "invoice"("invoiceNumber");
 -- CreateIndex
 CREATE INDEX "invoice_createdAt_idx" ON "invoice"("createdAt");
 
+-- CreateIndex
+CREATE INDEX "activity_log_createdAt_idx" ON "activity_log"("createdAt");
+
+-- CreateIndex
+CREATE INDEX "activity_log_userId_idx" ON "activity_log"("userId");
+
+-- CreateIndex
+CREATE INDEX "activity_log_organizationId_idx" ON "activity_log"("organizationId");
+
+-- CreateIndex
+CREATE INDEX "activity_log_companyId_idx" ON "activity_log"("companyId");
+
 -- AddForeignKey
 ALTER TABLE "session" ADD CONSTRAINT "session_userId_fkey" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
@@ -275,3 +308,12 @@ ALTER TABLE "invoice" ADD CONSTRAINT "invoice_companySnapshotId_fkey" FOREIGN KE
 
 -- AddForeignKey
 ALTER TABLE "item" ADD CONSTRAINT "item_invoiceId_fkey" FOREIGN KEY ("invoiceId") REFERENCES "invoice"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "activity_log" ADD CONSTRAINT "activity_log_userId_fkey" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "activity_log" ADD CONSTRAINT "activity_log_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "organization"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "activity_log" ADD CONSTRAINT "activity_log_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE SET NULL ON UPDATE CASCADE;
