@@ -2,12 +2,12 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { Input } from "@/app/components";
 import { useOrganizationName, useUpdateOrganizationName } from "@/hooks";
 import {
   type OrganizationNameType,
   organizationNameSchema,
 } from "@/lib/zod-schema";
-import { Input } from "../../../../components";
 
 export default function NameForm() {
   const { data: organization } = useOrganizationName();

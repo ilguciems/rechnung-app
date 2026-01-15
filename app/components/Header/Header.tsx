@@ -1,13 +1,17 @@
 import { Activity, ShieldUser, UserRoundCog } from "lucide-react";
 import Link from "next/link";
 import { getAuthData } from "@/lib/get-auth-data";
+import { GLOBAL_ADMIN_ROLES, type GlobalRole } from "@/types/global-roles";
+import { ORG_ADMIN_ROLES, type OrgRole } from "@/types/org-roles";
 
 import { HeaderTimer, LogoutButton } from "./components";
 
 export default async function Header() {
   const session = await getAuthData();
-  const isGlobalAdmin = session?.user.role === "admin";
-  const isOrgAdmin = session?.org?.role === "admin";
+  const isGlobalAdmin = GLOBAL_ADMIN_ROLES.includes(
+    session?.user?.role as GlobalRole,
+  );
+  const isOrgAdmin = ORG_ADMIN_ROLES.includes(session?.org?.role as OrgRole);
   const orgId = session?.org?.id;
 
   return (

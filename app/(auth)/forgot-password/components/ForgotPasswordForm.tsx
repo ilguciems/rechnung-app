@@ -5,12 +5,12 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
+import { Input } from "@/app/components";
 import { requestPasswordReset } from "@/lib/auth-client";
 import {
   type ForgotPasswordType,
   forgotPasswordSchema,
 } from "@/lib/zod-schema";
-import { Input } from "../../../components";
 
 export default function ForgotPasswordForm() {
   const [loading, setLoading] = useState(false);

@@ -3,6 +3,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { ROUTES } from "@/lib/api-routes";
 import { useSession } from "@/lib/auth-client";
+import { GlobalRole } from "@/types/global-roles";
+import { OrgRole } from "@/types/org-roles";
 
 export function useAuth() {
   const { data: session, isPending: isSessionPending } = useSession();
@@ -30,7 +32,7 @@ export function useAuth() {
     orgId: orgData?.id ?? null,
     ogrName: orgData?.name ?? null,
     isLoading: isSessionPending || isOrgPending,
-    isGlobalAdmin: session?.user?.role === "admin",
-    isOrgAdmin: orgData?.role === "admin",
+    isGlobalAdmin: session?.user?.role === GlobalRole.admin,
+    isOrgAdmin: orgData?.role === OrgRole.admin,
   };
 }

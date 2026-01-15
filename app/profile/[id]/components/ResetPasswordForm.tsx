@@ -3,12 +3,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
+import { Input } from "@/app/components";
 import { changePassword } from "@/lib/auth-client";
 import {
   type ChangePasswordType,
   changePasswordSchema,
 } from "@/lib/zod-schema";
-import { Input } from "../../../components";
 
 export default function ResetPasswordForm() {
   const [isLoading, setIsLoading] = useState(false);
