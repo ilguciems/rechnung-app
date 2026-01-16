@@ -44,6 +44,19 @@ export async function DELETE() {
       );
     }
 
+    if (
+      membership.role === "member" &&
+      lastInvoice.createdByUserId !== session.user.id
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Die letzte Rechnung wurde von einem anderen Benutzer erstellt und kann daher nicht gelöscht werden.",
+        },
+        { status: 403 },
+      );
+    }
+
     await prisma.item.deleteMany({
       where: { invoiceId: lastInvoice.id },
     });

@@ -188,6 +188,7 @@ CREATE TABLE "invoice" (
     "customerCountry" TEXT NOT NULL DEFAULT 'Deutschland',
     "customerEmail" TEXT,
     "customerPhone" TEXT,
+    "createdByUserId" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "isPaid" BOOLEAN NOT NULL DEFAULT false,
     "paidAt" TIMESTAMP(3),
@@ -299,6 +300,9 @@ ALTER TABLE "organization_invite" ADD CONSTRAINT "organization_invite_organizati
 
 -- AddForeignKey
 ALTER TABLE "company_snapshot" ADD CONSTRAINT "company_snapshot_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "invoice" ADD CONSTRAINT "invoice_createdByUserId_fkey" FOREIGN KEY ("createdByUserId") REFERENCES "user"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "invoice" ADD CONSTRAINT "invoice_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

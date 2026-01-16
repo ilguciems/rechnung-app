@@ -66,6 +66,7 @@ model User {
   memberships   OrganizationMember[]
   organizations Organization[]
   activityLogs  ActivityLog[]
+  invoices      Invoice[]
 
   @@unique([email])
   @@map("user")
@@ -270,6 +271,9 @@ model Invoice {
 
   customerEmail String?
   customerPhone String?
+
+  createdByUserId String
+  createdByUser   User   @relation(fields: [createdByUserId], references: [id])
 
   createdAt DateTime  @default(now())
   isPaid    Boolean   @default(false)

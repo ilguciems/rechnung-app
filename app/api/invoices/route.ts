@@ -268,6 +268,8 @@ export async function POST(req: Request) {
         companySnapshotId: snapshot.id,
         isPaid: false,
 
+        createdByUserId: session.user.id,
+
         // Insert customer fields + computed customerNumber
         customerNumber,
         customerName: data.customerName.trim(),
