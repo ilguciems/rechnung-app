@@ -3,6 +3,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
+import { useAuth } from "@/hooks";
 import { ROUTES } from "@/lib/api-routes";
 
 export default function DeleteLastInvoiceButton({
@@ -11,6 +12,8 @@ export default function DeleteLastInvoiceButton({
   hasInvoices: boolean;
 }) {
   const [open, setOpen] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
+  const { orgRole } = useAuth();
   const queryClient = useQueryClient();
 
   const triggerButtonRef = useRef<HTMLButtonElement>(null);
@@ -19,7 +22,10 @@ export default function DeleteLastInvoiceButton({
   const deleteLastInvoice = useMutation({
     mutationFn: async () => {
       const res = await fetch(ROUTES.INVOICES_LAST, { method: "DELETE" });
-      if (!res.ok) throw new Error("Fehler beim Löschen");
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.error ?? "Fehler beim Löschen der Rechnung");
+      }
       return res.json();
     },
     onSuccess: async () => {
@@ -31,8 +37,9 @@ export default function DeleteLastInvoiceButton({
       setOpen(false);
       toast.success("Rechnung gelöscht!");
     },
-    onError: () => {
-      toast.error("Fehler beim Löschen der Rechnung");
+    onError: (error) => {
+      setApiError(error.message);
+      toast.error(error.message);
       setOpen(false);
     },
   });
@@ -101,7 +108,7 @@ export default function DeleteLastInvoiceButton({
       >
         Letzte Rechnung löschen
       </button>
-
+      {apiError && <p className="text-red-600 mt-2 text-xs">{apiError}</p>}
       {/* Modal */}
       {open && (
         <div
@@ -119,6 +126,12 @@ export default function DeleteLastInvoiceButton({
               Diese Aktion kann <strong>nicht</strong> rückgängig gemacht
               werden. Die letzte Rechnung wird endgültig gelöscht.
             </p>
+            {orgRole === "member" && (
+              <p className="text-sm text-red-600 mb-4">
+                <strong>Wichtig:</strong> Es können nur Rechnungen gelöscht
+                werden, die Sie selbst erstellt haben.
+              </p>
+            )}
             <div className="flex justify-end gap-2">
               <button
                 type="button"
