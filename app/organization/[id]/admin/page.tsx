@@ -8,7 +8,7 @@ import {
 import { redirect } from "next/navigation";
 import { getAuthData } from "@/lib/get-auth-data";
 import { Tabs } from "../../../components";
-import { Logs, NameForm, SendInviteForm } from "./components";
+import { Logs, MembershipList, NameForm, SendInviteForm } from "./components";
 
 const tabs = [
   {
@@ -35,7 +35,7 @@ const tabs = [
     id: "members",
     label: "Mitglieder",
     icon: <Users />,
-    content: <div>Mitglieder (in Verarbeitung)</div>,
+    content: <MembershipList />,
   },
   {
     id: "settings",
