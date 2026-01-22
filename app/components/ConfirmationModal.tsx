@@ -6,7 +6,7 @@ interface ConfirmationModalProps {
   onClose: () => void;
   onConfirm: () => void;
   title: string;
-  description: string;
+  description?: string;
   confirmText?: string;
   isPending?: boolean;
   children?: React.ReactNode;
@@ -80,6 +80,7 @@ export default function ConfirmationModal({
   return (
     <div
       role="dialog"
+      aria-modal="true"
       className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4"
       onKeyDown={trapFocus}
     >
