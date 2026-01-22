@@ -58,7 +58,7 @@
     "jsdom": "^27.0.0",
     "msw": "^2.11.6",
     "playwright": "^1.56.0",
-    "prisma": "^7.2.0",
+    "prisma": "^7.3.0",
     "tailwindcss": "^4",
     "tsx": "^4.21.0",
     "typescript": "^5",
