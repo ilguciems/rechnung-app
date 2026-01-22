@@ -3,6 +3,7 @@ import {
   type ActivityLogType,
   useInviteAccept,
   useLogs,
+  useMembership,
   useOrganizationName,
   useSendInvite,
   useUpdateOrganizationName,
@@ -32,3 +33,4 @@ export { useOrganizationName };
 export { useGlobalUsersList };
 export { useInviteAccept };
 export { useLogs, type ActivityLogType };
+export { useMembership };
