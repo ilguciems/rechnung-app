@@ -27,7 +27,7 @@ export default function NameForm() {
   }, [reset, organization]);
 
   const updateName = useUpdateOrganizationName();
-  console.log(organization?.name);
+
   const onSubmit = (data: OrganizationNameType) => {
     updateName.mutate(data);
   };

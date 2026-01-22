@@ -1,4 +1,5 @@
 import CompanySection from "./CompanySection";
+import ConfirmationModal from "./ConfirmationModal";
 import Header from "./Header";
 import Input from "./Input";
 import { InviteWarningModal } from "./InviteWarningModal";
@@ -18,6 +19,7 @@ export {
   CompanySection,
   InvoiceSection,
   InvoicesListSection,
+  ConfirmationModal,
   UploadLogoSection,
   StartLoadingScreen,
   MainPage,
