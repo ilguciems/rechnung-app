@@ -327,3 +327,12 @@ export type SendInviteType = z.infer<typeof sendInviteSchema>;
 export const organizationNameSchema = z.object({ name: z.string().min(2) });
 
 export type OrganizationNameType = z.infer<typeof organizationNameSchema>;
+
+export const organizationMembershipSchema = z.object({
+  role: z.enum(["admin", "member"]),
+  user: z.object({ id: z.string(), name: z.string(), email: z.email() }),
+});
+
+export type OrganizationMembershipType = z.infer<
+  typeof organizationMembershipSchema
+>;
