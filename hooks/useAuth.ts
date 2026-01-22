@@ -10,9 +10,9 @@ export function useAuth() {
   const { data: session, isPending: isSessionPending } = useSession();
 
   const { data: orgData, isLoading: isOrgPending } = useQuery({
-    queryKey: ["membership-data", session?.user?.id],
+    queryKey: ["membership-my", session?.user?.id],
     queryFn: async () => {
-      const res = await fetch(ROUTES.ORGANIZATION_MEMBERSHIP);
+      const res = await fetch(ROUTES.ORGANIZATION_MEMBERSHIP_MY);
       if (!res.ok) {
         const data = await res.json().catch(() => null);
         throw new Error(data?.error ?? "Fehler beim Laden");
