@@ -19,4 +19,5 @@ export const ROUTES = {
   ORGANIZATION_MEMBERSHIP_MY: "/api/organization/membership/my",
   ORGANIZATION_LOGS: "/api/organization/logs",
   ORGANIZATION_MEMBERSHIP: "/api/organization/membership",
+  ORGANIZATION_PENDING_INVITATIONS: "/api/organization/invite/pending",
 };
