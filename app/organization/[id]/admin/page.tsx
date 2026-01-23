@@ -1,36 +1,16 @@
-import {
-  Building2,
-  Handshake,
-  Logs as LogsIcon,
-  Settings,
-  Users,
-} from "lucide-react";
+import { Handshake, Logs as LogsIcon, Settings, Users } from "lucide-react";
 import { redirect } from "next/navigation";
+import { Tabs } from "@/app/components";
 import { getAuthData } from "@/lib/get-auth-data";
-import { Tabs } from "../../../components";
-import { Logs, MembershipList, NameForm, SendInviteForm } from "./components";
+import {
+  Logs,
+  MembershipList,
+  NameForm,
+  PendingInvitationsList,
+  SendInviteForm,
+} from "./components";
 
 const tabs = [
-  {
-    id: "organization",
-    label: "Organisation",
-    icon: <Building2 />,
-    content: (
-      <>
-        <NameForm /> <div>Organisation (in Verarbeitung)</div>
-      </>
-    ),
-  },
-  {
-    id: "invitations",
-    label: "Einladungen",
-    icon: <Handshake />,
-    content: (
-      <>
-        <SendInviteForm /> <div>Einladungen (in Verarbeitung)</div>
-      </>
-    ),
-  },
   {
     id: "members",
     label: "Mitglieder",
@@ -38,12 +18,28 @@ const tabs = [
     content: <MembershipList />,
   },
   {
+    id: "invitations",
+    label: "Einladungen",
+    icon: <Handshake />,
+    content: (
+      <>
+        <SendInviteForm />
+        <PendingInvitationsList />
+      </>
+    ),
+  },
+  {
     id: "settings",
     label: "Einstellungen",
     icon: <Settings />,
-    content: <div>Einstellungen (in Verarbeitung)</div>,
+    content: <NameForm />,
   },
-  { id: "logs", label: "Logs", icon: <LogsIcon />, content: <Logs /> },
+  {
+    id: "logs",
+    label: "Logs",
+    icon: <LogsIcon />,
+    content: <Logs />,
+  },
 ];
 
 export default async function Admin() {
