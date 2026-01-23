@@ -23,7 +23,7 @@ export default function SendInviteForm() {
   return (
     <section className="border border-gray-100 p-4 rounded-xl">
       <div className="grid grid-cols-1 gap-6 max-w-md mx-auto">
-        <h2 className="text-2xl mb-6">Invite senden</h2>
+        <h2 className="text-2xl mb-6">Einladung senden</h2>
         <form onSubmit={handleSubmit(onSubmit)}>
           <Input
             label="Email"
@@ -51,7 +51,7 @@ export default function SendInviteForm() {
             className="block w-full bg-black text-sm font-medium text-white py-2 rounded mt-4 cursor-pointer hover:bg-black-900"
             disabled={createInvoice.isPending}
           >
-            {createInvoice.isPending ? "Lade..." : "Invite senden"}
+            {createInvoice.isPending ? "Lade..." : "Einladung senden"}
           </button>
         </form>
       </div>

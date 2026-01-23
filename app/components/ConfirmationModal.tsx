@@ -1,4 +1,5 @@
 "use client";
+import { X } from "lucide-react";
 import { useEffect, useRef } from "react";
 
 interface ConfirmationModalProps {
@@ -63,7 +64,7 @@ export default function ConfirmationModal({
       const focusables = modalRef.current?.querySelectorAll<HTMLElement>(
         'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
       );
-      focusables?.[0]?.focus();
+      focusables?.[1]?.focus();
     } else {
       document.body.style.overflow = "";
       if (previousFocusRef.current) {
@@ -86,8 +87,16 @@ export default function ConfirmationModal({
     >
       <div
         ref={modalRef}
-        className="bg-white rounded-xl shadow-xl p-6 max-w-sm w-full animate-in fade-in zoom-in duration-200"
+        className="bg-white rounded-xl shadow-xl p-6 max-w-sm w-full animate-in fade-in zoom-in duration-200 relative"
       >
+        <button
+          type="button"
+          aria-labelledby="Schließen"
+          className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 transition-colors"
+          onClick={onClose}
+        >
+          <X className="h-6 w-6 " />
+        </button>
         <h2 className="text-xl font-bold mb-2 text-gray-900">{title}</h2>
         <p className="text-sm text-gray-600 mb-4">{description}</p>
 
