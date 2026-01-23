@@ -1,11 +1,12 @@
 "use client";
 
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { ROUTES } from "@/lib/api-routes";
 import type { SendInviteType } from "@/lib/zod-schema";
 
 export function useSendInvite(onSuccessReset?: () => void) {
+  const queryClient = useQueryClient();
   return useMutation<SendInviteType, Error, SendInviteType>({
     mutationFn: async (invite: SendInviteType) => {
       const res = await fetch(ROUTES.INVITE_ORGANIZATION, {
@@ -26,6 +27,7 @@ export function useSendInvite(onSuccessReset?: () => void) {
     },
 
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["pending-invitations"] });
       toast.success("Invitation gesendet!");
 
       if (onSuccessReset) onSuccessReset();

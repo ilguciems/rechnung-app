@@ -5,6 +5,7 @@ import {
   useLogs,
   useMembership,
   useOrganizationName,
+  usePendingInvitations,
   useSendInvite,
   useUpdateOrganizationName,
 } from "./organization";
@@ -34,3 +35,4 @@ export { useGlobalUsersList };
 export { useInviteAccept };
 export { useLogs, type ActivityLogType };
 export { useMembership };
+export { usePendingInvitations };
