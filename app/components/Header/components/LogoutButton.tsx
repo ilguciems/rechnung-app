@@ -13,11 +13,11 @@ export function LogoutButton() {
       type="button"
       aria-label="Logout"
       title="Abmelden"
-      className="p-2 cursor-pointer bg-black rounded-full hover:bg-gray-800 flex items-center gap-1 "
+      className="p-2 cursor-pointer rounded-full bg-gray-200 hover:bg-gray-300 flex items-center gap-1 transition-colors duration-300"
       onClick={onLogoutClick}
     >
-      <span className="pl-2 text-sm text-white hidden sm:block">Abmelden</span>
-      <LogOut color="white" className="w-6 h-6" />
+      <span className="pl-2 text-sm text-black hidden sm:block">Abmelden</span>
+      <LogOut color="black" className="w-6 h-6" />
     </button>
   );
 }
