@@ -4,14 +4,20 @@ import { auth } from "@/lib/auth";
 import { decrypt } from "@/lib/crypto-utils";
 import { prisma } from "@/lib/prisma-client";
 
+type Attachment = {
+  fileName: string;
+  base64: string;
+};
+
 type SendEmailProps = {
   to: string;
   subject: string;
   text: string;
-  attachment: string;
-  fileName: string;
   recipientName: string;
   html?: string;
+  attachment?: string; 
+  fileName?: string;
+  attachments?: Attachment[];
 };
 
 export async function sendOrganizationEmail({
@@ -19,6 +25,7 @@ export async function sendOrganizationEmail({
   subject,
   text,
   attachment,
+  attachments,
   fileName,
   recipientName,
   html,
@@ -73,6 +80,26 @@ export async function sendOrganizationEmail({
     const emailFrom = organization.mailjet.fromEmail as string;
     const fromName = organization.mailjet.fromName as string;
 
+    const mailjetAttachments = [];
+
+  if (attachment && fileName) {
+    mailjetAttachments.push({
+      ContentType: "application/pdf",
+      Filename: fileName,
+      Base64Content: attachment,
+    });
+  }
+
+  if (attachments && attachments.length > 0) {
+    attachments.forEach((att) => {
+      mailjetAttachments.push({
+        ContentType: "application/pdf",
+        Filename: att.fileName,
+        Base64Content: att.base64,
+      });
+    });
+  }
+
     const response = await mailjet.post("send", { version: "v3.1" }).request({
       Messages: [
         {
@@ -89,13 +116,7 @@ export async function sendOrganizationEmail({
           Subject: subject,
           TextPart: text,
           HtmlPart: html,
-          Attachments: [
-            {
-              ContentType: "application/pdf",
-              Filename: fileName,
-              Base64Content: attachment,
-            },
-          ],
+          Attachments: mailjetAttachments,
         },
       ],
     });

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { logActivity } from "@/lib/activity-log";
 import { getAuthData } from "@/lib/get-auth-data";
-import { generateMahnungPDF } from "@/lib/pdf"; // Твой существующий генератор
+import { generateMahnungPDF, generateInvoicePDF } from "@/lib/pdf";
 import { prisma } from "@/lib/prisma-client";
 import { sendOrganizationEmail } from "@/utils/organization-email";
 
@@ -46,15 +46,30 @@ export async function POST(
       },
     );
 
-    const base64Attachment = Buffer.from(pdfBuffer).toString("base64");
+    const attachments = [
+  {
+    fileName: `${level === 1 ? "Zahlungserinnerung" : `${level - 1}.mahnung`}-${invoice.invoiceNumber}.pdf`,
+    base64: Buffer.from(pdfBuffer).toString("base64"),
+  },
+];
+
+if (level === 1) {
+  const originalPdfBuffer = await generateInvoicePDF(
+    invoice,
+    invoice.companySnapshot
+  );
+  attachments.push({
+    fileName: `Kopie_Rechnung_${invoice.invoiceNumber}.pdf`,
+    base64: Buffer.from(originalPdfBuffer).toString("base64"),
+  });
+}
 
     await sendOrganizationEmail({
       to,
       recipientName: invoice.customerName,
       subject: subject,
       text: message,
-      fileName: `${level === 1 ? "Zahlungserinnerung" : `${level - 1}.mahnung`}-${invoice.invoiceNumber}.pdf`,
-      attachment: base64Attachment,
+      attachments: attachments,
       html: message.replace(/\n/g, "<br>"),
     });
 
