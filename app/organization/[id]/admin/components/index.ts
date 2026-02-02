@@ -1,4 +1,5 @@
 import Logs from "./Logs";
+import MailJetConfigForm from "./MailjetConfigForm";
 import MembershipList from "./MembershipList";
 import NameForm from "./NameForm";
 import PendingInvitationsList from "./PendingInvitationsList";
@@ -10,4 +11,5 @@ export {
   Logs,
   MembershipList,
   PendingInvitationsList,
+  MailJetConfigForm,
 };

@@ -4,6 +4,7 @@ import { Tabs } from "@/app/components";
 import { getAuthData } from "@/lib/get-auth-data";
 import {
   Logs,
+  MailJetConfigForm,
   MembershipList,
   NameForm,
   PendingInvitationsList,
@@ -32,7 +33,12 @@ const tabs = [
     id: "settings",
     label: "Einstellungen",
     icon: <Settings />,
-    content: <NameForm />,
+    content: (
+      <>
+        <NameForm />
+        <MailJetConfigForm />
+      </>
+    ),
   },
   {
     id: "logs",
