@@ -4,10 +4,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowUp } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
-import { useAuth, useCompany, useCreateInvoice } from "@/hooks";
+import { useAuth, useCompany, useCreateInvoice, useMailStatus } from "@/hooks";
 import { ROUTES } from "@/lib/api-routes";
 import { type Invoice, invoiceSchema } from "@/lib/zod-schema";
 import AutoCompleteInput from "./AutoCompleteInput";
+import EmailSettingHint from "./EmailSettingHint";
 import Input from "./Input";
 import { SelectField } from "./SelectField";
 
@@ -20,7 +21,8 @@ type Product = {
 
 export default function InvoiceSection() {
   const { data: company } = useCompany();
-  const { isOrgAdmin, orgRole } = useAuth();
+  const { isOrgAdmin, orgRole, orgId } = useAuth();
+  const { data: mailStatus } = useMailStatus();
 
   const invoiceFormRef = useRef<HTMLDivElement | null>(null);
   const deleteButtonsRef = useRef<(HTMLButtonElement | null)[]>([]);
@@ -127,6 +129,9 @@ export default function InvoiceSection() {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div className="py-6" ref={invoiceFormRef} />
+      {!mailStatus?.canSendEmail && isOrgAdmin && (
+        <EmailSettingHint id={orgId} />
+      )}
       <div className="flex flex-col sm:flex-row gap-3 justify-between pt-3">
         <h2 className="text-xl font-semibold order-last sm:order-first">
           Neue Rechnung
