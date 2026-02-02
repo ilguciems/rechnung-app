@@ -8,7 +8,7 @@ export function useToggleInvoicePaid() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, current }: { id: number; current: boolean }) => {
+    mutationFn: async ({ id, current }: { id: string; current: boolean }) => {
       const res = await fetch(ROUTES.INVOICE(id), {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
