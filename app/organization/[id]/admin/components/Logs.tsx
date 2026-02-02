@@ -57,7 +57,7 @@ function renderLogMessage(log: ActivityLogType) {
 
       if (log.action === "DOWNLOAD") {
         if (log.metadata.type === "payment-reminder") {
-          return `Mahnung (Stufe ${log.metadata.level}) für Rechnung ${log.metadata.invoiceNumber} als PDF heruntergeladen`;
+          return `${log.metadata.level === 1 ? "Zahlungserinnerung" : "Mahnung"} (Stufe ${log.metadata.level}) für Rechnung ${log.metadata.invoiceNumber} als PDF heruntergeladen`;
         }
         return `Rechnung ${log.metadata.invoiceNumber} als PDF heruntergeladen`;
       }
@@ -74,6 +74,15 @@ function renderLogMessage(log: ActivityLogType) {
       }
       if (log.action === "CREATE") {
         return "Firma erstellt";
+      }
+      break;
+
+    case "EMAIL":
+      if (log.action === "SEND") {
+        if (log.metadata.type === "payment-reminder") {
+          return `${log.metadata.level === 1 ? "Zahlungserinnerung" : "Mahnung"} (Stufe ${log.metadata.level}) für Rechnung ${log.metadata.invoiceNumber} per E-Mail versendet`;
+        }
+        return `Rechnung ${log.metadata.invoiceNumber} per E-Mail versendet`;
       }
       break;
   }
