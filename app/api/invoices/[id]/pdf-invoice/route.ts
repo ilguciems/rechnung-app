@@ -38,7 +38,30 @@ export async function GET(
     );
   }
 
-  const pdfBuffer = await generateInvoicePDF(invoice, invoice.companySnapshot);
+  let finalInvoice = invoice;
+
+  if (invoice.deliveryMethod === "POST" && !invoice.invoiceSentAt) {
+    finalInvoice = await prisma.invoice.update({
+      where: { id },
+      data: {
+        lastSentAt: new Date(),
+        invoiceSentAt: new Date(),
+      },
+      include: { items: true, companySnapshot: true },
+    });
+  }
+
+  if (!finalInvoice.companySnapshot) {
+    return NextResponse.json(
+      { error: "Company snapshot fehlt" },
+      { status: 500 },
+    );
+  }
+
+  const pdfBuffer = await generateInvoicePDF(
+    finalInvoice,
+    finalInvoice.companySnapshot,
+  );
 
   await logActivity({
     userId: session.user.id,
