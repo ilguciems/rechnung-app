@@ -47,6 +47,11 @@ enum ActivityEntity {
   EMAIL
 }
 
+enum DeliveryMethod {
+  EMAIL
+  POST
+}
+
 model User {
   id            String    @id
   name          String
@@ -258,7 +263,7 @@ model CompanySnapshot {
 }
 
 model Invoice {
-  id             String  @unique @default(cuid())
+  id             String  @id @default(cuid())
   invoiceNumber  String  @unique
   customerName   String
   customerNumber String?
@@ -284,6 +289,17 @@ model Invoice {
   company           Company          @relation(fields: [companyId], references: [id])
   companySnapshot   CompanySnapshot? @relation(fields: [companySnapshotId], references: [id])
   companySnapshotId String?
+
+  lastSentAt        DateTime?
+  lastReminderLevel Int?      @default(0)
+
+  invoiceSentAt DateTime?
+
+  firstReminderSentAt  DateTime?
+  secondReminderSentAt DateTime?
+  thirdReminderSentAt  DateTime?
+
+  deliveryMethod DeliveryMethod @default(EMAIL)
 
   @@index([createdAt])
   @@map("invoice")
