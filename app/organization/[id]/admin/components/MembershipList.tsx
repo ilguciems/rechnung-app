@@ -1,10 +1,10 @@
 "use client";
 
 import { Ban, LoaderCircle, ShieldAlert, ShieldCheck } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 import { ConfirmationModal } from "@/app/components";
-import { useMembership } from "@/hooks";
-import { useSession } from "@/lib/auth-client";
+import { useAuth, useMembership } from "@/hooks";
 
 export default function MembershipList() {
   const {
@@ -13,7 +13,7 @@ export default function MembershipList() {
     changeRole,
     deleteMembership,
   } = useMembership();
-  const { data: session } = useSession();
+  const { session, orgId } = useAuth();
 
   const [modalConfig, setModalConfig] = useState<{
     type: "role" | "delete";
@@ -45,12 +45,28 @@ export default function MembershipList() {
     }
   };
 
+  if (memberships?.length === 1) {
+    return (
+      <div className="p-4 text-sm text-slate-500 bg-slate-50/50 rounded-lg border border-dashed border-slate-200">
+        Bisher gibt es keine weiteren Mitglieder in Ihrer Organisation. Sie
+        können neue Mitglieder{" "}
+        <Link
+          href={`/organization/${orgId}/admin?tab=invitations`}
+          className="font-medium underline underline-offset-4 hover:text-slate-700 transition-colors"
+        >
+          hier einladen
+        </Link>
+        .
+      </div>
+    );
+  }
+
   return (
     <>
       <ul className="rounded-xl border border-gray-200 bg-white shadow-sm">
         {memberships?.map(({ role, user }) => {
           const isAdmin = role === "admin";
-          if (!session || user.id === session?.user.id) return null;
+          if (user.id === session?.user.id) return null;
           return (
             <li
               key={user.id}
