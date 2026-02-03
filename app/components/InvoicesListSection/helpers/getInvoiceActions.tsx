@@ -113,12 +113,18 @@ export function getInvoiceActions({
       <span className="flex items-center">
         <FileText className="w-4 h-4 mr-2" />
         <span>Rechnung als PDF</span>
+        {canSendEmail && (
+          <span
+            className={`ml-2 w-3 h-3 rounded-full ${inv.invoiceSentAt ? "bg-green-500" : "bg-orange-400 animate-pulse"}`}
+            title={inv.invoiceSentAt ? "Versendet" : "Entwurf"}
+          />
+        )}
       </span>
     ),
     onClick: () => downloadInvoice(inv.id),
   });
 
-  if (canSendEmail) {
+  if (canSendEmail && !inv.invoiceSentAt) {
     actions.push({
       id: `${inv.id}-email`,
       text: "Rechnung per Email",
@@ -134,6 +140,11 @@ export function getInvoiceActions({
 
   if (inv.overduePaymentLevel) {
     for (let l = 1; l <= inv.overduePaymentLevel; l++) {
+      const isSent =
+        (l === 1 && inv.firstReminderSentAt) ||
+        (l === 2 && inv.secondReminderSentAt) ||
+        (l === 3 && inv.thirdReminderSentAt);
+
       actions.push({
         id: `${inv.id}-dl-reminder-${l}`,
         text: MAHNUNG_OPTIONS[l].title,
@@ -141,6 +152,12 @@ export function getInvoiceActions({
           <span className="flex items-center">
             <Bell className={`w-4 h-4 mr-2 ${MAHNUNG_OPTIONS[l].color}`} />
             <span>{MAHNUNG_OPTIONS[l].title}</span>
+            {canSendEmail && (
+              <span
+                className={`ml-2 w-3 h-3 rounded-full ${isSent ? "bg-green-500" : "bg-orange-400 animate-pulse"}`}
+                title={isSent ? "Versendet" : "Entwurf"}
+              />
+            )}
           </span>
         ),
         onClick: () => downloadReminder(inv.id, l),
