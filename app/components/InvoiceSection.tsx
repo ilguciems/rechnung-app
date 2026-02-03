@@ -2,11 +2,11 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowUp } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useAuth, useCompany, useCreateInvoice, useMailStatus } from "@/hooks";
 import { ROUTES } from "@/lib/api-routes";
-import { type Invoice, invoiceSchema } from "@/lib/zod-schema";
+import { type Invoice, invoiceSchema as schema } from "@/lib/zod-schema";
 import AutoCompleteInput from "./AutoCompleteInput";
 import EmailSettingHint from "./EmailSettingHint";
 import Input from "./Input";
@@ -22,10 +22,23 @@ type Product = {
 export default function InvoiceSection() {
   const { data: company } = useCompany();
   const { isOrgAdmin, orgRole, orgId } = useAuth();
-  const { data: mailStatus } = useMailStatus();
+  const { data: mailStatus, isLoading: isMailStatusLoading } = useMailStatus();
 
   const invoiceFormRef = useRef<HTMLDivElement | null>(null);
   const deleteButtonsRef = useRef<(HTMLButtonElement | null)[]>([]);
+  const canSendEmail = mailStatus?.canSendEmail ?? false;
+
+  const invoiceSchema = useMemo(() => {
+    return schema.superRefine((data, ctx) => {
+      if (canSendEmail && (!data.customerEmail || data.customerEmail === "")) {
+        ctx.addIssue({
+          code: "custom",
+          message: "E-Mail ist erforderlich für den E-Mail-Versand",
+          path: ["customerEmail"],
+        });
+      }
+    });
+  }, [canSendEmail]);
 
   useEffect(() => {
     if (company) {
@@ -129,7 +142,7 @@ export default function InvoiceSection() {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div className="py-6" ref={invoiceFormRef} />
-      {!mailStatus?.canSendEmail && isOrgAdmin && (
+      {!canSendEmail && isOrgAdmin && !isMailStatusLoading && (
         <EmailSettingHint id={orgId} />
       )}
       <div className="flex flex-col sm:flex-row gap-3 justify-between pt-3">
@@ -216,7 +229,7 @@ export default function InvoiceSection() {
         <Input
           bgWhite
           name="customerEmail"
-          label="E-Mail (optional)"
+          label={`E-Mail ${canSendEmail ? "" : " (optional)"}`}
           className="col-span-2 sm:col-span-1"
           register={register}
           errors={errors}
