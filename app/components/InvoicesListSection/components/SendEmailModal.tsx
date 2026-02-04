@@ -1,9 +1,20 @@
 "use client";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { FileText, Mail, Paperclip, Send, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
+import { z } from "zod";
 import type { Invoice } from "../helpers";
+
+const emailSchema = z.object({
+  to: z.email("Ungültige E-Mail-Adresse"),
+  subject: z.string().min(1, "Betreff erforderlich"),
+  message: z.string().min(1, "Nachricht erforderlich"),
+});
+
+type EmailFormValues = z.infer<typeof emailSchema>;
 
 const levels = [
   { id: 0, label: "Rechnung" },
@@ -26,33 +37,41 @@ export function SendEmailModal({
   onClose: () => void;
 }) {
   const queryClient = useQueryClient();
-
   const modalRef = useRef<HTMLDivElement>(null);
-
-  const [emailData, setEmailData] = useState({
-    to: invoice.customerEmail || "",
-    subject:
-      type === "invoice"
-        ? `Rechnung ${invoice.invoiceNumber}`
-        : `${level === 1 ? "Zahlungserinnerung" : `${level - 1}. Mahnung`} zur Rechnung ${invoice.invoiceNumber}`,
-    message:
-      type === "invoice"
-        ? `Sehr geehrte(r) ${invoice.customerName},\n\nanbei erhalten Sie Ihre Rechnung ${invoice.invoiceNumber}.`
-        : `Sehr geehrte(r) ${invoice.customerName},\n\ndies ist eine freundliche Erinnerung zur Rechnung ${invoice.invoiceNumber}.`,
-  });
-
   const [loading, setLoading] = useState(false);
 
-  const currentLevel = invoice.lastReminderLevel || 0;
-  const nextLevel = Math.min(currentLevel + 1, 3);
   const activeStepIndex = type === "invoice" ? 0 : level;
 
-  const handleSend = async () => {
-    if (!emailData.to.includes("@")) {
-      toast.error("Bitte eine gültige E-Mail-Adresse eingeben");
-      return;
-    }
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<EmailFormValues>({
+    resolver: zodResolver(emailSchema),
+    defaultValues: {
+      to: invoice.customerEmail || "",
+      subject:
+        type === "invoice"
+          ? `Rechnung ${invoice.invoiceNumber}`
+          : `${level === 1 ? "Zahlungserinnerung" : `${level - 1}. Mahnung`} zur Rechnung ${invoice.invoiceNumber}`,
+      message:
+        type === "invoice"
+          ? `Sehr geehrte(r) ${invoice.customerName},\n\nanbei erhalten Sie Ihre Rechnung ${invoice.invoiceNumber}.`
+          : `Sehr geehrte(r) ${invoice.customerName},\n\ndies ist eine freundliche Erinnerung zur Rechnung ${invoice.invoiceNumber}.`,
+    },
+  });
 
+  useEffect(() => {
+    if (isOpen) {
+      reset({
+        to: invoice.customerEmail || "",
+      });
+    }
+  }, [isOpen, invoice, reset]);
+
+  const onSubmit = async (data: EmailFormValues) => {
+    const nextLevel = Math.min((invoice.lastReminderLevel || 0) + 1, 3);
     const endpoint =
       type === "invoice"
         ? `/api/invoices/${invoice.id}/send-invoice`
@@ -62,7 +81,7 @@ export function SendEmailModal({
     try {
       const res = await fetch(endpoint, {
         method: "POST",
-        body: JSON.stringify(emailData),
+        body: JSON.stringify(data),
       });
       if (!res.ok) throw new Error("Versand fehlgeschlagen");
       toast.success("E-Mail wurde versendet");
@@ -201,104 +220,125 @@ export function SendEmailModal({
         </div>
 
         {/* Body */}
-        <div className="p-6 space-y-4">
-          <div>
-            <label
-              htmlFor="to"
-              className="block text-[10px] font-black uppercase text-slate-500 mb-1 ml-1"
-            >
-              Empfänger E-Mail
-            </label>
-            <input
-              id="to"
-              type="email"
-              value={emailData.to}
-              onChange={(e) =>
-                setEmailData({ ...emailData, to: e.target.value })
-              }
-              className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-black outline-none transition-all"
-              placeholder="email@beispiel.de"
-            />
-            {!invoice.customerEmail && (
-              <p className="text-[10px] text-amber-600 mt-1 ml-1 font-medium">
-                ⚠️ Keine E-Mail im Datensatz gefunden. Bitte manuell eingeben.
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="p-6 space-y-4">
+            <div>
+              <label
+                htmlFor="to"
+                className="block text-[10px] font-black uppercase text-slate-500 mb-1 ml-1"
+              >
+                Empfänger E-Mail
+              </label>
+              <input
+                {...register("to")}
+                className={`w-full px-4 py-2 bg-slate-50 border rounded-xl text-sm outline-none transition-all ${
+                  errors.to
+                    ? "border-red-500 focus:ring-red-200"
+                    : "border-slate-200 focus:ring-black"
+                }`}
+              />
+              {errors.to && (
+                <p className="text-[10px] text-red-500 mt-1 -mb-4.5">
+                  {errors.to.message}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label
+                htmlFor="subject"
+                className="block text-[10px] font-black uppercase text-slate-500 mb-1 ml-1"
+              >
+                Betreff
+              </label>
+              <input
+                {...register("subject")}
+                className={`w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-black outline-none ${
+                  errors.subject
+                    ? "border-red-500 focus:ring-red-200"
+                    : "border-slate-200 focus:ring-black"
+                }`}
+              />
+              {errors.subject && (
+                <p className="text-[10px] text-red-500 mt-1 -mb-4.5">
+                  {errors.subject.message}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label
+                htmlFor="message"
+                className="block text-[10px] font-black uppercase text-slate-500 mb-1 ml-1"
+              >
+                Nachricht
+              </label>
+              <textarea
+                {...register("message")}
+                rows={4}
+                className={`w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-black outline-none resize-none ${
+                  errors.message
+                    ? "border-red-500 focus:ring-red-200"
+                    : "border-slate-200 focus:ring-black"
+                }`}
+              />
+              {errors.message && (
+                <p className="text-[10px] text-red-500 mt-1 -mb-4.5">
+                  {errors.message.message}
+                </p>
+              )}
+            </div>
+          </div>
+          <div className="mt-4 p-3 bg-slate-50 border border-dashed border-slate-300 rounded-xl flex items-center gap-3">
+            <div className="bg-white p-2 rounded-lg border border-slate-200">
+              <FileText className="w-5 h-5 text-black" />
+            </div>
+            <div className="flex-1">
+              <p className="text-[11px] font-bold text-black uppercase tracking-tight">
+                {type === "invoice"
+                  ? `invoice-${invoice.invoiceNumber}.pdf`
+                  : `${level === 1 ? "zahlungserinnerung" : `mahnung-${level - 1}`}-${invoice.invoiceNumber}.pdf`}
               </p>
+              <p className="text-[10px] text-slate-500">
+                PDF-Dokument angehängt
+              </p>
+            </div>
+            {level === 1 && (
+              <div className="flex-1">
+                <p className="text-[11px] font-bold text-black uppercase tracking-tight">
+                  {`kopie-invoice-${invoice.invoiceNumber}.pdf`}
+                </p>
+                <p className="text-[10px] text-slate-500">
+                  PDF-Dokument angehängt
+                </p>
+              </div>
             )}
+            <Paperclip className="w-4 h-4 text-slate-400" />
           </div>
 
-          <div>
-            <label
-              htmlFor="subject"
-              className="block text-[10px] font-black uppercase text-slate-500 mb-1 ml-1"
+          <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={loading}
+              className="px-4 py-2 text-xs font-bold text-slate-500 hover:text-black transition-colors"
             >
-              Betreff
-            </label>
-            <input
-              id="subject"
-              type="text"
-              value={emailData.subject}
-              onChange={(e) =>
-                setEmailData({ ...emailData, subject: e.target.value })
-              }
-              className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-black outline-none tracking-tight"
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="message"
-              className="block text-[10px] font-black uppercase text-slate-500 mb-1 ml-1"
+              Abbrechen
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex items-center gap-2 px-6 py-2 bg-black text-white rounded-xl text-xs font-bold hover:bg-slate-800 disabled:bg-slate-300 transition-all shadow-lg shadow-black/10"
             >
-              Nachricht
-            </label>
-            <textarea
-              id="message"
-              rows={4}
-              value={emailData.message}
-              onChange={(e) =>
-                setEmailData({ ...emailData, message: e.target.value })
-              }
-              className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-black outline-none resize-none"
-            />
+              {loading ? (
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              ) : (
+                <Send className="w-3.5 h-3.5" />
+              )}
+              Senden
+            </button>
           </div>
-        </div>
-        <div className="mt-4 p-3 bg-slate-50 border border-dashed border-slate-300 rounded-xl flex items-center gap-3">
-          <div className="bg-white p-2 rounded-lg border border-slate-200">
-            <FileText className="w-5 h-5 text-black" />
-          </div>
-          <div className="flex-1">
-            <p className="text-[11px] font-bold text-black uppercase tracking-tight">
-              {type === "invoice"
-                ? `invoice-${invoice.invoiceNumber}.pdf`
-                : `${level === 1 ? "zahlungserinnerung" : `mahnung-${level - 1}`}-${invoice.invoiceNumber}.pdf`}
-            </p>
-            <p className="text-[10px] text-slate-500">PDF-Dokument angehängt</p>
-          </div>
-          <Paperclip className="w-4 h-4 text-slate-400" />
-        </div>
-
-        <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 text-xs font-bold text-slate-500 hover:text-black transition-colors"
-          >
-            Abbrechen
-          </button>
-          <button
-            type="button"
-            onClick={handleSend}
-            disabled={loading}
-            className="flex items-center gap-2 px-6 py-2 bg-black text-white rounded-xl text-xs font-bold hover:bg-slate-800 disabled:bg-slate-300 transition-all shadow-lg shadow-black/10"
-          >
-            {loading ? (
-              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-            ) : (
-              <Send className="w-3.5 h-3.5" />
-            )}
-            Senden
-          </button>
-        </div>
+        </form>
       </div>
     </div>
   );
