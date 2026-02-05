@@ -12,7 +12,13 @@ type MenuOption = {
   onClick: () => void;
 };
 
-export default function ActionMenu({ options }: { options: MenuOption[] }) {
+export default function ActionMenu({
+  invoiceId,
+  options,
+}: {
+  options: MenuOption[];
+  invoiceId: string;
+}) {
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const [openUpwards, setOpenUpwards] = useState(false);
@@ -110,6 +116,7 @@ export default function ActionMenu({ options }: { options: MenuOption[] }) {
   return (
     <div className="relative inline-block p-2">
       <button
+        id={`${invoiceId}-action-button`}
         ref={buttonRef}
         aria-label="Aktionen"
         type="button"
@@ -128,7 +135,7 @@ export default function ActionMenu({ options }: { options: MenuOption[] }) {
           ref={menuRef}
           role="menu"
           tabIndex={-1}
-          className={`absolute right-0 w-44 bg-white shadow-xl rounded border border-gray-200 text-sm py-1 z-50
+          className={`absolute right-0 w-64 bg-white shadow-xl rounded border border-gray-200 text-sm py-1 z-50
           ${
             isPositioned
               ? "opacity-100 scale-100"

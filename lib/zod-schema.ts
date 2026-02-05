@@ -336,3 +336,15 @@ export const organizationMembershipSchema = z.object({
 export type OrganizationMembershipType = z.infer<
   typeof organizationMembershipSchema
 >;
+
+export const organizationConfigMailSchema = z.object({
+  publicKeyEnc: z.string(),
+  privateKeyEnc: z.string(),
+  fromEmail: z.email(),
+  fromName: z.string().min(1),
+  isEnabled: z.boolean(),
+});
+
+export type OrganizationConfigMailType = z.infer<
+  typeof organizationConfigMailSchema
+>;

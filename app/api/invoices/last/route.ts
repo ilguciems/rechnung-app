@@ -44,6 +44,16 @@ export async function DELETE() {
       );
     }
 
+    if (lastInvoice.invoiceSentAt) {
+      return NextResponse.json(
+        {
+          error:
+            "Die letzte Rechnung wurde bereits versendet und kann daher nicht gelöscht werden.",
+        },
+        { status: 403 },
+      );
+    }
+
     if (
       membership.role === "member" &&
       lastInvoice.createdByUserId !== session.user.id

@@ -1,43 +1,25 @@
 "use client";
 
-import { Bell, BellRing, FileText, Square, SquareCheckBig } from "lucide-react";
+import { BellRing, Square, SquareCheckBig } from "lucide-react";
+import { useState } from "react";
 import {
   useDownloadInvoicePdf,
   useDownloadReminderPdf,
   useInvoicesList,
   useToggleInvoicePaid,
 } from "@/hooks";
-import type { InvoiceItem } from "@/lib/zod-schema";
+
 import {
   ActionMenu,
   DeleteLastInvoiceButton,
   InvoicesSkeleton,
   Pagination,
   PdfLoadingModal,
+  SendEmailModal,
   SKELETON_KEYS,
 } from "./components";
 
-type Invoice = {
-  id: number;
-  invoiceNumber: string;
-  customerName: string;
-  total: number;
-  createdAt: string;
-  items: InvoiceItem[];
-  isPaid: boolean;
-  customerNumber: string;
-  overduePaymentLevel: number | null;
-};
-
-type MahnungTitles = {
-  [key: number]: { title: string; color: string };
-};
-
-const MAHNUNG_OPTIONS: MahnungTitles = {
-  1: { title: "Zahlungserinnerung", color: "text-blue-500" },
-  2: { title: "1. Mahnung", color: "text-orange-500" },
-  3: { title: "2. Mahnung", color: "text-red-500" },
-};
+import { getInvoiceActions, type Invoice, MAHNUNG_OPTIONS } from "./helpers";
 
 export default function InvoicesListSection() {
   const { setSearchDebounced, isPaid, setIsPaid, page, setPage, query } =
@@ -48,12 +30,27 @@ export default function InvoicesListSection() {
   const invoices = data?.data ?? [];
   const totalPages = data?.totalPages ?? 1;
 
+  const [emailModalConfig, setEmailModalConfig] = useState<{
+    invoice: Invoice;
+    type: "invoice" | "reminder";
+    level?: number;
+  } | null>(null);
+
   const { downloadInvoice, loading: invoiceLoading } = useDownloadInvoicePdf();
   const { downloadReminder, loading: reminderLoading } =
     useDownloadReminderPdf();
 
   const handlePaidFilter = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setIsPaid(e.target.value);
+  };
+
+  const handleCloseSendEmailModal = (id: string) => {
+    setEmailModalConfig(null);
+    requestAnimationFrame(() => {
+      document
+        .getElementById(`${id}-action-button`)
+        ?.focus({ preventScroll: true });
+    });
   };
 
   return (
@@ -97,28 +94,6 @@ export default function InvoicesListSection() {
         ) : (
           <ul className="space-y-3 bg-gray-100 rounded min-h-149">
             {invoices.map((inv: Invoice) => {
-              const allowedLevels =
-                inv.overduePaymentLevel === null
-                  ? []
-                  : Array.from(
-                      { length: inv.overduePaymentLevel },
-                      (_, i) => i + 1,
-                    );
-              const reminderOptions = allowedLevels.map((level) => ({
-                id: `${inv.id}-mahnung-${level}`,
-                text: MAHNUNG_OPTIONS[level].title,
-                node: (
-                  <span className="flex items-center">
-                    <span aria-hidden="true">
-                      <Bell
-                        className={`w-4 h-4 mr-2 ${MAHNUNG_OPTIONS[level].color}`}
-                      />
-                    </span>
-                    <span>{MAHNUNG_OPTIONS[level].title}</span>
-                  </span>
-                ),
-                onClick: () => downloadReminder(inv.id, level),
-              }));
               return (
                 <li
                   key={inv.id}
@@ -168,50 +143,15 @@ export default function InvoicesListSection() {
                     )}
                   </div>
                   <ActionMenu
-                    options={[
-                      {
-                        id: `${inv.id}-toggle`,
-                        text: inv.isPaid ? "Offen setzen" : "Bezahlt setzen",
-                        node: (
-                          <span className="flex items-center">
-                            {inv.isPaid ? (
-                              <>
-                                <span aria-hidden="true">
-                                  <Square className="w-4 h-4 mr-2" />
-                                </span>{" "}
-                                <span>Offen setzen</span>
-                              </>
-                            ) : (
-                              <>
-                                <span aria-hidden="true">
-                                  <SquareCheckBig className="w-4 h-4 mr-2" />
-                                </span>{" "}
-                                <span>Bezahlt setzen</span>
-                              </>
-                            )}
-                          </span>
-                        ),
-                        onClick: () =>
-                          togglePaid.mutate({
-                            id: inv.id,
-                            current: inv.isPaid,
-                          }),
-                      },
-                      {
-                        id: `${inv.id}-download`,
-                        text: "PDF herunterladen",
-                        node: (
-                          <span className="flex items-center">
-                            <span aria-hidden="true">
-                              <FileText className="w-4 h-4 mr-2" />
-                            </span>
-                            <span>Rechnung</span>
-                          </span>
-                        ),
-                        onClick: () => downloadInvoice(inv.id),
-                      },
-                      ...reminderOptions,
-                    ]}
+                    invoiceId={inv.id}
+                    options={getInvoiceActions({
+                      inv,
+                      downloadInvoice,
+                      downloadReminder,
+                      setEmailModalConfig,
+                      togglePaid,
+                      canSendEmail: inv.deliveryMethod === "EMAIL",
+                    })}
                   />
                 </li>
               );
@@ -221,6 +161,15 @@ export default function InvoicesListSection() {
         <Pagination page={page} totalPages={totalPages} onChange={setPage} />
       </div>
       <PdfLoadingModal isLoading={invoiceLoading || reminderLoading} />
+      {emailModalConfig && (
+        <SendEmailModal
+          invoice={emailModalConfig.invoice}
+          type={emailModalConfig.type}
+          level={emailModalConfig.level as 1 | 2 | 3}
+          isOpen={!!emailModalConfig}
+          onClose={() => handleCloseSendEmailModal(emailModalConfig.invoice.id)}
+        />
+      )}
     </>
   );
 }

@@ -17,6 +17,9 @@ interface CreatedInvoice extends Invoice {
   createdAt: Date;
   isPaid: boolean;
   paidAt: Date | null;
+  firstReminderSentAt: Date | null;
+  secondReminderSentAt: Date | null;
+  thirdReminderSentAt: Date | null;
 }
 
 const PAGE_WIDTH = 600;
@@ -380,9 +383,26 @@ export async function generateMahnungPDF(
     introText = `da Sie auf unsere bisherigen Schreiben zur Rechnung Nr. ${invoice.invoiceNumber} nicht reagiert haben, fordern wir Sie hiermit letztmalig auf, den offenen Betrag zu überweisen.`;
   }
 
-  const newDeadline = new Date();
+  const issuedDate = (
+    level === 1
+      ? invoice.firstReminderSentAt
+      : level === 2
+        ? invoice.secondReminderSentAt
+        : invoice.thirdReminderSentAt
+  )
+    ? new Date(
+        (level === 1
+          ? invoice.firstReminderSentAt
+          : level === 2
+            ? invoice.secondReminderSentAt
+            : invoice.thirdReminderSentAt) as Date,
+      )
+    : new Date();
+
+  const newDeadline = new Date(issuedDate);
   newDeadline.setDate(newDeadline.getDate() + deadlineDays);
   const deadlineDateStr = newDeadline.toLocaleDateString("de-DE");
+  const issuedDateStr = issuedDate.toLocaleDateString("de-DE");
 
   const pdfDoc = await PDFDocument.create();
   const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
@@ -407,7 +427,7 @@ export async function generateMahnungPDF(
 
   page.drawText(`${title}`, { x: 400, y, size: 9, font: boldFont });
   y -= 15;
-  page.drawText(`Datum: ${new Date().toLocaleDateString("de-DE")}`, {
+  page.drawText(`Datum: ${issuedDateStr}`, {
     x: 400,
     y,
     size: 9,

@@ -19,18 +19,36 @@ type QueryType = z.infer<typeof querySchema>;
 
 function calculateOverduePaymentLevel(invoice: {
   isPaid: boolean;
-  createdAt: Date | string;
+  invoiceSentAt: Date | string | null;
+  lastReminderLevel: number | null;
+  firstReminderSentAt: Date | string | null;
+  secondReminderSentAt: Date | string | null;
+  thirdReminderSentAt: Date | string | null;
 }): number | null {
   if (invoice.isPaid) return null;
 
   const now = Date.now();
-  const days =
-    (now - new Date(invoice.createdAt).getTime()) / (24 * 60 * 60 * 1000);
+  const lastIssuedDate =
+    invoice.thirdReminderSentAt ||
+    invoice.secondReminderSentAt ||
+    invoice.firstReminderSentAt ||
+    invoice.invoiceSentAt;
 
-  if (days >= 30) return 3;
-  if (days >= 14) return 2;
-  if (days >= 7) return 1;
-  return null;
+  if (!lastIssuedDate) return null;
+
+  const diffDays =
+    (now - new Date(lastIssuedDate).getTime()) / (1000 * 60 * 60 * 24);
+  const currentLevel = invoice.lastReminderLevel || 0;
+
+  if (currentLevel >= 3) return 3;
+
+  const daysToWait = currentLevel === 0 ? 30 : 14;
+
+  if (diffDays >= daysToWait) {
+    return currentLevel + 1;
+  }
+
+  return currentLevel > 0 ? currentLevel : null;
 }
 
 export async function GET(req: Request) {
@@ -132,6 +150,9 @@ export async function POST(req: Request) {
       },
       select: {
         id: true,
+        mailjet: {
+          select: { isEnabled: true },
+        },
         company: {
           select: {
             id: true,
@@ -260,6 +281,7 @@ export async function POST(req: Request) {
 
     const count = await prisma.invoice.count();
     const invoiceNumber = `INV-${new Date().getFullYear()}-${count + 1}`;
+    const deliveryMethod = organization?.mailjet?.isEnabled ? "EMAIL" : "POST";
 
     const invoice = await prisma.invoice.create({
       data: {
@@ -269,6 +291,8 @@ export async function POST(req: Request) {
         isPaid: false,
 
         createdByUserId: session.user.id,
+
+        deliveryMethod: deliveryMethod,
 
         // Insert customer fields + computed customerNumber
         customerNumber,

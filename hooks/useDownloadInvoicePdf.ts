@@ -9,7 +9,7 @@ export function useDownloadInvoicePdf() {
   const [loading, setLoading] = useState(false);
   const queryClient = useQueryClient();
 
-  const downloadInvoice = async (id: number) => {
+  const downloadInvoice = async (id: string) => {
     try {
       setLoading(true);
       const res = await fetch(ROUTES.INVOICE_PDF(id));

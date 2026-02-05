@@ -4,9 +4,9 @@ export const ROUTES = {
   INVOICES_LAST: "/api/invoices/last",
   INVOICES_SEARCH: (params: URLSearchParams) =>
     `/api/invoices?${params.toString()}`,
-  INVOICE: (id: number) => `/api/invoices/${id}`,
-  INVOICE_PDF: (id: number) => `/api/invoices/${id}/pdf-invoice`,
-  REMINDER_PDF: (id: number) => `/api/invoices/${id}/payment-reminder`,
+  INVOICE: (id: string) => `/api/invoices/${id}`,
+  INVOICE_PDF: (id: string) => `/api/invoices/${id}/pdf-invoice`,
+  REMINDER_PDF: (id: string) => `/api/invoices/${id}/payment-reminder`,
   COMPANY_LOGO: "/api/company/logo",
   CUSTOMERS_SEARCH: (type: string) =>
     `/api/customers/search?${type === "customers" ? "type=customers" : type === "products" ? "type=products" : ""}`,
@@ -20,4 +20,6 @@ export const ROUTES = {
   ORGANIZATION_LOGS: "/api/organization/logs",
   ORGANIZATION_MEMBERSHIP: "/api/organization/membership",
   ORGANIZATION_PENDING_INVITATIONS: "/api/organization/invite/pending",
+  ORGANIZATION_CONFIG_MAIL: "/api/organization/config/mail",
+  ORGANIZATION_MAIL_STATUS: "/api/organization/config/mail/status",
 };

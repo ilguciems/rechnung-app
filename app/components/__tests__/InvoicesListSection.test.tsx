@@ -51,7 +51,7 @@ describe("InvoicesListSection", () => {
 
     await user.click(actionButton);
 
-    const downloadMenuItem = await screen.findByText("Rechnung");
+    const downloadMenuItem = await screen.findByText("Rechnung als PDF");
     await user.click(downloadMenuItem);
 
     await waitFor(() => {

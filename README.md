@@ -92,6 +92,12 @@ APP_URL=http://localhost:3000
 
 - Fully server-side PDF generation
 
+### 📧 Automated Email & Delivery
+- **Direct PDF Delivery**: Send generated invoices to clients with a single click.
+- **Three-Level Dunning System**: Automatic generation and email delivery of payment reminders (Mahnung 1, 2, and 3).
+- **Transactional Integrity**: Emails are triggered only after successful PDF generation and database updates.
+- **Provider**: Powered by Mailjet for high deliverability.
+
 ### Features:
 
 - Automatic page breaks
@@ -266,19 +272,9 @@ No localStorage hacks — everything works via URLs & server validation
 
 ## 🛣 Roadmap
 ### Planned / In Progress
+- [ ] **Dashboard & Statistics**: Visual charts for revenue and outstanding payments.
+- [ ] **Custom Templates**: Drag-and-drop editor for invoice layouts.
+- [ ] **DATEV Export**: Export financial data for tax consultants.
+- [ ] **Audit Logs**: Full history of actions for GoBD compliance.
 
-Email sending & invoice delivery
-
-Invoice templates
-
-Dashboard & statistics
-
-Organization role management
-
-Audit logs
-
-Cloud deployment options
-
-📝 License
-
-MIT License © 2025
+📝 License MIT License © 2026

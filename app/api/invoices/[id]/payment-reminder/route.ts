@@ -39,11 +39,46 @@ export async function GET(
     );
   }
 
-  const pdfBuffer = await generateMahnungPDF(invoice, invoice.companySnapshot, {
-    mahngebuehr: fee,
-    deadlineDays: days,
-    level: level as 1 | 2 | 3,
-  });
+  let finalInvoice = invoice;
+
+  if (invoice.deliveryMethod === "POST") {
+    const dateField =
+      level === 1
+        ? "firstReminderSentAt"
+        : level === 2
+          ? "secondReminderSentAt"
+          : "thirdReminderSentAt";
+
+    if (!invoice[dateField as keyof typeof invoice]) {
+      const now = new Date();
+      finalInvoice = await prisma.invoice.update({
+        where: { id },
+        data: {
+          [dateField]: now,
+          lastReminderLevel: level,
+          lastSentAt: now,
+        },
+        include: { items: true, companySnapshot: true },
+      });
+    }
+  }
+
+  if (!finalInvoice.companySnapshot) {
+    return NextResponse.json(
+      { error: "Company snapshot für diese Rechnung fehlt" },
+      { status: 404 },
+    );
+  }
+
+  const pdfBuffer = await generateMahnungPDF(
+    finalInvoice,
+    finalInvoice.companySnapshot,
+    {
+      mahngebuehr: fee,
+      deadlineDays: days,
+      level: level as 1 | 2 | 3,
+    },
+  );
 
   await logActivity({
     userId: session.user.id,

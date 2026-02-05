@@ -9,7 +9,7 @@ export function useDownloadReminderPdf() {
   const queryClient = useQueryClient();
   const [loading, setLoading] = useState(false);
 
-  const downloadReminder = async (id: number, level: number = 1) => {
+  const downloadReminder = async (id: string, level: number = 1) => {
     try {
       setLoading(true);
 

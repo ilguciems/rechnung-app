@@ -4,8 +4,8 @@ import { ROUTES } from "@/lib/api-routes";
 export type ActivityLogType = {
   id: string;
   createdAt: string;
-  action: "CREATE" | "UPDATE" | "DELETE" | "DOWNLOAD";
-  entityType: "INVOICE" | "COMPANY";
+  action: "CREATE" | "UPDATE" | "DELETE" | "DOWNLOAD" | "SEND";
+  entityType: "INVOICE" | "COMPANY" | "EMAIL";
   entityId: number;
 
   user: {

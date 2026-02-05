@@ -10,6 +10,9 @@ CREATE TYPE "ActivityAction" AS ENUM ('CREATE', 'UPDATE', 'DELETE', 'DOWNLOAD', 
 -- CreateEnum
 CREATE TYPE "ActivityEntity" AS ENUM ('INVOICE', 'COMPANY', 'CUSTOMER', 'USER', 'EMAIL');
 
+-- CreateEnum
+CREATE TYPE "DeliveryMethod" AS ENUM ('EMAIL', 'POST');
+
 -- CreateTable
 CREATE TABLE "user" (
     "id" TEXT NOT NULL,
@@ -193,7 +196,16 @@ CREATE TABLE "invoice" (
     "isPaid" BOOLEAN NOT NULL DEFAULT false,
     "paidAt" TIMESTAMP(3),
     "companyId" TEXT NOT NULL,
-    "companySnapshotId" TEXT
+    "companySnapshotId" TEXT,
+    "lastSentAt" TIMESTAMP(3),
+    "lastReminderLevel" INTEGER DEFAULT 0,
+    "invoiceSentAt" TIMESTAMP(3),
+    "firstReminderSentAt" TIMESTAMP(3),
+    "secondReminderSentAt" TIMESTAMP(3),
+    "thirdReminderSentAt" TIMESTAMP(3),
+    "deliveryMethod" "DeliveryMethod" NOT NULL DEFAULT 'EMAIL',
+
+    CONSTRAINT "invoice_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -252,9 +264,6 @@ CREATE INDEX "company_updatedAt_idx" ON "company"("updatedAt");
 
 -- CreateIndex
 CREATE INDEX "company_snapshot_createdAt_idx" ON "company_snapshot"("createdAt");
-
--- CreateIndex
-CREATE UNIQUE INDEX "invoice_id_key" ON "invoice"("id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "invoice_invoiceNumber_key" ON "invoice"("invoiceNumber");
