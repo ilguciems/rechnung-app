@@ -1,10 +1,11 @@
 "use client";
 
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { ROUTES } from "@/lib/api-routes";
 
 export function useInviteAccept(onSuccessRedirect?: () => void) {
+  const queryClient = useQueryClient();
   return useMutation<void, Error, string>({
     mutationFn: async (token: string) => {
       const res = await fetch(ROUTES.INVITE_ORGANIZATION_ACCEPT, {
@@ -21,6 +22,7 @@ export function useInviteAccept(onSuccessRedirect?: () => void) {
 
     onSuccess: () => {
       toast.success("Einladung angenommen!");
+      queryClient.invalidateQueries({ queryKey: ["membership-my"] });
       onSuccessRedirect?.();
     },
 
