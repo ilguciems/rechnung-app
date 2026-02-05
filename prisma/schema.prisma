@@ -215,6 +215,8 @@ model Company {
   ustId                 String?
   handelsregisternummer String?
 
+  lastInvoiceNumber Int @default(0)
+
   invoices         Invoice[]
   companySnapshots CompanySnapshot[]
   organizations    Organization[]
