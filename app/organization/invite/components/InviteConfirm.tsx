@@ -8,6 +8,7 @@ export default function InviteConfirm({ token }: { token: string }) {
 
   const acceptInvite = useInviteAccept(() => {
     router.push("/");
+    router.refresh();
   });
 
   return (

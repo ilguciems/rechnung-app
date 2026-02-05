@@ -48,6 +48,7 @@ export function useSaveCompany(company?: Company) {
     onSuccess: (newCompany) => {
       queryClient.setQueryData(["company"], newCompany);
       toast.success("Unternehmensdaten gespeichert!");
+      queryClient.invalidateQueries({ queryKey: ["membership-my"] });
     },
 
     onSettled: async () => {
