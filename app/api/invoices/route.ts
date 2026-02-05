@@ -277,45 +277,54 @@ export async function POST(req: Request) {
       customerNumber = `KND-${String(lastNumber + 1).padStart(4, "0")}`;
     }
 
-    // 3. Create invoice
-
-    const count = await prisma.invoice.count();
-    const invoiceNumber = `INV-${new Date().getFullYear()}-${count + 1}`;
-    const deliveryMethod = organization?.mailjet?.isEnabled ? "EMAIL" : "POST";
-
-    const invoice = await prisma.invoice.create({
-      data: {
-        invoiceNumber,
-        companyId,
-        companySnapshotId: snapshot.id,
-        isPaid: false,
-
-        createdByUserId: session.user.id,
-
-        deliveryMethod: deliveryMethod,
-
-        // Insert customer fields + computed customerNumber
-        customerNumber,
-        customerName: data.customerName.trim(),
-        customerStreet: data.customerStreet.trim(),
-        customerHouseNumber: data.customerHouseNumber.trim(),
-        customerZipCode: data.customerZipCode.trim(),
-        customerCity: data.customerCity.trim(),
-        customerCountry: data.customerCountry.trim(),
-        customerEmail: data.customerEmail ? data.customerEmail.trim() : null,
-        customerPhone: data.customerPhone ? data.customerPhone.trim() : null,
-
-        // Insert items
-        items: {
-          create: data.items.map((item) => ({
-            description: item.description.trim(),
-            quantity: item.quantity,
-            unitPrice: item.unitPrice,
-            taxRate: item.taxRate,
-          })),
+    const invoice = await prisma.$transaction(async (tx) => {
+      const updatedCompany = await tx.company.update({
+        where: { id: companyId },
+        data: {
+          lastInvoiceNumber: { increment: 1 },
         },
-      },
-      include: { items: true },
+        select: { lastInvoiceNumber: true },
+      });
+
+      const nextNumber = updatedCompany.lastInvoiceNumber;
+      const currentYear = new Date().getFullYear();
+
+      const invoiceNumber = `INV-${currentYear}-${String(nextNumber).padStart(4, "0")}`;
+
+      const deliveryMethod = organization?.mailjet?.isEnabled
+        ? "EMAIL"
+        : "POST";
+
+      return await tx.invoice.create({
+        data: {
+          invoiceNumber,
+          companyId,
+          companySnapshotId: snapshot.id,
+          isPaid: false,
+          createdByUserId: session.user.id,
+          deliveryMethod: deliveryMethod,
+
+          customerNumber,
+          customerName: data.customerName.trim(),
+          customerStreet: data.customerStreet.trim(),
+          customerHouseNumber: data.customerHouseNumber.trim(),
+          customerZipCode: data.customerZipCode.trim(),
+          customerCity: data.customerCity.trim(),
+          customerCountry: data.customerCountry.trim(),
+          customerEmail: data.customerEmail?.trim() || null,
+          customerPhone: data.customerPhone?.trim() || null,
+
+          items: {
+            create: data.items.map((item) => ({
+              description: item.description.trim(),
+              quantity: item.quantity,
+              unitPrice: item.unitPrice,
+              taxRate: item.taxRate,
+            })),
+          },
+        },
+        include: { items: true },
+      });
     });
 
     await logActivity({
