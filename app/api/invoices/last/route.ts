@@ -67,12 +67,21 @@ export async function DELETE() {
       );
     }
 
-    await prisma.item.deleteMany({
-      where: { invoiceId: lastInvoice.id },
-    });
+    await prisma.$transaction(async (tx) => {
+      await tx.item.deleteMany({
+        where: { invoiceId: lastInvoice.id },
+      });
 
-    await prisma.invoice.delete({
-      where: { id: lastInvoice.id },
+      await tx.invoice.delete({
+        where: { id: lastInvoice.id },
+      });
+
+      await tx.company.update({
+        where: { id: company.id },
+        data: {
+          lastInvoiceNumber: { decrement: 1 },
+        },
+      });
     });
 
     await logActivity({
