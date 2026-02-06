@@ -1,20 +1,10 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useQueryClient } from "@tanstack/react-query";
 import { FileText, Mail, Paperclip, Send, X } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
-import toast from "react-hot-toast";
-import { z } from "zod";
+import { type EmailFormValues, emailSchema, useSendEmail } from "@/hooks";
 import type { Invoice } from "../helpers";
-
-const emailSchema = z.object({
-  to: z.email("Ungültige E-Mail-Adresse"),
-  subject: z.string().min(1, "Betreff erforderlich"),
-  message: z.string().min(1, "Nachricht erforderlich"),
-});
-
-type EmailFormValues = z.infer<typeof emailSchema>;
 
 const levels = [
   { id: 0, label: "Rechnung" },
@@ -22,6 +12,12 @@ const levels = [
   { id: 2, label: "1. Mahnung" },
   { id: 3, label: "2. Mahnung" },
 ];
+
+const getDeadlineDate = (days: number = 14) => {
+  const date = new Date();
+  date.setDate(date.getDate() + days);
+  return date.toLocaleDateString("de-DE");
+};
 
 export function SendEmailModal({
   invoice,
@@ -36,11 +32,16 @@ export function SendEmailModal({
   isOpen: boolean;
   onClose: () => void;
 }) {
-  const queryClient = useQueryClient();
   const modalRef = useRef<HTMLDivElement>(null);
-  const [loading, setLoading] = useState(false);
 
   const activeStepIndex = type === "invoice" ? 0 : level;
+
+  const nextLevel =
+    type === "reminder"
+      ? Math.min((invoice.lastReminderLevel || 0) + 1, 3)
+      : undefined;
+
+  const { mutate, isPending } = useSendEmail(invoice.id, type, nextLevel);
 
   const {
     register,
@@ -49,51 +50,41 @@ export function SendEmailModal({
     reset,
   } = useForm<EmailFormValues>({
     resolver: zodResolver(emailSchema),
-    defaultValues: {
-      to: invoice.customerEmail || "",
-      subject:
-        type === "invoice"
-          ? `Rechnung ${invoice.invoiceNumber}`
-          : `${level === 1 ? "Zahlungserinnerung" : `${level - 1}. Mahnung`} zur Rechnung ${invoice.invoiceNumber}`,
-      message:
-        type === "invoice"
-          ? `Sehr geehrte(r) ${invoice.customerName},\n\nanbei erhalten Sie Ihre Rechnung ${invoice.invoiceNumber}.`
-          : `Sehr geehrte(r) ${invoice.customerName},\n\ndies ist eine freundliche Erinnerung zur Rechnung ${invoice.invoiceNumber}.`,
-    },
   });
 
   useEffect(() => {
     if (isOpen) {
+      const deadlineDate = getDeadlineDate();
+      let subject = "";
+      let message = "";
+
+      if (type === "invoice") {
+        subject = `Rechnung ${invoice.invoiceNumber}`;
+        message = `Sehr geehrte(r) ${invoice.customerName},\n\nanbei erhalten Sie die Rechnung ${invoice.invoiceNumber}. Wir bitten um zeitnahe Begleichung.`;
+      } else {
+        switch (level) {
+          case 1: // Zahlungserinnerung
+            subject = `Zahlungserinnerung zur Rechnung ${invoice.invoiceNumber}`;
+            message = `Sehr geehrte(r) ${invoice.customerName},\n\nsicherlich haben Sie übersehen, die Rechnung ${invoice.invoiceNumber} zu begleichen. Wir bitten Sie, dies in den nächsten Tagen nachzuholen.`;
+            break;
+          case 2: // 1. Mahnung
+            subject = `1. Mahnung zur Rechnung ${invoice.invoiceNumber}`;
+            message = `Sehr geehrte(r) ${invoice.customerName},\n\nleider konnten wir bisher keinen Zahlungseingang zur Rechnung ${invoice.invoiceNumber} feststellen. Bitte überweisen Sie den fälligen Betrag bis spätestens zum ${deadlineDate}.`;
+            break;
+          case 3: // 2. Mahnung / Letzte Mahnung
+            subject = `LETZTE MAHNUNG zur Rechnung ${invoice.invoiceNumber}`;
+            message = `Sehr geehrte(r) ${invoice.customerName},\n\nauf unsere bisherigen Mahnungen haben Sie nicht reagiert. Dies ist die letzte Mahnung. Sollte die Zahlung nicht bis zum ${deadlineDate} bei uns eingehen, sehen wir uns gezwungen, rechtliche Schritte einzuleiten.`;
+            break;
+        }
+      }
+
       reset({
         to: invoice.customerEmail || "",
+        subject: subject,
+        message: message,
       });
     }
-  }, [isOpen, invoice, reset]);
-
-  const onSubmit = async (data: EmailFormValues) => {
-    const nextLevel = Math.min((invoice.lastReminderLevel || 0) + 1, 3);
-    const endpoint =
-      type === "invoice"
-        ? `/api/invoices/${invoice.id}/send-invoice`
-        : `/api/invoices/${invoice.id}/send-reminder?level=${nextLevel}`;
-
-    setLoading(true);
-    try {
-      const res = await fetch(endpoint, {
-        method: "POST",
-        body: JSON.stringify(data),
-      });
-      if (!res.ok) throw new Error("Versand fehlgeschlagen");
-      toast.success("E-Mail wurde versendet");
-      queryClient.invalidateQueries({ queryKey: ["invoices"] });
-      onClose();
-    } catch (err) {
-      console.error(err);
-      toast.error("Fehler beim Senden");
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [isOpen, invoice, type, level, reset]);
 
   const trapFocus = (e: React.KeyboardEvent) => {
     if (e.key === "Escape") {
@@ -140,6 +131,12 @@ export function SendEmailModal({
       document.body.style.overflow = "";
     };
   }, [isOpen]);
+
+  const onSubmit = (data: EmailFormValues) => {
+    mutate(data, {
+      onSuccess: () => onClose(),
+    });
+  };
 
   if (!isOpen) return null;
 
@@ -303,7 +300,7 @@ export function SendEmailModal({
                 PDF-Dokument angehängt
               </p>
             </div>
-            {level === 1 && (
+            {level === 1 && type === "reminder" && (
               <div className="flex-1">
                 <p className="text-[11px] font-bold text-black uppercase tracking-tight">
                   {`kopie-invoice-${invoice.invoiceNumber}.pdf`}
@@ -320,17 +317,17 @@ export function SendEmailModal({
             <button
               type="button"
               onClick={onClose}
-              disabled={loading}
+              disabled={isPending}
               className="px-4 py-2 text-xs font-bold text-slate-500 hover:text-black transition-colors"
             >
               Abbrechen
             </button>
             <button
               type="submit"
-              disabled={loading}
+              disabled={isPending}
               className="flex items-center gap-2 px-6 py-2 bg-black text-white rounded-xl text-xs font-bold hover:bg-slate-800 disabled:bg-slate-300 transition-all shadow-lg shadow-black/10"
             >
-              {loading ? (
+              {isPending ? (
                 <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               ) : (
                 <Send className="w-3.5 h-3.5" />

@@ -1,5 +1,7 @@
 export const ROUTES = {
   COMPANY: "/api/company",
+  COMPANY_LOGO: "/api/company/logo",
+
   INVOICES: "/api/invoices",
   INVOICES_LAST: "/api/invoices/last",
   INVOICES_SEARCH: (params: URLSearchParams) =>
@@ -7,7 +9,11 @@ export const ROUTES = {
   INVOICE: (id: string) => `/api/invoices/${id}`,
   INVOICE_PDF: (id: string) => `/api/invoices/${id}/pdf-invoice`,
   REMINDER_PDF: (id: string) => `/api/invoices/${id}/payment-reminder`,
-  COMPANY_LOGO: "/api/company/logo",
+  INVOICE_SEND_EMAIL: (invoiceId: string) =>
+    `/api/invoices/${invoiceId}/send-invoice`,
+  INVOICE_SEND_REMINDER_EMAIL: (invoiceId: string, level?: number) =>
+    `/api/invoices/${invoiceId}/send-reminder?level=${level}`,
+
   CUSTOMERS_SEARCH: (type: string) =>
     `/api/customers/search?${type === "customers" ? "type=customers" : type === "products" ? "type=products" : ""}`,
 

@@ -20,6 +20,11 @@ import { useDownloadInvoicePdf } from "./useDownloadInvoicePdf";
 import { useDownloadReminderPdf } from "./useDownloadReminderPdf";
 import { useInvoicesList } from "./useInvoicesList";
 import { useSaveCompany } from "./useSaveCompany";
+import {
+  type EmailFormValues,
+  emailSchema,
+  useSendEmail,
+} from "./useSendEmail";
 import { useToggleInvoicePaid } from "./useToggleInvoicePaid";
 
 export { useCompany };
@@ -42,3 +47,6 @@ export { usePendingInvitations };
 export { useMailConfig };
 export { useMailConfigData };
 export { useMailStatus };
+export { useSendEmail };
+export { emailSchema };
+export type { EmailFormValues };
