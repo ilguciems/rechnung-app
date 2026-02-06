@@ -13,6 +13,12 @@ const levels = [
   { id: 3, label: "2. Mahnung" },
 ];
 
+const getDeadlineDate = (days: number = 14) => {
+  const date = new Date();
+  date.setDate(date.getDate() + days);
+  return date.toLocaleDateString("de-DE");
+};
+
 export function SendEmailModal({
   invoice,
   type = "invoice", // "invoice" | "reminder"
@@ -48,16 +54,34 @@ export function SendEmailModal({
 
   useEffect(() => {
     if (isOpen) {
+      const deadlineDate = getDeadlineDate();
+      let subject = "";
+      let message = "";
+
+      if (type === "invoice") {
+        subject = `Rechnung ${invoice.invoiceNumber}`;
+        message = `Sehr geehrte(r) ${invoice.customerName},\n\nanbei erhalten Sie die Rechnung ${invoice.invoiceNumber}. Wir bitten um zeitnahe Begleichung.`;
+      } else {
+        switch (level) {
+          case 1: // Zahlungserinnerung
+            subject = `Zahlungserinnerung zur Rechnung ${invoice.invoiceNumber}`;
+            message = `Sehr geehrte(r) ${invoice.customerName},\n\nsicherlich haben Sie übersehen, die Rechnung ${invoice.invoiceNumber} zu begleichen. Wir bitten Sie, dies in den nächsten Tagen nachzuholen.`;
+            break;
+          case 2: // 1. Mahnung
+            subject = `1. Mahnung zur Rechnung ${invoice.invoiceNumber}`;
+            message = `Sehr geehrte(r) ${invoice.customerName},\n\nleider konnten wir bisher keinen Zahlungseingang zur Rechnung ${invoice.invoiceNumber} feststellen. Bitte überweisen Sie den fälligen Betrag bis spätestens zum ${deadlineDate}.`;
+            break;
+          case 3: // 2. Mahnung / Letzte Mahnung
+            subject = `LETZTE MAHNUNG zur Rechnung ${invoice.invoiceNumber}`;
+            message = `Sehr geehrte(r) ${invoice.customerName},\n\nauf unsere bisherigen Mahnungen haben Sie nicht reagiert. Dies ist die letzte Mahnung. Sollte die Zahlung nicht bis zum ${deadlineDate} bei uns eingehen, sehen wir uns gezwungen, rechtliche Schritte einzuleiten.`;
+            break;
+        }
+      }
+
       reset({
         to: invoice.customerEmail || "",
-        subject:
-          type === "invoice"
-            ? `Rechnung ${invoice.invoiceNumber}`
-            : `${level === 1 ? "Zahlungserinnerung" : `${level - 1}. Mahnung`} zur Rechnung ${invoice.invoiceNumber}`,
-        message:
-          type === "invoice"
-            ? `Sehr geehrte(r) ${invoice.customerName},\n\nanbei erhalten Sie Ihre Rechnung ${invoice.invoiceNumber}.`
-            : `Sehr geehrte(r) ${invoice.customerName},\n\ndies ist eine freundliche Erinnerung zur Rechnung ${invoice.invoiceNumber}.`,
+        subject: subject,
+        message: message,
       });
     }
   }, [isOpen, invoice, type, level, reset]);
