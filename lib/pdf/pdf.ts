@@ -150,7 +150,7 @@ export async function generateInvoicePDF(
   y -= 30;
   const paymentText = invoice.isPaid
     ? "Rechnung ist bereits vollständig bezahlt."
-    : "Zahlungsziel: 14 Tage ab Rechnungsdatum";
+    : "Zahlungsziel: 30 Tage ab Rechnungsdatum";
   page.drawText(paymentText, { x: 50, y, size: 12, font });
 
   // ===================
