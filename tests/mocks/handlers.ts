@@ -4,9 +4,29 @@ import type { Company } from "@/lib/zod-schema";
 
 export const togglePaidSpy = vi.fn();
 
+const sessionPayload = {
+  session: {
+    id: "123",
+    expires: "2123-01-01T00:00:00.000Z",
+    token: "123",
+  },
+  user: {
+    id: "123",
+    name: "John Doe",
+    email: "iD2Hc@example.com",
+    role: "user",
+  },
+};
+
+const membershipMyPayload = {
+  role: "admin",
+  id: "123",
+  name: "Test Company",
+};
+
 const customers = [
   {
-    id: 1,
+    id: "1",
     customerName: "Peter Fischer",
     customerStreet: "Fischerstraße",
     customerHouseNumber: "10",
@@ -16,7 +36,7 @@ const customers = [
     customerNumber: "KND-123",
   },
   {
-    id: 2,
+    id: "2",
     customerName: "Petra Fischmann",
     customerStreet: "Schmidtstraße",
     customerHouseNumber: "20",
@@ -29,13 +49,13 @@ const customers = [
 
 const products = [
   {
-    id: 1,
+    id: "1",
     description: "Hardware",
     unitPrice: 100,
     taxRate: 7,
   },
   {
-    id: 2,
+    id: "2",
     description: "Software",
     unitPrice: 50,
     taxRate: 19,
@@ -63,7 +83,7 @@ const companyPayload = {
 const invoicePayload = {
   data: [
     {
-      id: 1,
+      id: "1",
       invoiceNumber: "INV-123",
       customerNumber: "KND-123",
       customerName: "John Doe",
@@ -79,6 +99,10 @@ const invoicePayload = {
 };
 
 export const handlers = [
+  http.get("/api/auth/get-session", () => HttpResponse.json(sessionPayload)),
+  http.get(ROUTES.ORGANIZATION_MEMBERSHIP_MY, () =>
+    HttpResponse.json(membershipMyPayload),
+  ),
   http.get(ROUTES.COMPANY, () => {
     return HttpResponse.json(companyPayload);
   }),
@@ -87,7 +111,7 @@ export const handlers = [
 
   http.patch(ROUTES.COMPANY, async ({ request }) => {
     const body = (await request.json()) as Company;
-    return HttpResponse.json({ ...body, id: 1 });
+    return HttpResponse.json({ ...body, id: "1" });
   }),
 
   // === Autocomplete for customers ===
@@ -129,9 +153,11 @@ export const handlers = [
     return HttpResponse.json(invoicePayload);
   }),
 
-  http.get(ROUTES.INVOICE_PDF(1), () => HttpResponse.text("PDF-BINARY-DUMMY")),
+  http.get(ROUTES.INVOICE_PDF("1"), () =>
+    HttpResponse.text("PDF-BINARY-DUMMY"),
+  ),
 
-  http.post(ROUTES.INVOICES, () => HttpResponse.json({ id: 1 })),
+  http.post(ROUTES.INVOICES, () => HttpResponse.json({ id: "1" })),
 
   http.patch("/api/invoices/:id", async ({ request, params }) => {
     const { id } = params;
@@ -139,6 +165,10 @@ export const handlers = [
 
     return HttpResponse.json({ id, isPaid: true }, { status: 200 });
   }),
+
+  http.get(ROUTES.ORGANIZATION_MAIL_STATUS, () =>
+    HttpResponse.json({ canSendEmail: false }),
+  ),
 
   http.all(/\/api\/.*/, ({ request }) => {
     console.warn("Unhandled request:", request.url);
