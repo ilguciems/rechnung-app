@@ -1,3 +1,4 @@
+import Ably from "ably";
 import { NextResponse } from "next/server";
 import { logActivity } from "@/lib/activity-log";
 import { getAuthData } from "@/lib/get-auth-data";
@@ -11,7 +12,7 @@ export async function GET(
   const { id } = await context.params;
   const session = await getAuthData();
 
-  if (!session) {
+  if (!session || !session.org) {
     return NextResponse.json({ error: "Nicht authorisiert" }, { status: 401 });
   }
 
@@ -21,7 +22,7 @@ export async function GET(
   const level = parseInt(searchParams.get("level") || "1", 10);
 
   const invoice = await prisma.invoice.findUnique({
-    where: { id },
+    where: { id, companyId: session.org.companyId },
     include: { items: true, companySnapshot: true },
   });
 
@@ -79,6 +80,27 @@ export async function GET(
       level: level as 1 | 2 | 3,
     },
   );
+
+  try {
+    const ably = new Ably.Rest(process.env.ABLY_API_KEY as string);
+    const channel = ably.channels.get(`org-${session.org.id}`);
+
+    channel
+      .publish({
+        name: "invoice_reminder_downloaded",
+        data: {
+          id: invoice.id,
+          number: invoice.invoiceNumber,
+          userName: session.user.name,
+          isSend: invoice.deliveryMethod === "POST",
+          level,
+        },
+        clientId: session.user.id,
+      })
+      .catch((err) => console.error("Ably publish error:", err));
+  } catch (e) {
+    console.error("Ably setup error:", e);
+  }
 
   await logActivity({
     userId: session.user.id,

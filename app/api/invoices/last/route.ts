@@ -1,5 +1,4 @@
-// app/api/invoices/last/route.ts
-
+import Ably from "ably";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { Prisma } from "@/app/generated/prisma/client";
@@ -83,6 +82,25 @@ export async function DELETE() {
         },
       });
     });
+
+    try {
+      const ably = new Ably.Rest(process.env.ABLY_API_KEY as string);
+      const channel = ably.channels.get(`org-${membership.organization.id}`);
+
+      channel
+        .publish({
+          name: "invoice_deleted",
+          data: {
+            id: lastInvoice.id,
+            number: lastInvoice.invoiceNumber,
+            userName: session.user.name,
+          },
+          clientId: session.user.id,
+        })
+        .catch((err) => console.error("Ably publish error:", err));
+    } catch (e) {
+      console.error("Ably setup error:", e);
+    }
 
     await logActivity({
       userId: session.user.id,
