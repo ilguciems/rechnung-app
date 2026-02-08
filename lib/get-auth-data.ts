@@ -16,7 +16,9 @@ export const getAuthData = cache(async () => {
     select: {
       role: true,
       organizationId: true,
-      organization: { select: { name: true } },
+      organization: {
+        select: { name: true, company: { select: { id: true } } },
+      },
     },
   });
 
@@ -28,6 +30,7 @@ export const getAuthData = cache(async () => {
           role: membership.role,
           id: membership.organizationId,
           name: membership.organization.name,
+          companyId: membership.organization.company?.id,
         }
       : null,
   };
