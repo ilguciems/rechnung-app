@@ -9,16 +9,19 @@ The application is designed with data privacy (Datenschutz) and local-first deve
 # Database
 DATABASE_URL="postgresql://myuser:mypassword@localhost:5432/invoicedb?schema=public"
 PORT=3000
-DB_ENCRYPTION_KEY=YOUR_ENCRYPTION_KEY
+DB_ENCRYPTION_KEY=YOUR_DB_ENCRYPTION_KEY
 
 # Auth
-BETTER_AUTH_SECRET=YOUR_ENCRYPTION_KEY
+BETTER_AUTH_SECRET=YOUR_BETTER_AUTH_SECRET_KEY
 BETTER_AUTH_URL=http://localhost:3000
 
 # Mailjet
-MAILJET_API_KEY=YOUR_ENCRYPTION_KEY
-MAILJET_API_SECRET=YOUR_ENCRYPTION_KEY
+MAILJET_API_KEY=YOUR_MAILJET_API_KEY
+MAILJET_API_SECRET=YOUR_MAILJET_SECRET_KEY
 EMAIL_FROM=YOUR_EMAIL
+
+# Ably
+ABLY_API_KEY=YOUR_ABLY_TOKEN
 
 # App
 APP_URL=http://localhost:3000
@@ -97,6 +100,14 @@ APP_URL=http://localhost:3000
 - **Three-Level Dunning System**: Automatic generation and email delivery of payment reminders (Mahnung 1, 2, and 3).
 - **Transactional Integrity**: Emails are triggered only after successful PDF generation and database updates.
 - **Provider**: Powered by Mailjet for high deliverability.
+
+### Activity Logging
+
+- Activity logging with timestamp and user information.
+
+### Real-time Notifications
+
+- Real-time notifications using Ably.
 
 ### Features:
 
