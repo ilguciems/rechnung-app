@@ -4,7 +4,13 @@ import { getAuthData } from "@/lib/get-auth-data";
 import { GLOBAL_ADMIN_ROLES, type GlobalRole } from "@/types/global-roles";
 import { ORG_ADMIN_ROLES, type OrgRole } from "@/types/org-roles";
 
-import { HeaderTimer, LogoutButton, NavLink, NavLinkGuard } from "./components";
+import {
+  HeaderTimer,
+  LogoutButton,
+  NavLink,
+  NavLinkGuard,
+  NotificationBell,
+} from "./components";
 
 export default async function Header() {
   const session = await getAuthData();
@@ -26,6 +32,7 @@ export default async function Header() {
         {session && (
           <div className="flex items-center gap-2">
             <HeaderTimer />
+            <NotificationBell />
             <NavLinkGuard serverOrgId={orgId}>
               {orgId && (
                 <NavLink
