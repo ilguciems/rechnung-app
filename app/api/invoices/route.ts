@@ -1,3 +1,4 @@
+import Ably from "ably";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { z } from "zod";
@@ -326,6 +327,25 @@ export async function POST(req: Request) {
         include: { items: true },
       });
     });
+
+    try {
+      const ably = new Ably.Rest(process.env.ABLY_API_KEY as string);
+      const channel = ably.channels.get(`org-${organization.id}`);
+
+      channel
+        .publish({
+          name: "invoice_created",
+          data: {
+            id: invoice.id,
+            number: invoice.invoiceNumber,
+            userName: session.user.name,
+          },
+          clientId: session.user.id,
+        })
+        .catch((err) => console.error("Ably publish error:", err));
+    } catch (e) {
+      console.error("Ably setup error:", e);
+    }
 
     await logActivity({
       userId: session.user.id,

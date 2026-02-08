@@ -2,9 +2,11 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "react-hot-toast";
 import { TimerProvider } from "@/context/TimerContext";
+import RealtimeProvider from "./ably-provider";
 import { Header, LogoutWrapper, SessionTimerUI } from "./components";
 import Providers from "./providers";
 import "./globals.css";
+import RealtimeNotifications from "./realtime-notifications";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,10 +37,13 @@ export default function RootLayout({
         <LogoutWrapper>
           <TimerProvider>
             <Providers>
-              <Header />
-              <main>{children}</main>
-              <Toaster position="top-right" reverseOrder={false} />
-              <SessionTimerUI />
+              <RealtimeProvider>
+                <RealtimeNotifications />
+                <Header />
+                <main>{children}</main>
+                <Toaster position="top-right" reverseOrder={false} />
+                <SessionTimerUI />
+              </RealtimeProvider>
             </Providers>
           </TimerProvider>
         </LogoutWrapper>

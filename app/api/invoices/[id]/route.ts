@@ -1,3 +1,4 @@
+import Ably from "ably";
 import { NextResponse } from "next/server";
 import { Prisma } from "@/app/generated/prisma/client";
 import { logActivity } from "@/lib/activity-log";
@@ -20,13 +21,37 @@ export async function PATCH(req: Request, context: { params: { id: string } }) {
     });
 
     const invoice = await prisma.invoice.update({
-      where: { id },
+      where: { id, companyId: session.org.companyId },
       data: {
         isPaid,
         paidAt: isPaid ? new Date() : null,
       },
       include: { items: true },
     });
+
+    if (!invoice) {
+      return NextResponse.json({ error: "Invoice not found" }, { status: 404 });
+    }
+
+    try {
+      const ably = new Ably.Rest(process.env.ABLY_API_KEY as string);
+      const channel = ably.channels.get(`org-${session.org.id}`);
+
+      channel
+        .publish({
+          name: "invoice_paid",
+          data: {
+            id: invoice.id,
+            number: invoice.invoiceNumber,
+            userName: session.user.name,
+            isPaid: invoice.isPaid,
+          },
+          clientId: session.user.id,
+        })
+        .catch((err) => console.error("Ably publish error:", err));
+    } catch (e) {
+      console.error("Ably setup error:", e);
+    }
 
     const changes = {
       isPaid: {

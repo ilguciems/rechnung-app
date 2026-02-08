@@ -19,6 +19,7 @@ import { useCreateInvoice } from "./useCreateInvoice";
 import { useDownloadInvoicePdf } from "./useDownloadInvoicePdf";
 import { useDownloadReminderPdf } from "./useDownloadReminderPdf";
 import { useInvoicesList } from "./useInvoicesList";
+import { useOnClickOutside } from "./useOnClickOutside";
 import { useSaveCompany } from "./useSaveCompany";
 import {
   type EmailFormValues,
@@ -50,3 +51,4 @@ export { useMailStatus };
 export { useSendEmail };
 export { emailSchema };
 export type { EmailFormValues };
+export { useOnClickOutside };
