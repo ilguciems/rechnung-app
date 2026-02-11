@@ -30,7 +30,19 @@ export const NotificationHandler = ({
     if (message.clientId === userId) return;
 
     if (message.name?.includes("invoice")) {
-      queryClient.invalidateQueries({ queryKey: ["invoices"] });
+      queryClient.invalidateQueries({
+        predicate: (query) =>
+          query.queryKey[0] === "invoices" ||
+          query.queryKey[0] === "organization-logs",
+      });
+    }
+
+    if (
+      message.name?.includes("created") ||
+      message.name?.includes("deleted") ||
+      message.name?.includes("paid")
+    ) {
+      queryClient.invalidateQueries({ queryKey: ["organization-stats"] });
     }
 
     const notifications: Record<string, string> = {
