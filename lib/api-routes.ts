@@ -28,4 +28,5 @@ export const ROUTES = {
   ORGANIZATION_PENDING_INVITATIONS: "/api/organization/invite/pending",
   ORGANIZATION_CONFIG_MAIL: "/api/organization/config/mail",
   ORGANIZATION_MAIL_STATUS: "/api/organization/config/mail/status",
+  ORGANIZATION_STATS: "/api/organization/stats",
 };
