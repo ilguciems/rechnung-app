@@ -30,7 +30,8 @@ export function useCreateInvoice(onSuccessReset?: () => void) {
       await queryClient.invalidateQueries({
         predicate: (query) =>
           query.queryKey[0] === "invoices" ||
-          query.queryKey[0] === "organization-logs",
+          query.queryKey[0] === "organization-logs" ||
+          query.queryKey[0] === "organization-stats",
       });
       toast.success("Rechnung erstellt!");
 

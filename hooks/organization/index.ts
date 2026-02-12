@@ -6,6 +6,7 @@ import { useMembership } from "./useMembership";
 import { useOrganizationName } from "./useOrganizationName";
 import { usePendingInvitations } from "./usePendingInvitations";
 import { useSendInvite } from "./useSendInvite";
+import { type ChartDataType, type StatsType, useStats } from "./useStats";
 import { useUpdateOrganizationName } from "./useUpdateOrganizationName";
 
 export { useOrganizationName };
@@ -18,3 +19,4 @@ export { usePendingInvitations };
 export { useMailConfig };
 export { useMailConfigData };
 export { useMailStatus };
+export { useStats, type StatsType, type ChartDataType };

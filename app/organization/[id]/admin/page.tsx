@@ -1,4 +1,10 @@
-import { Handshake, Logs as LogsIcon, Settings, Users } from "lucide-react";
+import {
+  Activity,
+  Handshake,
+  Logs as LogsIcon,
+  Settings,
+  Users,
+} from "lucide-react";
 import { redirect } from "next/navigation";
 import { Tabs } from "@/app/components";
 import { getAuthData } from "@/lib/get-auth-data";
@@ -9,9 +15,16 @@ import {
   NameForm,
   PendingInvitationsList,
   SendInviteForm,
+  Statistics,
 } from "./components";
 
 const tabs = [
+  {
+    id: "statistics",
+    label: "Statistik",
+    icon: <Activity />,
+    content: <Statistics />,
+  },
   {
     id: "members",
     label: "Mitglieder",

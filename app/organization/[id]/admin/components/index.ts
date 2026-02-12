@@ -4,6 +4,7 @@ import MembershipList from "./MembershipList";
 import NameForm from "./NameForm";
 import PendingInvitationsList from "./PendingInvitationsList";
 import SendInviteForm from "./SendInviteForm";
+import Statistics from "./Statistics";
 
 export {
   NameForm,
@@ -12,4 +13,5 @@ export {
   MembershipList,
   PendingInvitationsList,
   MailJetConfigForm,
+  Statistics,
 };
