@@ -1,4 +1,11 @@
-import { format, isBefore, startOfMonth, subDays, subMonths } from "date-fns";
+import {
+  differenceInDays,
+  format,
+  isBefore,
+  startOfMonth,
+  subDays,
+  subMonths,
+} from "date-fns";
 import { de } from "date-fns/locale";
 import { NextResponse } from "next/server";
 import { getAuthData } from "@/lib/get-auth-data";
@@ -46,22 +53,43 @@ export async function GET() {
           if (inv.invoiceSentAt) {
             const dueDate = subDays(now, 30);
             const isInitialOverdue = isBefore(inv.invoiceSentAt, dueDate);
+            const daysSinceSent = differenceInDays(now, inv.invoiceSentAt);
+            const isDueSoon = daysSinceSent >= 16 && daysSinceSent <= 30;
 
             const lastReminder =
               inv.thirdReminderSentAt ||
               inv.secondReminderSentAt ||
               inv.firstReminderSentAt;
+
             const isReminderOverdue =
               lastReminder && isBefore(lastReminder, subDays(now, 14));
 
+            const daysSinceReminder = lastReminder
+              ? differenceInDays(now, lastReminder)
+              : null;
+
+            const isReminderDueSoon =
+              daysSinceReminder !== null &&
+              daysSinceReminder >= 7 &&
+              daysSinceReminder <= 14;
+
             if (isInitialOverdue || isReminderOverdue) {
               acc.overdueAmount += total;
+            }
+
+            if (isDueSoon || isReminderDueSoon) {
+              acc.expectedNext14Days += total;
             }
           }
         }
         return acc;
       },
-      { totalRevenue: 0, pendingAmount: 0, overdueAmount: 0 },
+      {
+        totalRevenue: 0,
+        pendingAmount: 0,
+        overdueAmount: 0,
+        expectedNext14Days: 0,
+      },
     );
 
     const chartData = Object.values(monthlyData).reverse();

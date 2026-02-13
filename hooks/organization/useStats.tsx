@@ -14,6 +14,7 @@ const statsDataSchema = z.object({
   overdueAmount: z.number(),
   pendingAmount: z.number(),
   totalRevenue: z.number(),
+  expectedNext14Days: z.number(),
 });
 
 const statsSchema = z.object({
