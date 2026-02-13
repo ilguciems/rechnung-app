@@ -76,7 +76,7 @@ export default function Tabs({ tabs, defaultActiveTab }: TabsProps) {
             >
               <span className="flex items-center gap-2">
                 <span>{tab.icon}</span>
-                <span className={tab.icon ? "hidden sm:block" : ""}>
+                <span className={tab.icon ? "hidden md:block" : ""}>
                   {tab.label}
                 </span>
               </span>
