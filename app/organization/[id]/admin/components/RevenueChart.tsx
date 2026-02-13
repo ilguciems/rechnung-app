@@ -11,6 +11,12 @@ import {
 
 import type { ChartDataType } from "@/hooks";
 
+const formattedValue = (value: number) =>
+  new Intl.NumberFormat("de-DE", {
+    style: "currency",
+    currency: "EUR",
+  }).format(value || 0);
+
 export function RevenueChart({ data }: { data: ChartDataType }) {
   return (
     <div className="w-full h-[350px] min-w-0 overflow-hidden">
@@ -40,7 +46,7 @@ export function RevenueChart({ data }: { data: ChartDataType }) {
         />
         <Tooltip
           cursor={{ fill: "#f9fafb" }}
-          formatter={(value) => `€${value}`}
+          formatter={(value) => formattedValue(value as number)}
           contentStyle={{
             borderRadius: "12px",
             border: "none",

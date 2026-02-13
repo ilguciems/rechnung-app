@@ -1,4 +1,4 @@
-const THREE_ARRAY = ["t1", "t2", "t3"];
+const TOP_FOUR_ARRAY = ["t1", "t2", "t3", "t4"];
 const FOUR_ARRAY = ["f1", "f2", "f3", "f4"];
 const SIX_ARRAY = ["s1", "s2", "s3", "s4", "s5", "s6"];
 const HEIGHTS = ["40%", "70%", "45%", "80%", "30%", "60%"];
@@ -6,8 +6,8 @@ const HEIGHTS = ["40%", "70%", "45%", "80%", "30%", "60%"];
 export function DashboardSkeleton() {
   return (
     <div className="p-6 space-y-8 animate-pulse">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {THREE_ARRAY.map((key) => (
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {TOP_FOUR_ARRAY.map((key) => (
           <div
             key={key}
             className="p-6 bg-white rounded-2xl border border-gray-100 shadow-sm h-32"
