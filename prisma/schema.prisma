@@ -266,7 +266,7 @@ model CompanySnapshot {
 
 model Invoice {
   id             String  @id @default(cuid())
-  invoiceNumber  String  @unique
+  invoiceNumber  String
   customerName   String
   customerNumber String?
 
@@ -303,6 +303,7 @@ model Invoice {
 
   deliveryMethod DeliveryMethod @default(EMAIL)
 
+  @@unique([invoiceNumber, companyId])
   @@index([createdAt])
   @@map("invoice")
 }
