@@ -198,7 +198,7 @@ export default function AutoCompleteInput<
           id={`${name}-listbox`}
           role="listbox"
           ref={listRef}
-          className="absolute z-10 mt-11 w-full bg-gray-100 border border-gray-300 rounded shadow-md max-h-60 overflow-auto text-black text-sm"
+          className="absolute z-20 mt-11 w-full bg-gray-100 border border-gray-300 rounded shadow-md max-h-60 overflow-auto text-black text-sm"
         >
           {results.map((item, index) => {
             const { id, ...rest } = item;
