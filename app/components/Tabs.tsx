@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Activity, type ReactNode } from "react";
 
@@ -20,6 +20,8 @@ export default function Tabs({ tabs, defaultActiveTab }: TabsProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+
+  const shouldReduceMotion = useReducedMotion();
 
   const activeTabId = searchParams.get("tab") || defaultActiveTab || tabs[0].id;
 
@@ -84,7 +86,11 @@ export default function Tabs({ tabs, defaultActiveTab }: TabsProps) {
                 <motion.div
                   layoutId="active-underline"
                   className="absolute inset-x-0 bottom-0 h-[2px] bg-black"
-                  transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                  transition={
+                    shouldReduceMotion
+                      ? { duration: 0 }
+                      : { type: "spring", stiffness: 380, damping: 30 }
+                  }
                 />
               )}
             </button>
