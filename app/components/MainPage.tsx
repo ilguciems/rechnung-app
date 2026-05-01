@@ -1,6 +1,6 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useAuth, useCompany } from "@/hooks";
 import {
   CompanySection,
@@ -23,6 +23,8 @@ export default function MainPage({
 }: MainPageProps) {
   const { data: company, isLoading: isCompanyLoading } = useCompany();
   const { isOrgAdmin, orgId, isLoading: isAuthLoading } = useAuth();
+
+  const shouldReduceMotion = useReducedMotion();
 
   const isLoading = isCompanyLoading || isAuthLoading;
   const canCreateOrEditCompany = !orgId || isOrgAdmin;
@@ -69,7 +71,9 @@ export default function MainPage({
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.3 }}
+            transition={
+              shouldReduceMotion ? { duration: 0 } : { duration: 0.3 }
+            }
           >
             <InvoiceSection />
             <InvoicesListSection />
@@ -81,7 +85,9 @@ export default function MainPage({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
+            transition={
+              shouldReduceMotion ? { duration: 0 } : { duration: 0.2 }
+            }
             role="alert"
             aria-live="polite"
             className="p-4 border rounded bg-gray-50 text-gray-700"

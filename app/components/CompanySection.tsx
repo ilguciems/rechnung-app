@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -34,6 +34,7 @@ const legalFormsOptions = [
 
 export default function CompanySection() {
   const [vatToggledByUser, setVatToggledByUser] = useState(false);
+  const prefersReducedMotion = useReducedMotion();
 
   // Load company
   const { data: company } = useCompany();
@@ -329,7 +330,11 @@ export default function CompanySection() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.3, ease: "easeInOut" }}
+              transition={
+                prefersReducedMotion
+                  ? { duration: 0 }
+                  : { duration: 0.3, ease: "easeInOut" }
+              }
             >
               <Input<Company>
                 name="firstTaxRate"
