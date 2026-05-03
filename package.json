@@ -12,7 +12,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
-    "start": "next start",
+    "start": "npx prisma migrate deploy && next start",
     "lint": "biome check",
     "format": "biome format --write",
     "test": "vitest",
