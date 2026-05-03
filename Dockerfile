@@ -14,6 +14,9 @@ COPY . .
 # Generate Prisma client
 RUN npx prisma generate
 
+# Deploy migrations
+RUN npx prisma migrate deploy
+
 # Build Next.js
 RUN npm run build
 
