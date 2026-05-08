@@ -123,7 +123,7 @@ export async function POST(req: Request) {
 
     if (company) {
       oldLogoUrl = company.logoUrl;
-      const logoUrl = `/assets/${fileName}`;
+      const logoUrl = `/api/assets/${fileName}`;
 
       const updated = await prisma.company.update({
         where: { id: company.id },
@@ -182,7 +182,7 @@ export async function POST(req: Request) {
 
     const changes = diffObjects(
       { logoUrl: oldLogoUrl } as Record<string, Prisma.InputJsonValue>,
-      { logoUrl: `/assets/${fileName}` } as Record<
+      { logoUrl: `/api/assets/${fileName}` } as Record<
         string,
         Prisma.InputJsonValue
       >,
