@@ -54,11 +54,18 @@ export async function generateInvoicePDF(
   // ---------------------------
 
   // logo (if exists)
-  const logoUrl = company.logoUrl ?? "";
-  const logoPath = path.join(process.cwd(), "public", logoUrl);
-  if (fs.existsSync(logoPath)) {
+const fileName = company.logoUrl ? path.basename(company.logoUrl) : null;
+  const logoPath = fileName 
+    ? path.join(process.cwd(), "public", "assets", fileName) 
+    : "";
+
+  if (logoPath && fs.existsSync(logoPath)) {
     const logoImageBytes = fs.readFileSync(logoPath);
-    const logoImage = await pdfDoc.embedPng(logoImageBytes);
+    const isPng = logoPath.toLowerCase().endsWith('.png');
+    const logoImage = isPng 
+      ? await pdfDoc.embedPng(logoImageBytes)
+      : await pdfDoc.embedJpg(logoImageBytes);
+
     const logoDims = logoImage.scale(0.25);
     page.drawImage(logoImage, {
       x: 50,
@@ -66,7 +73,7 @@ export async function generateInvoicePDF(
       width: logoDims.width,
       height: logoDims.height,
     });
-  }
+  } 
 
   // top: invoice number and date
   page.drawText(`Rechnungs-Nr. ${invoice.invoiceNumber}`, {
@@ -411,11 +418,18 @@ export async function generateMahnungPDF(
   const page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
   let y = PAGE_HEIGHT - TOP_MARGIN;
 
-  const logoUrl = company.logoUrl ?? "";
-  const logoPath = path.join(process.cwd(), "public", logoUrl);
-  if (fs.existsSync(logoPath)) {
+const fileName = company.logoUrl ? path.basename(company.logoUrl) : null;
+  const logoPath = fileName 
+    ? path.join(process.cwd(), "public", "assets", fileName) 
+    : "";
+
+  if (logoPath && fs.existsSync(logoPath)) {
     const logoImageBytes = fs.readFileSync(logoPath);
-    const logoImage = await pdfDoc.embedPng(logoImageBytes);
+    const isPng = logoPath.toLowerCase().endsWith('.png');
+    const logoImage = isPng 
+      ? await pdfDoc.embedPng(logoImageBytes)
+      : await pdfDoc.embedJpg(logoImageBytes);
+
     const logoDims = logoImage.scale(0.25);
     page.drawImage(logoImage, {
       x: 50,
@@ -423,7 +437,7 @@ export async function generateMahnungPDF(
       width: logoDims.width,
       height: logoDims.height,
     });
-  }
+  } 
 
   page.drawText(`${title}`, { x: 400, y, size: 9, font: boldFont });
   y -= 15;
