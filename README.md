@@ -281,6 +281,18 @@ No localStorage hacks — everything works via URLs & server validation
 
 4. 🌱 Easy transition to hosted SaaS later
 
+### 🏠 Self-hosting (Docker/VPS)
+#### Current implementation uses Local Bind Mounts. Ensure your Docker container has a persistent volume mounted at /app/public/assets.
+
+### ☁️ Serverless Deployment (Vercel/Netlify)
+- Warning: Local file storage will not work. To deploy on Vercel:
+
+1. Replace the file upload logic with a cloud provider (e.g., Vercel Blob, AWS S3).
+
+2. Update the `generateInvoicePDF` function to fetch logos via URL instead of fs.readFileSync.
+
+3. Update `next.config.js` to allow your cloud provider's domain in images.remotePatterns.
+
 ## 🛣 Roadmap
 ### Planned / In Progress
 - [ ] **Dashboard & Statistics**: Visual charts for revenue and outstanding payments.
