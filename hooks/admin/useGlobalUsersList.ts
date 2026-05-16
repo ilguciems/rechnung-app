@@ -28,6 +28,9 @@ export function useGlobalUsersList(options?: {
       options?.filterValue,
     ],
     queryFn: async () => {
+      const searchValue = options?.searchValue?.trim();
+      const filterValue = options?.filterValue;
+
       const { data, error } = await admin.listUsers({
         query: {
           limit: options?.limit || 50,
@@ -35,10 +38,10 @@ export function useGlobalUsersList(options?: {
           sortDirection: options?.sortDirection || "desc",
           searchOperator: options?.searchOperator || "contains",
           searchField: options?.searchField || "email",
-          searchValue: options?.searchValue || "",
+          searchValue: searchValue || undefined,
           offset: options?.offset || 0,
-          filterField: options?.filterField,
-          filterValue: options?.filterValue,
+          filterField: filterValue ? options?.filterField : undefined,
+          filterValue: filterValue || undefined,
         },
       });
       if (error) throw new Error(error.message);
