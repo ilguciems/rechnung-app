@@ -6,7 +6,7 @@ RUN corepack enable && corepack prepare pnpm@11.1.2 --activate
 
 COPY package*.json pnpm-lock.yaml* .npmrc* ./
 
-RUN pnpm install --frozen-lockfile --allow-builds
+RUN pnpm install --frozen-lockfile
 
 COPY . .
 
