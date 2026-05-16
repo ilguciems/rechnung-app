@@ -11,16 +11,10 @@ RUN npm install
 # Copy source code
 COPY . .
 
-# ----------------------------------
+RUN DATABASE_URL="postgresql://fake:fake@localhost:5432/fake" npx prisma generate
+
 ARG NEXT_PUBLIC_APP_URL
-ARG BETTER_AUTH_URL
-
 ENV NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
-ENV BETTER_AUTH_URL=$BETTER_AUTH_URL
-# ----------------------------------
-
-# Generate Prisma client
-RUN npx prisma generate
 
 # Build the application
 RUN npm run build
