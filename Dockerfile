@@ -17,7 +17,7 @@ ARG NEXT_PUBLIC_APP_URL
 ENV NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
 
 # Build the application
-RUN npm run build
+RUN MAILJET_API_KEY="fake" MAILJET_SECRET_KEY="fake" npm run build
 
 EXPOSE 3000
 
