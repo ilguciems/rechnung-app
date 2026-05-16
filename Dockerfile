@@ -16,6 +16,9 @@ RUN DATABASE_URL="postgresql://fake:fake@localhost:5432/fake" npx prisma generat
 ARG NEXT_PUBLIC_APP_URL
 ENV NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
 
+ARG NEXT_PUBLIC_BASE_URL
+ENV NEXT_PUBLIC_BASE_URL=$NEXT_PUBLIC_BASE_URL
+
 # Build the application
 RUN MAILJET_API_KEY="fake" MAILJET_API_SECRET="fake" ABLY_API_KEY="fake" EMAIL_FROM="fake" npm run build
 
