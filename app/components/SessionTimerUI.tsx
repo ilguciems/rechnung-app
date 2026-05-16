@@ -20,7 +20,7 @@ export function SessionTimerUI() {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-[100] w-80 animate-in fade-in slide-in-from-bottom-4 duration-300">
+    <div className="fixed bottom-6 right-6 z-100 w-80 animate-in fade-in slide-in-from-bottom-4 duration-300">
       <div className="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-2xl dark:border-gray-700 dark:bg-gray-800">
         <div className="h-1.5 w-full bg-gray-100 dark:bg-gray-700">
           <div
