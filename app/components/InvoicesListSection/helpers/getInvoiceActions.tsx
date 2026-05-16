@@ -173,7 +173,7 @@ export function getInvoiceActions({
         id: `${inv.id}-send-reminder-${nextAction}`,
         text: `${nextAction === 1 ? "Zahlungserinnerung" : nextAction - 1 + ".Mahnung"} senden`,
         node: (
-          <span className="flex items-center text-black font-bold">
+          <span className="flex items-center font-bold">
             <Bell className="w-4 h-4 mr-2 text-orange-500" />
             <span>{`${nextAction === 1 ? "Zahlungserinnerung" : nextAction - 1 + ".Mahnung"} senden`}</span>
           </span>

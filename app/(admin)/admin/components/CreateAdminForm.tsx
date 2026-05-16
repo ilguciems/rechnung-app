@@ -1,12 +1,12 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { LoaderCircle, Mail, ShieldCheck } from "lucide-react";
+import { Mail, ShieldCheck } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import * as z from "zod";
-import { Input } from "@/app/components";
+import { Button, Input } from "@/app/components";
 import { createAdminAction } from "../actions/createAdminAction";
 
 const createAdminSchema = z.object({
@@ -47,14 +47,14 @@ export default function CreateAdminForm() {
   };
 
   return (
-    <section className="border border-gray-100 p-4 rounded-xl">
+    <section className="border border-gray-100 p-4 rounded-xl dark:bg-black">
       <div className="grid grid-cols-1 gap-6 max-w-md mx-auto">
         <div className="mb-6">
-          <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-            <ShieldCheck className="w-5 h-5 text-black" />
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+            <ShieldCheck className="w-5 h-5" />
             Neuen System-Admin anlegen
           </h3>
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
             Der Benutzer erhält eine E-Mail mit einem Link zum Festlegen seines
             Passworts.
           </p>
@@ -78,28 +78,17 @@ export default function CreateAdminForm() {
             bgWhite
           />
 
-          <button
+          <Button
             type="submit"
             disabled={loading}
-            className={`
-            w-full mt-2 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg font-medium text-sm transition-all
-            ${
-              loading
-                ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200"
-                : "bg-black text-white hover:bg-gray-800 shadow-sm border-transparent"
-            }
-            border
-          `}
+            variant="primary"
+            size="full"
           >
-            {loading ? (
-              <LoaderCircle className="animate-spin w-4 h-4" />
-            ) : (
-              <>
-                <Mail className="w-4 h-4" />
-                Admin einladen
-              </>
-            )}
-          </button>
+            <span className="flex items-center justify-center gap-2 transition-all">
+              <Mail className="w-4 h-4" />
+              Admin einladen
+            </span>
+          </Button>
         </form>
       </div>
     </section>

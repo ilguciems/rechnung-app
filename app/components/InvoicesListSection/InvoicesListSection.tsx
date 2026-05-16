@@ -72,14 +72,29 @@ export default function InvoicesListSection() {
             onChange={handlePaidFilter}
             className="border p-2 rounded"
           >
-            <option value="">Alle</option>
-            <option value="true">Bezahlt</option>
-            <option value="false">Offen</option>
+            <option
+              className="bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200"
+              value=""
+            >
+              Alle
+            </option>
+            <option
+              className="bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200"
+              value="true"
+            >
+              Bezahlt
+            </option>
+            <option
+              className="bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200"
+              value="false"
+            >
+              Offen
+            </option>
           </select>
         </div>
         {query.isLoading ? (
           <ul
-            className="space-y-3 bg-gray-100 rounded min-h-149"
+            className="space-y-3 bg-gray-100 dark:bg-gray-800 rounded min-h-149"
             aria-busy="true"
             aria-label="Rechnungen werden geladen"
           >
@@ -90,14 +105,16 @@ export default function InvoicesListSection() {
         ) : query.error ? (
           <p className="text-red-600">Fehler beim Laden</p>
         ) : invoices.length === 0 ? (
-          <p className="text-gray-600">Keine Rechnungen gefunden</p>
+          <p className="text-gray-600 dark:text-gray-300">
+            Keine Rechnungen gefunden
+          </p>
         ) : (
-          <ul className="space-y-3 bg-gray-100 rounded min-h-149">
+          <ul className="space-y-3 bg-gray-100 dark:bg-black rounded min-h-149">
             {invoices.map((inv: Invoice) => {
               return (
                 <li
                   key={inv.id}
-                  className="flex items-center justify-between border p-3 rounded bg-white"
+                  className="flex items-center justify-between border p-3 rounded bg-white dark:bg-gray-900"
                 >
                   <div>
                     <p className="font-medium">
@@ -105,7 +122,7 @@ export default function InvoicesListSection() {
                       <span> / </span>
                       <span>{inv.customerNumber}</span>
                     </p>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-gray-600 dark:text-gray-300">
                       {inv.customerName} –{" "}
                       {new Date(inv.createdAt).toLocaleDateString("de-DE")}
                     </p>
@@ -135,7 +152,7 @@ export default function InvoicesListSection() {
                             <span>Zahlung überfällig</span>
                           </span>
                         ) : (
-                          <span className="flex items-center text-sm text-gray-600">
+                          <span className="flex items-center text-sm text-gray-600 dark:text-gray-300 font-semibold">
                             <Square className="w-4 h-4 mr-2" /> Offen
                           </span>
                         )}

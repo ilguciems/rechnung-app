@@ -41,13 +41,15 @@ export default function MainPage({
     >
       {hasPendingInvite && <InviteWarningModal />}
       {!isLoading && !company && (
-        <div className="p-5 border border-gray-200 rounded-lg bg-red-100 text-gray-700 space-y-2">
-          <p className="font-medium text-gray-900">Willkommen, {userName}!</p>
+        <div className="space-y-2 rounded-lg border border-red-200 bg-red-50 p-5 text-gray-700 dark:border-red-900/60 dark:bg-red-950/30 dark:text-gray-300">
+          <p className="font-medium text-gray-900 dark:text-gray-100">
+            Willkommen, {userName}!
+          </p>
           <p>
             Sie können entweder ein neues Unternehmen erstellen oder auf eine
             Einladung warten, um einer bestehenden Organisation beizutreten.
           </p>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-gray-600 dark:text-gray-400">
             <strong>Hinweis:</strong> Wenn Sie ein eigenes Unternehmen
             erstellen, können Sie mit diesem Konto später keiner anderen
             Organisation mehr beitreten.
@@ -90,7 +92,7 @@ export default function MainPage({
             }
             role="alert"
             aria-live="polite"
-            className="p-4 border rounded bg-gray-50 text-gray-700"
+            className="rounded border border-gray-200 bg-gray-50 p-4 text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300"
           >
             Bitte geben Sie zunächst Ihre Unternehmensdaten ein, um mit der
             Rechnungserstellung fortzufahren.

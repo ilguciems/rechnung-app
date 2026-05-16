@@ -6,6 +6,8 @@ import RealtimeProvider from "./ably-provider";
 import { Header, LogoutWrapper, SessionTimerUI } from "./components";
 import Providers from "./providers";
 import "./globals.css";
+import { ThemeProvider } from "@teispace/next-themes";
+import { getTheme, getThemeScript } from "@teispace/next-themes/server";
 import RealtimeNotifications from "./realtime-notifications";
 
 const geistSans = Geist({
@@ -23,30 +25,60 @@ export const metadata: Metadata = {
   description: "Rechnungen erstellen",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const storedTheme = await getTheme({ headers: {} });
+  const initialTheme =
+    storedTheme === "dark" || storedTheme === "light" ? storedTheme : undefined;
+
+  const themeScript = getThemeScript({
+    attribute: "class",
+    defaultTheme: "light",
+    enableSystem: false,
+    initialTheme,
+  });
+
   return (
-    <html lang="de">
+    <html lang="de" suppressHydrationWarning>
+      <head>
+        {/* biome-ignore lint/security/noDangerouslySetInnerHtml: anti-FOUC */}
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         cz-shortcut-listen="true"
       >
-        <LogoutWrapper>
-          <TimerProvider>
-            <Providers>
-              <RealtimeProvider>
-                <RealtimeNotifications />
-                <Header />
-                <main>{children}</main>
-                <Toaster position="top-right" reverseOrder={false} />
-                <SessionTimerUI />
-              </RealtimeProvider>
-            </Providers>
-          </TimerProvider>
-        </LogoutWrapper>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem={false}
+          initialTheme={initialTheme}
+          noScript
+        >
+          <LogoutWrapper>
+            <TimerProvider>
+              <Providers>
+                <RealtimeProvider>
+                  <RealtimeNotifications />
+                  <Header />
+                  <main>{children}</main>
+                  <Toaster
+                    position="top-right"
+                    reverseOrder={false}
+                    toastOptions={{
+                      className:
+                        "bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100",
+                    }}
+                  />
+                  <SessionTimerUI />
+                </RealtimeProvider>
+              </Providers>
+            </TimerProvider>
+          </LogoutWrapper>
+        </ThemeProvider>
       </body>
     </html>
   );

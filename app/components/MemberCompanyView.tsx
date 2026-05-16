@@ -40,7 +40,7 @@ export default function MemberCompanyView() {
   return (
     <section
       aria-labelledby="company-details-heading"
-      className="rounded-lg border border-gray-200 bg-white p-6"
+      className="rounded-lg border border-gray-200 dark:border-gray-700 p-6"
     >
       {company.logoUrl && (
         <Image
@@ -56,11 +56,11 @@ export default function MemberCompanyView() {
       <div className="mb-4">
         <h2
           id="company-details-heading"
-          className="text-lg font-semibold text-gray-900"
+          className="text-lg font-semibold text-gray-900 dark:text-white"
         >
           Unternehmensdaten
         </h2>
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-gray-500 dark:text-gray-400">
           Diese Informationen können nur von Administratoren bearbeitet werden.
         </p>
       </div>
@@ -76,10 +76,12 @@ export default function MemberCompanyView() {
 
           return (
             <div key={key} className="space-y-1">
-              <dt className="text-xs font-medium uppercase tracking-wide text-gray-500">
+              <dt className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
                 {label}
               </dt>
-              <dd className="text-sm text-gray-900">{String(value)}</dd>
+              <dd className="text-sm text-gray-900 dark:text-gray-300">
+                {String(value)}
+              </dd>
             </div>
           );
         })}

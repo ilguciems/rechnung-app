@@ -51,14 +51,14 @@ export default function Statistics() {
           return (
             <section
               key={card.label}
-              className="p-6 bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between min-h-[140px]"
+              className="p-6 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between min-h-[140px]"
               aria-labelledby={`label-${card.label}`}
             >
               <div>
                 <div className="flex items-center gap-1.5">
                   <p
                     id={`label-${card.label}`}
-                    className="text-sm font-medium text-gray-500 truncate"
+                    className="text-sm font-medium text-gray-500 dark:text-gray-300 truncate"
                   >
                     {card.label}
                   </p>
@@ -66,10 +66,10 @@ export default function Statistics() {
                     <div className="group relative">
                       <button
                         type="button"
-                        aria-label={`Дополнительная информация о ${card.label}`}
+                        aria-label={`Zusätzliche Informationen zu ${card.label}`}
                         className="flex items-center outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded-full"
                       >
-                        <Info className="w-4 h-4 text-gray-500 cursor-help transition-colors group-hover:text-gray-800 group-focus:text-gray-800" />
+                        <Info className="w-4 h-4 text-gray-500 dark:text-gray-300 cursor-help transition-colors group-hover:text-gray-800 group-focus:text-gray-800" />
                       </button>
                       <div
                         role="tooltip"
@@ -92,7 +92,7 @@ export default function Statistics() {
               </div>
               {card.helperText && (
                 <div className="mt-2">
-                  <span className="text-[12px] tracking-wider text-gray-500">
+                  <span className="text-[12px] tracking-wider text-gray-500 dark:text-gray-300">
                     {card.helperText}
                   </span>
                 </div>
@@ -102,7 +102,7 @@ export default function Statistics() {
         })}
       </div>
 
-      <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
         <h3 className="text-lg font-semibold mb-6">Umsatzübersicht</h3>
         <div className="w-full overflow-x-auto pb-4 scrollbar-hide">
           <div className="min-w-[300px] h-[350px]">

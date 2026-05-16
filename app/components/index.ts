@@ -1,3 +1,4 @@
+import { Button, LinkButton } from "./Button";
 import CompanySection from "./CompanySection";
 import ConfirmationModal from "./ConfirmationModal";
 import Header from "./Header";
@@ -16,6 +17,8 @@ import Tabs from "./Tabs";
 import UploadLogoSection from "./UploadLogoSection";
 
 export {
+  Button,
+  LinkButton,
   CompanySection,
   InvoiceSection,
   InvoicesListSection,

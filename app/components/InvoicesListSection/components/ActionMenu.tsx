@@ -121,7 +121,7 @@ export default function ActionMenu({
         aria-label="Aktionen"
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="p-1.5 rounded-full hover:bg-gray-200 bg-gray-100 cursor-pointer"
+        className="p-1.5 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 bg-gray-100 dark:bg-gray-800 cursor-pointer"
         aria-haspopup="true"
         aria-expanded={open}
         aria-controls="action-menu"
@@ -135,7 +135,7 @@ export default function ActionMenu({
           ref={menuRef}
           role="menu"
           tabIndex={-1}
-          className={`absolute right-0 w-64 bg-white shadow-xl rounded border border-gray-200 text-sm py-1 z-50
+          className={`absolute right-0 w-64 bg-white dark:bg-gray-800 shadow-xl rounded border border-gray-200 dark:border-gray-600 text-sm py-1 z-50
           ${
             isPositioned
               ? "opacity-100 scale-100"
@@ -156,7 +156,9 @@ export default function ActionMenu({
               tabIndex={-1}
               aria-label={opt.text}
               className={`px-3 py-2 cursor-pointer outline-none ${
-                activeIndex === i ? "bg-gray-200" : "hover:bg-gray-100"
+                activeIndex === i
+                  ? "bg-gray-200 dark:bg-gray-700"
+                  : "hover:bg-gray-100 dark:hover:bg-gray-600"
               }`}
               onClick={() => {
                 opt.onClick();

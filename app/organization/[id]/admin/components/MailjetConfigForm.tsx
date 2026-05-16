@@ -2,7 +2,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { Input } from "@/app/components";
+import { Button, Input } from "@/app/components";
 import { useMailConfig, useMailConfigData } from "@/hooks";
 import {
   type OrganizationConfigMailType,
@@ -84,7 +84,7 @@ export default function MailJetConfigForm() {
   return (
     <section
       id="mail-config"
-      className="border border-gray-100 p-4 rounded-xl mt-2"
+      className="border border-gray-100 p-4 rounded-xl mt-2 dark:bg-black dark:border-gray-700"
     >
       <div className="grid grid-cols-1 gap-6 max-w-md mx-auto">
         <h2 className="text-2xl mb-6">MailJet Konfiguration</h2>
@@ -136,24 +136,27 @@ export default function MailJetConfigForm() {
             />
             <label htmlFor="isEnabled">Aktiviert</label>
           </div>
-          <button
+          <Button
             type="submit"
-            className="block w-full bg-black text-sm font-medium text-white py-2 rounded mt-4 cursor-pointer hover:bg-black-900"
+            variant="primary"
+            size="full"
             disabled={
               updateOrCreateMailConfig.isPending || !isDirty || isSubmitting
             }
           >
             {updateOrCreateMailConfig.isPending ? "Lade..." : "Speichern"}
-          </button>
+          </Button>
         </form>
         {config && (
-          <button
+          <Button
             type="button"
-            className="block w-full bg-black text-sm font-medium text-white py-2 rounded mt-4 cursor-pointer hover:bg-black-900"
+            variant="primary"
+            size="full"
+            disabled={deleteMailConfig.isPending}
             onClick={onDelete}
           >
-            {deleteMailConfig.isPending ? "Lade..." : "Löschen"}
-          </button>
+            {deleteMailConfig.isPending ? "Lade..." : "Löschen"}
+          </Button>
         )}
       </div>
     </section>

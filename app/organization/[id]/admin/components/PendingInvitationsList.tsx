@@ -40,9 +40,9 @@ export default function PendingInvitationsList() {
   };
 
   return (
-    <div className="border border-gray-100 p-4 rounded-xl mt-2">
+    <div className="border border-gray-100 p-4 rounded-xl mt-2 dark:bg-black dark:border-gray-700">
       <h2 className="text-2xl mb-6">Ausstehende Einladungen</h2>
-      <div className="grid grid-cols-5 px-4 py-2 text-xs text-gray-500 border-b">
+      <div className="grid grid-cols-5 px-4 py-2 text-xs text-gray-500 dark:text-gray-400 border-b">
         <span className="col-span-3 sm:col-span-2">Email</span>
         <span className="col-span-2 sm:col-span-1 text-right sm:text-left">
           Status
@@ -56,7 +56,7 @@ export default function PendingInvitationsList() {
 
         return (
           <Fragment key={id}>
-            <div className="grid grid-cols-5 px-4 py-3 items-center border-b border-gray-300 last:border-b-0 hover:bg-gray-50">
+            <div className="grid grid-cols-5 px-4 py-3 items-center border-b border-gray-300 last:border-b-0 hover:bg-gray-50 dark:hover:bg-gray-900">
               <div className="col-span-3 sm:col-span-2 gap-1">
                 <div className="text-sm font-medium">{email}</div>
                 <div className="text-xs text-gray-400">{role}</div>

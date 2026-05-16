@@ -47,12 +47,12 @@ export default function MembershipList() {
 
   if (memberships?.length === 1) {
     return (
-      <div className="p-4 text-sm text-slate-500 bg-slate-50/50 rounded-lg border border-dashed border-slate-200">
+      <div className="p-4 text-sm text-slate-500 dark:text-slate-200 bg-slate-50/50 dark:bg-slate-800 rounded-lg border border-dashed border-slate-200">
         Bisher gibt es keine weiteren Mitglieder in Ihrer Organisation. Sie
         können neue Mitglieder{" "}
         <Link
           href={`/organization/${orgId}/admin?tab=invitations`}
-          className="font-medium underline underline-offset-4 hover:text-slate-700 transition-colors"
+          className="font-medium underline underline-offset-4 hover:text-slate-700 dark:hover:text-slate-300 transition-colors"
         >
           hier einladen
         </Link>
@@ -63,14 +63,14 @@ export default function MembershipList() {
 
   return (
     <>
-      <ul className="rounded-xl border border-gray-200 bg-white shadow-sm">
+      <ul className="rounded-xl border border-gray-200 bg-white shadow-sm dark:bg-gray-800 dark:border-gray-700 divide-y divide-gray-200 dark:divide-gray-700 relative">
         {memberships?.map(({ role, user }) => {
           const isAdmin = role === "admin";
           if (user.id === session?.user.id) return null;
           return (
             <li
               key={user.id}
-              className="grid grid-cols-4 gap-4 p-4 items-center hover:bg-gray-50"
+              className="grid grid-cols-4 gap-4 p-4 items-center hover:bg-gray-50 dark:hover:bg-gray-700"
             >
               <div className="col-span-4 sm:col-span-2">
                 <div className="text-sm font-medium">{user.name}</div>
@@ -108,12 +108,12 @@ export default function MembershipList() {
                   disabled={
                     changeRole.isPending || user.id === session?.user.id
                   }
-                  className="p-2 rounded hover:bg-gray-100 text-gray-600 cursor:pointer"
+                  className="p-2 rounded hover:bg-gray-100 text-gray-600 cursor:pointer dark:hover:bg-gray-600"
                 >
                   {role === "admin" ? (
                     <ShieldAlert className="w-6 h-6 text-amber-600" />
                   ) : (
-                    <ShieldCheck className="w-6 h-6 text-slate-700" />
+                    <ShieldCheck className="w-6 h-6 text-slate-700 dark:text-slate-400" />
                   )}
                 </button>
                 <button
@@ -129,7 +129,7 @@ export default function MembershipList() {
                   disabled={
                     deleteMembership.isPending || user.id === session?.user.id
                   }
-                  className="p-2 rounded hover:bg-gray-100 text-gray-600 cursor:pointer"
+                  className="p-2 rounded hover:bg-gray-100 text-gray-600 dark:hover:bg-gray-600 cursor:pointer"
                 >
                   <Ban className="w-6 h-6 text-red-600" />
                 </button>

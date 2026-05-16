@@ -42,7 +42,7 @@ export function SelectField<T extends FieldValues>({
           htmlFor={name}
           className={`text-xs text-gray-700 px-2 absolute -top-2 left-2 ${
             bgWhite ? "bg-white" : "bg-gray-100"
-          }`}
+          } dark:bg-black dark:text-white z-10`}
         >
           {label}
         </label>
@@ -53,11 +53,15 @@ export function SelectField<T extends FieldValues>({
         {...register(name, setValueAs ? { setValueAs } : {})}
         className={`border p-2 rounded w-full ${
           errorMessage ? "border-red-500" : "border-gray-300"
-        }`}
+        } dark:bg-black dark:text-white dark:border-gray-700`}
         {...props}
       >
         {options.map((opt) => (
-          <option key={opt.value} value={opt.value}>
+          <option
+            className="bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200"
+            key={opt.value}
+            value={opt.value}
+          >
             {opt.label}
           </option>
         ))}
