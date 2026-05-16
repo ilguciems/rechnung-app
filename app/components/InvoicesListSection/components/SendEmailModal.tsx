@@ -149,13 +149,13 @@ export function SendEmailModal({
     >
       <div
         ref={modalRef}
-        className="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden border border-slate-200"
+        className="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden border border-slate-200 dark:bg-gray-800 dark:border-gray-600"
       >
         {/* Header */}
-        <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+        <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50 dark:bg-gray-900">
           <div className="flex items-center gap-2">
-            <Mail className="w-5 h-5 text-black" />
-            <h3 className="font-bold text-black uppercase tracking-tight text-sm">
+            <Mail className="w-5 h-5" />
+            <h3 className="font-bold uppercase tracking-tight text-sm">
               {type === "invoice" ? "Rechnung senden" : "Mahnung senden"}
             </h3>
           </div>
@@ -167,7 +167,7 @@ export function SendEmailModal({
             <X className="w-5 h-5" />
           </button>
         </div>
-        <div className="px-16 pb-8 pt-2 bg-slate-50/50 border-b border-slate-100">
+        <div className="px-16 pb-8 pt-2 bg-slate-50/50 dark:bg-gray-900 border-b border-slate-100">
           <div className="flex items-center justify-between relative max-w-md mx-auto">
             <div className="absolute top-1/2 left-0 w-full h-[1px] bg-slate-200 -translate-y-1/2 z-0" />
 
@@ -187,7 +187,7 @@ export function SendEmailModal({
                   <div
                     className={`w-3 h-3 rounded-full border-2 transition-all duration-500 ${
                       isCompleted
-                        ? "bg-black border-black shadow-[0_0_0_4px_rgba(0,0,0,0.05)]"
+                        ? "bg-black border-black shadow-[0_0_0_4px_rgba(0,0,0,0.05)] dark:bg-white dark:border-gray-300 dark:shadow-[0_0_0_4px_rgba(255,255,255,0.1)]"
                         : isCurrentAction
                           ? "bg-white border-black animate-pulse shadow-[0_0_0_4px_rgba(0,0,0,0.1)]"
                           : "bg-slate-200 border-slate-200"
@@ -196,10 +196,10 @@ export function SendEmailModal({
 
                   <div className="absolute -bottom-6 whitespace-nowrap flex flex-col items-center">
                     <span
-                      className={`text-[9px] font-black uppercase tracking-tighter ${
+                      className={`text-[9px] font-black dark:font-medium uppercase tracking-tighter ${
                         isCompleted || isCurrentAction
-                          ? "text-black"
-                          : "text-slate-400"
+                          ? "text-black dark:text-gray-100"
+                          : "text-slate-400 dark:text-gray-600"
                       }`}
                     >
                       {step.label}
@@ -222,13 +222,13 @@ export function SendEmailModal({
             <div>
               <label
                 htmlFor="to"
-                className="block text-[10px] font-black uppercase text-slate-500 mb-1 ml-1"
+                className="block text-[10px] font-black uppercase text-slate-500 dark:text-gray-200 mb-1 ml-1"
               >
                 Empfänger E-Mail
               </label>
               <input
                 {...register("to")}
-                className={`w-full px-4 py-2 bg-slate-50 border rounded-xl text-sm outline-none transition-all ${
+                className={`w-full px-4 py-2 bg-slate-50 dark:bg-gray-900 border rounded-xl text-sm outline-none transition-all ${
                   errors.to
                     ? "border-red-500 focus:ring-red-200"
                     : "border-slate-200 focus:ring-black"
@@ -250,7 +250,7 @@ export function SendEmailModal({
               </label>
               <input
                 {...register("subject")}
-                className={`w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-black outline-none ${
+                className={`w-full px-4 py-2 bg-slate-50 dark:bg-gray-900 border border-slate-200 rounded-xl text-sm focus:ring-black outline-none ${
                   errors.subject
                     ? "border-red-500 focus:ring-red-200"
                     : "border-slate-200 focus:ring-black"
@@ -273,7 +273,7 @@ export function SendEmailModal({
               <textarea
                 {...register("message")}
                 rows={4}
-                className={`w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-black outline-none resize-none ${
+                className={`w-full px-4 py-2 bg-slate-50 dark:bg-gray-900 border border-slate-200 rounded-xl text-sm focus:ring-black outline-none resize-none ${
                   errors.message
                     ? "border-red-500 focus:ring-red-200"
                     : "border-slate-200 focus:ring-black"
@@ -286,26 +286,26 @@ export function SendEmailModal({
               )}
             </div>
           </div>
-          <div className="mt-4 p-3 bg-slate-50 border border-dashed border-slate-300 rounded-xl flex items-center gap-3">
+          <div className="mt-4 p-3 bg-slate-50 dark:bg-gray-900 border border-dashed border-slate-300 rounded-xl flex items-center gap-3">
             <div className="bg-white p-2 rounded-lg border border-slate-200">
               <FileText className="w-5 h-5 text-black" />
             </div>
             <div className="flex-1">
-              <p className="text-[11px] font-bold text-black uppercase tracking-tight">
+              <p className="text-[11px] font-bold text-black dark:text-gray-100 uppercase tracking-tight">
                 {type === "invoice"
                   ? `invoice-${invoice.invoiceNumber}.pdf`
                   : `${level === 1 ? "zahlungserinnerung" : `mahnung-${level - 1}`}-${invoice.invoiceNumber}.pdf`}
               </p>
-              <p className="text-[10px] text-slate-500">
+              <p className="text-[10px] text-slate-500 dark:text-gray-400">
                 PDF-Dokument angehängt
               </p>
             </div>
             {level === 1 && type === "reminder" && (
               <div className="flex-1">
-                <p className="text-[11px] font-bold text-black uppercase tracking-tight">
+                <p className="text-[11px] font-bold text-black dark:text-gray-100 uppercase tracking-tight">
                   {`kopie-invoice-${invoice.invoiceNumber}.pdf`}
                 </p>
-                <p className="text-[10px] text-slate-500">
+                <p className="text-[10px] text-slate-500 dark:text-gray-400">
                   PDF-Dokument angehängt
                 </p>
               </div>
@@ -313,7 +313,7 @@ export function SendEmailModal({
             <Paperclip className="w-4 h-4 text-slate-400" />
           </div>
 
-          <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
+          <div className="px-6 py-4 bg-slate-50 dark:bg-gray-900 border-t border-slate-100 flex justify-end gap-3">
             <button
               type="button"
               onClick={onClose}

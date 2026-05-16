@@ -2,7 +2,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { Input } from "@/app/components";
+import { Button, Input } from "@/app/components";
 import { useOrganizationName, useUpdateOrganizationName } from "@/hooks";
 import {
   type OrganizationNameType,
@@ -33,7 +33,7 @@ export default function NameForm() {
   };
 
   return (
-    <section className="border border-gray-100 p-4 rounded-xl">
+    <section className="border border-gray-100 p-4 rounded-xl dark:bg-black dark:border-gray-700">
       <div className="grid grid-cols-1 gap-6 max-w-md mx-auto">
         <h2 className="text-2xl mb-6">Organization Name</h2>
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -46,13 +46,14 @@ export default function NameForm() {
             errors={formState.errors}
             bgWhite
           />
-          <button
+          <Button
             type="submit"
-            className="block w-full bg-black text-sm font-medium text-white py-2 rounded mt-4 cursor-pointer hover:bg-black-900"
+            variant="primary"
+            size="full"
             disabled={updateName.isPending}
           >
-            {updateName.isPending ? "Lade..." : "Namen ändern"}
-          </button>
+            {updateName.isPending ? "Lade..." : "Namen ändern"}
+          </Button>
         </form>
       </div>
     </section>

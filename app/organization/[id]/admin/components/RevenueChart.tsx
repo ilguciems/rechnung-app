@@ -1,4 +1,6 @@
 "use client";
+
+import { useTheme } from "@teispace/next-themes";
 import {
   Bar,
   BarChart,
@@ -18,6 +20,10 @@ const formattedValue = (value: number) =>
   }).format(value || 0);
 
 export function RevenueChart({ data }: { data: ChartDataType }) {
+  const { theme } = useTheme();
+
+  const dark = theme === "dark";
+
   return (
     <div className="w-full h-[350px] min-w-0 overflow-hidden">
       <BarChart
@@ -30,7 +36,7 @@ export function RevenueChart({ data }: { data: ChartDataType }) {
         <CartesianGrid
           strokeDasharray="3 3"
           vertical={false}
-          stroke="#f0f0f0"
+          stroke={dark ? "#374151" : "#f0f0f0"}
         />
         <XAxis
           dataKey="month"
@@ -45,9 +51,10 @@ export function RevenueChart({ data }: { data: ChartDataType }) {
           tickFormatter={(value) => `€${value}`}
         />
         <Tooltip
-          cursor={{ fill: "#f9fafb" }}
+          cursor={{ fill: dark ? "#374151" : "#f9fafb" }}
           formatter={(value) => formattedValue(value as number)}
           contentStyle={{
+            backgroundColor: dark ? "#374151" : "#f9fafb",
             borderRadius: "12px",
             border: "none",
             boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)",

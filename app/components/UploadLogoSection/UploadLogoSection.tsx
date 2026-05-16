@@ -51,7 +51,7 @@ export default function UploadLogoSection() {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div className="flex flex-col sm:flex-row items-start gap-6">
         <div className="flex flex-col items-center sm:w-60 w-full">
-          <div className="sm:w-60 w-full h-28 rounded border border-gray-300 bg-white flex items-center justify-center overflow-hidden shadow-sm">
+          <div className="sm:w-60 w-full h-28 rounded border border-gray-300 bg-white dark:bg-gray-800 flex items-center justify-center overflow-hidden shadow-sm">
             {!isLoading && (
               <ImageWithFallback
                 src={logoUrl}
@@ -62,12 +62,14 @@ export default function UploadLogoSection() {
               />
             )}
           </div>
-          <p className="text-xs text-gray-500 mt-2">Aktuelles Logo</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+            Aktuelles Logo
+          </p>
         </div>
         <div className="flex flex-col w-full">
           <label
             htmlFor="file"
-            className="text-sm font-medium text-gray-700 mb-1"
+            className="text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
           >
             Neues Logo hochladen
           </label>
@@ -79,11 +81,11 @@ export default function UploadLogoSection() {
             accept="image/png"
             className="
           border border-gray-300 
-          p-2 rounded-md bg-white
+          p-2 rounded-md bg-white dark:bg-gray-800
           text-sm
           file:mr-3 file:py-1 file:px-3
           file:border file:border-gray-300
-          file:bg-gray-100 file:text-gray-700
+          file:bg-gray-100 dark:file:bg-gray-700 file:text-gray-700 dark:file:text-gray-100
           cursor-pointer 
         "
           />

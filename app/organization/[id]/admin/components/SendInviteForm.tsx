@@ -1,7 +1,7 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Input, SelectField } from "@/app/components";
+import { Button, Input, SelectField } from "@/app/components";
 import { useSendInvite } from "@/hooks";
 import { type SendInviteType, sendInviteSchema } from "@/lib/zod-schema";
 
@@ -21,7 +21,7 @@ export default function SendInviteForm() {
   };
 
   return (
-    <section className="border border-gray-100 p-4 rounded-xl">
+    <section className="border border-gray-100 p-4 rounded-xl dark:bg-black dark:border-gray-700">
       <div className="grid grid-cols-1 gap-6 max-w-md mx-auto">
         <h2 className="text-2xl mb-6">Einladung senden</h2>
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -46,13 +46,14 @@ export default function SendInviteForm() {
               { value: "admin", label: "Administrator" },
             ]}
           />
-          <button
+          <Button
             type="submit"
-            className="block w-full bg-black text-sm font-medium text-white py-2 rounded mt-4 cursor-pointer hover:bg-black-900"
+            variant="primary"
+            size="full"
             disabled={createInvoice.isPending}
           >
             {createInvoice.isPending ? "Lade..." : "Einladung senden"}
-          </button>
+          </Button>
         </form>
       </div>
     </section>

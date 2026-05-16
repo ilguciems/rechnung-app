@@ -32,14 +32,14 @@ export default function Output<T extends FieldValues>({
         htmlFor={name}
         className={`text-xs text-gray-700 px-2 absolute -top-2 left-2 z-10 ${
           bgWhite ? "bg-white" : "bg-gray-100"
-        }`}
+        } dark:bg-black dark:text-white`}
       >
         {label}
       </label>
       <output
         id={name}
         {...register(name)}
-        className={`border p-2 rounded w-full min min-h-[2.5rem]`}
+        className={`border border-gray-300 p-2 rounded w-full min min-h-[2.5rem] dark:bg-black dark:text-white dark:border-gray-700`}
       />
       <p className="h-4 text-xs text-red-500 mt-1">
         {errorMessage ?? customError}

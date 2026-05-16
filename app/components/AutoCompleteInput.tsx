@@ -136,7 +136,7 @@ export default function AutoCompleteInput<
         htmlFor={name}
         className={`text-xs text-gray-700 px-2 absolute -top-2 left-2 ${
           bgWhite ? "bg-white" : "bg-gray-100"
-        }`}
+        } dark:bg-black dark:text-white z-10`}
       >
         {label}
       </label>
@@ -186,7 +186,7 @@ export default function AutoCompleteInput<
         onFocus={() => query && setOpen(true)}
         className={`border p-2 rounded w-full ${
           errorMessage ? "border-red-500" : "border-gray-300"
-        }`}
+        } dark:bg-black dark:text-white dark:border-gray-700 dark:placeholder:text-gray-500`}
         aria-autocomplete="list"
         aria-controls={`${name}-listbox`}
         role="combobox"
@@ -198,7 +198,7 @@ export default function AutoCompleteInput<
           id={`${name}-listbox`}
           role="listbox"
           ref={listRef}
-          className="absolute z-20 mt-11 w-full bg-gray-100 border border-gray-300 rounded shadow-md max-h-60 overflow-auto text-black text-sm"
+          className="absolute z-20 mt-11 w-full bg-gray-100 border border-gray-300 rounded shadow-md max-h-60 overflow-auto text-black text-sm dark:bg-black dark:border-gray-700 dark:text-gray-100"
         >
           {results.map((item, index) => {
             const { id, ...rest } = item;
@@ -210,8 +210,10 @@ export default function AutoCompleteInput<
                 aria-selected={highlightIndex === index}
                 onClick={() => handleSelect(item)}
                 onKeyDown={(e) => e.key === "Enter" && handleSelect(item)}
-                className={`px-3 py-2 cursor-pointer border-b border-gray-800 ${
-                  highlightIndex === index ? "bg-blue-200" : "hover:bg-blue-100"
+                className={`px-3 py-2 cursor-pointer border-b border-gray-200 dark:border-gray-800 ${
+                  highlightIndex === index
+                    ? "bg-blue-200 dark:bg-gray-800"
+                    : "hover:bg-blue-100 dark:hover:bg-gray-900"
                 }`}
               >
                 {displayKey === "customerName"

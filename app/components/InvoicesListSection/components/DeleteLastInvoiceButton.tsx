@@ -119,10 +119,10 @@ export default function DeleteLastInvoiceButton({
         >
           <div
             ref={modalRef}
-            className="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full !opacity-100"
+            className="bg-white dark:bg-black rounded-lg shadow-lg p-6 max-w-sm w-full !opacity-100"
           >
             <h2 className="text-lg font-semibold mb-2">Sicher löschen?</h2>
-            <p className="text-sm text-gray-600 mb-4">
+            <p className="text-sm text-gray-600 dark:text-gray-200 mb-4">
               Diese Aktion kann <strong>nicht</strong> rückgängig gemacht
               werden. Die letzte Rechnung wird endgültig gelöscht.
             </p>
@@ -136,7 +136,7 @@ export default function DeleteLastInvoiceButton({
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300"
+                className="px-3 py-1 rounded bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-900 text-gray-800 dark:text-gray-200 transition-colors"
               >
                 Abbrechen
               </button>

@@ -54,7 +54,7 @@ export default function Tabs({ tabs, defaultActiveTab }: TabsProps) {
     <div className="w-full">
       <div
         role="tablist"
-        className="relative flex items-center gap-8 border-b border-gray-200 overflow-x-auto no-scrollbar py-1"
+        className="relative flex items-center gap-8 border-b border-gray-200 dark:border-gray-700 overflow-x-auto no-scrollbar py-1"
       >
         {tabs.map((tab) => {
           const isActive = activeTab.id === tab.id;
@@ -73,7 +73,7 @@ export default function Tabs({ tabs, defaultActiveTab }: TabsProps) {
               className={`
                 relative py-4 px-2 text-sm font-medium transition-all outline-none group
                 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-black focus-visible:rounded-lg
-                ${isActive ? "text-black" : "text-gray-500 hover:text-gray-800"}
+                ${isActive ? "text-black dark:text-white" : "text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"}
               `}
             >
               <span className="flex items-center gap-2">
@@ -85,7 +85,7 @@ export default function Tabs({ tabs, defaultActiveTab }: TabsProps) {
               {isActive && (
                 <motion.div
                   layoutId="active-underline"
-                  className="absolute inset-x-0 bottom-0 h-[2px] bg-black"
+                  className="absolute inset-x-0 bottom-0 h-[2px] bg-black dark:bg-white"
                   transition={
                     shouldReduceMotion
                       ? { duration: 0 }

@@ -101,7 +101,7 @@ export default function Input<T extends FieldValues>({
         htmlFor={name}
         className={`text-xs text-gray-700 px-2 absolute -top-2 left-2 z-10 ${
           bgWhite ? "bg-white" : "bg-gray-100"
-        }`}
+        } dark:bg-black dark:text-white`}
       >
         {label}
       </label>
@@ -119,6 +119,7 @@ export default function Input<T extends FieldValues>({
           className={`border p-2 rounded w-full 
           ${errorMessage ? "border-red-500" : "border-gray-300"}
           ${isPassword ? "pr-10" : ""}
+          dark:bg-black dark:text-white dark:border-gray-700 dark:placeholder:text-gray-500
           `}
         />
 
@@ -126,7 +127,7 @@ export default function Input<T extends FieldValues>({
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none dark:text-gray-400 dark:hover:text-gray-200"
             aria-label={
               showPassword ? "Passwort verbergen" : "Passwort anzeigen"
             }

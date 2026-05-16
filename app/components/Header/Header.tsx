@@ -10,6 +10,7 @@ import {
   NavLink,
   NavLinkGuard,
   NotificationBell,
+  ThemeToggle,
 } from "./components";
 
 export default async function Header() {
@@ -22,17 +23,19 @@ export default async function Header() {
 
   return (
     <header className="sticky top-0 z-[200]">
-      <nav className="flex justify-between items-center px-4 py-2 bg-gray-100 min-h-[56px] z-[200] shadow-xl">
+      <nav className="flex justify-between items-center px-4 py-2 bg-gray-100 dark:bg-gray-800 min-h-[56px] z-[200] shadow-xl">
         <Link href="/">
           <h1 className="text-2xl font-bold flex items-center hover:underline">
             I<Activity />
             voice
           </h1>
         </Link>
+        {!session && <ThemeToggle />}
         {session && (
           <div className="flex items-center gap-2">
             <HeaderTimer />
             <NotificationBell />
+            <ThemeToggle />
             <NavLinkGuard serverOrgId={orgId}>
               {orgId && (
                 <NavLink

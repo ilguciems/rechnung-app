@@ -104,20 +104,20 @@ export default function Logs() {
       {logs.map((log) => (
         <li
           key={log.id}
-          className="flex flex-col gap-1 rounded border p-3 bg-white"
+          className="flex flex-col gap-1 rounded border p-3 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700"
         >
           <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-800">
+            <span className="text-sm text-gray-800 dark:text-gray-200">
               <strong>{getUserLabel(log)}</strong> {renderLogMessage(log)}
             </span>
 
-            <span className="text-xs text-gray-400">
+            <span className="text-xs text-gray-400 dark:text-gray-200">
               {new Date(log.createdAt).toLocaleString("de-DE")}
             </span>
           </div>
 
           {log.action === "UPDATE" && log.metadata?.changes && (
-            <ul className="mt-2 text-xs text-gray-600">
+            <ul className="mt-2 text-xs text-gray-600 dark:text-gray-200">
               {Object.entries(log.metadata.changes).map(
                 ([field, { old, new: newVal }]) => (
                   <li key={field}>

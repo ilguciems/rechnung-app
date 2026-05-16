@@ -1,18 +1,18 @@
 export default function InvoicesSkeleton() {
   return (
     <li
-      className="flex items-center justify-between border p-3 rounded bg-white animate-pulse"
+      className="flex items-center justify-between border p-3 rounded bg-white dark:bg-gray-800 animate-pulse"
       aria-hidden="true"
     >
       <div className="flex-1">
-        <div className="h-4 bg-gray-300 rounded w-36 mb-2"></div>
-        <div className="h-3 bg-gray-200 rounded w-56 mb-2"></div>
-        <div className="h-4 bg-gray-200 rounded w-32 mb-2"></div>
-        <div className="h-4 bg-gray-200 rounded w-24"></div>
+        <div className="h-4 bg-gray-300 dark:bg-gray-500 rounded w-36 mb-2"></div>
+        <div className="h-3 bg-gray-200 dark:bg-gray-600 rounded w-56 mb-2"></div>
+        <div className="h-4 bg-gray-200 dark:bg-gray-600 rounded w-32 mb-2"></div>
+        <div className="h-4 bg-gray-200 dark:bg-gray-600 rounded w-24"></div>
       </div>
 
       <div className="flex w-20 justify-end pr-[0.688rem]">
-        <div className="h-8 w-8 bg-gray-300 rounded-full"></div>
+        <div className="h-8 w-8 bg-gray-300 dark:bg-gray-500 rounded-full"></div>
       </div>
     </li>
   );

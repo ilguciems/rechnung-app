@@ -173,7 +173,7 @@ export default function CompanySection() {
   return (
     <section
       aria-labelledby="company-section"
-      className="p-4 mb-6 rounded-xl shadow bg-gray-100"
+      className="p-4 mb-6 rounded-xl shadow bg-gray-100 dark:bg-black dark:text-white"
     >
       <h2 id="company-section" className="text-lg font-bold mb-4">
         {company ? "Firmendaten bearbeiten" : "Firmendaten eingeben"}
@@ -297,7 +297,10 @@ export default function CompanySection() {
             errors={errors}
             aria-describedby="tax-either"
           />
-          <p id="tax-either" className="col-span-2 text-xs text-gray-700">
+          <p
+            id="tax-either"
+            className="col-span-2 text-xs text-gray-700 dark:text-gray-300"
+          >
             * Sie können entweder Steuernummer oder
             Umsatzsteuer-Identifikationsnummer eingeben.
           </p>
@@ -314,7 +317,10 @@ export default function CompanySection() {
             aria-expanded={isSubjectToVAT}
             disabled={isVatRequired}
           />
-          <label htmlFor="isSubjectToVAT" className="text-sm text-gray-700">
+          <label
+            htmlFor="isSubjectToVAT"
+            className="text-sm text-gray-700 dark:text-gray-300"
+          >
             {isVatRequired
               ? "Diese Rechtsform ist umsatzsteuerpflichtig."
               : "Mein Unternehmen ist umsatzsteuerpflichtig."}
