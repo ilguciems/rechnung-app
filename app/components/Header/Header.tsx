@@ -7,6 +7,7 @@ import { ORG_ADMIN_ROLES, type OrgRole } from "@/types/org-roles";
 import {
   HeaderTimer,
   LogoutButton,
+  MobileMenu,
   NavLink,
   NavLinkGuard,
   NotificationBell,
@@ -22,8 +23,8 @@ export default async function Header() {
   const orgId = session?.org?.id;
 
   return (
-    <header className="sticky top-0 z-[200]">
-      <nav className="flex justify-between items-center px-4 py-2 bg-gray-100 dark:bg-gray-800 min-h-[56px] z-[200] shadow-xl">
+    <header className="sticky top-0 z-200">
+      <nav className="flex justify-between items-center px-4 py-2 bg-gray-100 dark:bg-gray-800 min-h-14 z-200 shadow-xl">
         <Link href="/">
           <h1 className="text-2xl font-bold flex items-center hover:underline">
             I<Activity />
@@ -36,41 +37,80 @@ export default async function Header() {
             <HeaderTimer />
             <NotificationBell />
             <ThemeToggle />
-            <NavLinkGuard serverOrgId={orgId}>
-              {orgId && (
-                <NavLink
-                  href={`/`}
-                  title="Rechnungen"
-                  icon={<BookText />}
-                  text="Rechnungen"
-                />
-              )}
-            </NavLinkGuard>
-            <NavLink
-              href={`/profile/${session.user.id}`}
-              title={`Profile von ${session.user.name}`}
-              icon={<UserRoundCog />}
-              text="Profile"
-            />
-            {isGlobalAdmin && (
+            <div className="hidden md:flex items-center gap-2">
+              <NavLinkGuard serverOrgId={orgId}>
+                {orgId && (
+                  <NavLink
+                    href={`/`}
+                    title="Rechnungen"
+                    icon={<BookText />}
+                    text="Rechnungen"
+                  />
+                )}
+              </NavLinkGuard>
               <NavLink
-                href="/admin"
-                title="Admin"
-                icon={<ShieldUser />}
-                text="Admin"
+                href={`/profile/${session.user.id}`}
+                title={`Profile von ${session.user.name}`}
+                icon={<UserRoundCog />}
+                text="Profile"
               />
-            )}
-            <NavLinkGuard serverOrgId={orgId}>
-              {isOrgAdmin && (
+              {isGlobalAdmin && (
                 <NavLink
-                  href={`/organization/${orgId}/admin`}
+                  href="/admin"
                   title="Admin"
                   icon={<ShieldUser />}
                   text="Admin"
                 />
               )}
-            </NavLinkGuard>
-            <LogoutButton />
+              <NavLinkGuard serverOrgId={orgId}>
+                {isOrgAdmin && (
+                  <NavLink
+                    href={`/organization/${orgId}/admin`}
+                    title="Admin"
+                    icon={<ShieldUser />}
+                    text="Admin"
+                  />
+                )}
+              </NavLinkGuard>
+              <LogoutButton />
+            </div>
+            <MobileMenu>
+              <NavLinkGuard serverOrgId={orgId}>
+                {orgId && (
+                  <NavLink
+                    href={`/`}
+                    title="Rechnungen"
+                    icon={<BookText />}
+                    text="Rechnungen"
+                  />
+                )}
+              </NavLinkGuard>
+              <NavLink
+                href={`/profile/${session.user.id}`}
+                title={`Profile von ${session.user.name}`}
+                icon={<UserRoundCog />}
+                text="Profile"
+              />
+              {isGlobalAdmin && (
+                <NavLink
+                  href="/admin"
+                  title="Admin"
+                  icon={<ShieldUser />}
+                  text="Admin"
+                />
+              )}
+              <NavLinkGuard serverOrgId={orgId}>
+                {isOrgAdmin && (
+                  <NavLink
+                    href={`/organization/${orgId}/admin`}
+                    title="Admin"
+                    icon={<ShieldUser />}
+                    text="Admin"
+                  />
+                )}
+              </NavLinkGuard>
+              <LogoutButton />
+            </MobileMenu>
           </div>
         )}
       </nav>
