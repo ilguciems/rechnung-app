@@ -24,12 +24,15 @@ export const useMailConfig = (mailConfig: boolean) => {
         body: JSON.stringify(form),
       });
 
+      const data = await res.json().catch(() => null);
+
       if (!res.ok) {
-        const data = await res.json().catch(() => null);
-        throw new Error(data?.error ?? "Fehler beim Speichern");
+        const error = new Error(data?.error ?? "Fehler beim Speichern");
+        error.name = "ValidationError";
+        throw error;
       }
 
-      return res.json();
+      return data;
     },
     onMutate: async (newData) => {
       await queryClient.cancelQueries({ queryKey: ["mail-config-data"] });
@@ -45,7 +48,9 @@ export const useMailConfig = (mailConfig: boolean) => {
 
       return { prev };
     },
-    onError: (error) => toast.error(error.message),
+    onError: (error: Error) => {
+      toast.error(error.message);
+    },
     onSuccess: async (newData) => {
       queryClient.setQueryData(["mail-config-data"], newData);
       toast.success("Einstellungen erfolgreich gespeichert");
