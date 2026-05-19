@@ -2,12 +2,13 @@ import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { Prisma } from "@/app/generated/prisma/client";
 import { auth } from "@/lib/auth";
-import { encrypt } from "@/lib/crypto-utils";
+import { decrypt, encrypt } from "@/lib/crypto-utils";
 import { prisma } from "@/lib/prisma-client";
 import {
   type OrganizationConfigMailType,
   organizationConfigMailSchema,
 } from "@/lib/zod-schema";
+import { validateMailjetKeys } from "@/utils/validate-mailjet-keys";
 
 export async function GET() {
   try {
@@ -106,6 +107,19 @@ export async function POST(req: Request) {
       await req.json(),
     );
 
+    // Validate Mailjet keys before saving
+    const validation = await validateMailjetKeys(
+      publicKeyEnc,
+      privateKeyEnc,
+      fromEmail,
+    );
+    if (!validation.valid) {
+      return NextResponse.json(
+        { error: validation.error || "Ungültige API-Schlüssel" },
+        { status: 400 },
+      );
+    }
+
     const organization = await prisma.organization.findFirst({
       where: {
         members: {
@@ -191,6 +205,15 @@ export async function PATCH(req: Request) {
           },
         },
       },
+      select: {
+        id: true,
+        mailjet: {
+          select: {
+            publicKeyEnc: true,
+            privateKeyEnc: true,
+          },
+        },
+      },
     });
 
     if (!organization) {
@@ -198,6 +221,67 @@ export async function PATCH(req: Request) {
         { error: "Nicht authorisiert" },
         { status: 401 },
       );
+    }
+
+    // Validate new keys if provided
+    if (data.publicKeyEnc || data.privateKeyEnc) {
+      const publicKey = data.publicKeyEnc || "";
+      const privateKey = data.privateKeyEnc || "";
+
+      // If only one key is provided, we can't validate
+      if (!publicKey || !privateKey) {
+        return NextResponse.json(
+          {
+            error:
+              "Beide Schlüssel (Public und Private) müssen zusammen aktualisiert werden",
+          },
+          { status: 400 },
+        );
+      }
+
+      // Get fromEmail - use new value if provided, otherwise fetch from DB
+      let fromEmailToValidate = data.fromEmail;
+      if (!fromEmailToValidate && organization.mailjet) {
+        const existingConfig = await prisma.mailjetConfig.findUnique({
+          where: { organizationId: organization.id },
+          select: { fromEmail: true },
+        });
+        fromEmailToValidate = existingConfig?.fromEmail || undefined;
+      }
+
+      const validation = await validateMailjetKeys(
+        publicKey,
+        privateKey,
+        fromEmailToValidate,
+      );
+      if (!validation.valid) {
+        return NextResponse.json(
+          { error: validation.error || "Ungültige API-Schlüssel" },
+          { status: 400 },
+        );
+      }
+    }
+
+    // Validate fromEmail if it's being updated (without keys)
+    if (data.fromEmail && !data.publicKeyEnc && !data.privateKeyEnc) {
+      const existingConfig = await prisma.mailjetConfig.findUnique({
+        where: { organizationId: organization.id },
+        select: { publicKeyEnc: true, privateKeyEnc: true },
+      });
+
+      if (existingConfig?.publicKeyEnc && existingConfig?.privateKeyEnc) {
+        const validation = await validateMailjetKeys(
+          decrypt(existingConfig.publicKeyEnc) as string,
+          decrypt(existingConfig.privateKeyEnc) as string,
+          data.fromEmail,
+        );
+        if (!validation.valid) {
+          return NextResponse.json(
+            { error: validation.error || "Ungültige Absender-E-Mail-Adresse" },
+            { status: 400 },
+          );
+        }
+      }
     }
 
     const mailjet = await prisma.mailjetConfig.update({
