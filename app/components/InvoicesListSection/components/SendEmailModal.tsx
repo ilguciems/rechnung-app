@@ -145,7 +145,7 @@ export function SendEmailModal({
       role="dialog"
       aria-modal="true"
       onKeyDown={trapFocus}
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+      className="fixed inset-0 z-100 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
     >
       <div
         ref={modalRef}
@@ -162,14 +162,14 @@ export function SendEmailModal({
           <button
             type="button"
             onClick={onClose}
-            className="text-slate-400 hover:text-black transition-colors"
+            className="text-slate-400 hover:text-black dark:text-gray-400 dark:hover:text-gray-100 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
         <div className="px-16 pb-8 pt-2 bg-slate-50/50 dark:bg-gray-900 border-b border-slate-100">
           <div className="flex items-center justify-between relative max-w-md mx-auto">
-            <div className="absolute top-1/2 left-0 w-full h-[1px] bg-slate-200 -translate-y-1/2 z-0" />
+            <div className="absolute top-1/2 left-0 w-full h-1px bg-slate-200 -translate-y-1/2 z-0" />
 
             {levels.map((step, index) => {
               const isCompleted =
@@ -222,7 +222,7 @@ export function SendEmailModal({
             <div>
               <label
                 htmlFor="to"
-                className="block text-[10px] font-black uppercase text-slate-500 dark:text-gray-200 mb-1 ml-1"
+                className="block text-[11px] font-bold text-slate-600 dark:text-gray-300 mb-1.5 ml-1"
               >
                 Empfänger E-Mail
               </label>
@@ -244,7 +244,7 @@ export function SendEmailModal({
             <div>
               <label
                 htmlFor="subject"
-                className="block text-[10px] font-black uppercase text-slate-500 mb-1 ml-1"
+                className="block text-[11px] font-bold text-slate-600 dark:text-gray-300 mb-1.5 ml-1"
               >
                 Betreff
               </label>
@@ -266,7 +266,7 @@ export function SendEmailModal({
             <div>
               <label
                 htmlFor="message"
-                className="block text-[10px] font-black uppercase text-slate-500 mb-1 ml-1"
+                className="block text-[11px] font-bold text-slate-600 dark:text-gray-300 mb-1.5 ml-1"
               >
                 Nachricht
               </label>
@@ -318,14 +318,14 @@ export function SendEmailModal({
               type="button"
               onClick={onClose}
               disabled={isPending}
-              className="px-4 py-2 text-xs font-bold text-slate-500 hover:text-black transition-colors"
+              className="px-4 py-2 text-xs font-bold text-slate-500 hover:text-black dark:text-gray-400 dark:hover:text-gray-100 transition-colors cursor-pointer disabled:cursor-not-allowed"
             >
               Abbrechen
             </button>
             <button
               type="submit"
               disabled={isPending}
-              className="flex items-center gap-2 px-6 py-2 bg-black text-white rounded-xl text-xs font-bold hover:bg-slate-800 disabled:bg-slate-300 transition-all shadow-lg shadow-black/10"
+              className="flex items-center gap-2 px-6 py-2 bg-black text-white rounded-xl text-xs font-bold hover:bg-slate-800 disabled:bg-slate-300 dark:bg-white dark:text-black dark:hover:bg-gray-200 dark:disabled:bg-gray-600 dark:disabled:text-gray-400 transition-all shadow-lg shadow-black/10 cursor-pointer disabled:cursor-not-allowed"
             >
               {isPending ? (
                 <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
