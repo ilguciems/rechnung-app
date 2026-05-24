@@ -8,14 +8,16 @@ import {
 } from "date-fns";
 import { de } from "date-fns/locale";
 import { NextResponse } from "next/server";
+import { getTranslations } from "next-intl/server";
 import { getAuthData } from "@/lib/get-auth-data";
 import { prisma } from "@/lib/prisma-client";
 
 export async function GET() {
+  const t = await getTranslations("apiErrors");
   try {
     const session = await getAuthData();
     if (!session?.org?.companyId)
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: t("unauthorized") }, { status: 401 });
 
     const companyId = session.org.companyId;
     const sixMonthsAgo = startOfMonth(subMonths(new Date(), 5));

@@ -1,5 +1,6 @@
 import Ably from "ably";
 import { NextResponse } from "next/server";
+import { getTranslations } from "next-intl/server";
 import { Prisma } from "@/app/generated/prisma/client";
 import { logActivity } from "@/lib/activity-log";
 import { getAuthData } from "@/lib/get-auth-data";
@@ -9,13 +10,14 @@ export async function PATCH(
   req: Request,
   context: { params: Promise<{ id: string }> },
 ) {
+  const t = await getTranslations("apiErrors");
   try {
     const { id } = await context.params;
     const { isPaid } = await req.json();
     const session = await getAuthData();
 
     if (!session?.org) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: t("unauthorized") }, { status: 401 });
     }
 
     const oldPaidAt = await prisma.invoice.findUnique({
@@ -33,7 +35,7 @@ export async function PATCH(
     });
 
     if (!invoice) {
-      return NextResponse.json({ error: "Invoice not found" }, { status: 404 });
+      return NextResponse.json({ error: t("noInvoiceFound") }, { status: 404 });
     }
 
     try {
@@ -86,9 +88,9 @@ export async function PATCH(
     console.error(error);
 
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      return NextResponse.json({ error: "Datenbankfehler" }, { status: 400 });
+      return NextResponse.json({ error: t("databaseError") }, { status: 400 });
     }
 
-    return NextResponse.json({ error: "Serverfehler" }, { status: 500 });
+    return NextResponse.json({ error: t("serverError") }, { status: 500 });
   }
 }

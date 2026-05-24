@@ -1,16 +1,18 @@
 import Ably, { type TokenParams } from "ably";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
+import { getTranslations } from "next-intl/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma-client";
 
 export async function GET() {
+  const t = await getTranslations("apiErrors");
   const session = await auth.api.getSession({
     headers: await headers(),
   });
 
   if (!session)
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: t("unauthorized") }, { status: 401 });
 
   const membership = await prisma.organizationMember.findFirst({
     where: { userId: session.user.id },

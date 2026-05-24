@@ -1,5 +1,6 @@
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
+import { getTranslations } from "next-intl/server";
 import { Prisma } from "@/app/generated/prisma/client";
 import { logActivity } from "@/lib/activity-log";
 import { auth } from "@/lib/auth";
@@ -8,16 +9,14 @@ import { prisma } from "@/lib/prisma-client";
 
 // Get a company
 export async function GET() {
+  const t = await getTranslations("apiErrors");
   try {
     const session = await auth.api.getSession({
       headers: await headers(),
     });
 
     if (!session) {
-      return NextResponse.json(
-        { error: "Nicht authorisiert" },
-        { status: 401 },
-      );
+      return NextResponse.json({ error: t("unauthorized") }, { status: 401 });
     }
 
     const membership = await prisma.organizationMember.findFirst({
@@ -34,25 +33,23 @@ export async function GET() {
     console.error(error);
 
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      return NextResponse.json({ error: "Datenbankfehler" }, { status: 400 });
+      return NextResponse.json({ error: t("databaseError") }, { status: 400 });
     }
 
-    return NextResponse.json({ error: "Serverfehler" }, { status: 500 });
+    return NextResponse.json({ error: t("serverError") }, { status: 500 });
   }
 }
 
 // Create a new company
 export async function POST(req: Request) {
+  const t = await getTranslations("apiErrors");
   try {
     const session = await auth.api.getSession({
       headers: await headers(),
     });
 
     if (!session) {
-      return NextResponse.json(
-        { error: "Nicht authorisiert" },
-        { status: 401 },
-      );
+      return NextResponse.json({ error: t("unauthorized") }, { status: 401 });
     }
 
     const userId = session.user.id;
@@ -65,7 +62,7 @@ export async function POST(req: Request) {
 
     if (existingOrg) {
       return NextResponse.json(
-        { error: "Organization bereits vorhanden" },
+        { error: t("organizationExists") },
         { status: 400 },
       );
     }
@@ -152,25 +149,23 @@ export async function POST(req: Request) {
     console.error(error);
 
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      return NextResponse.json({ error: "Datenbankfehler" }, { status: 400 });
+      return NextResponse.json({ error: t("databaseError") }, { status: 400 });
     }
 
-    return NextResponse.json({ error: "Serverfehler" }, { status: 500 });
+    return NextResponse.json({ error: t("serverError") }, { status: 500 });
   }
 }
 
 // Update a company
 export async function PATCH(req: Request) {
+  const t = await getTranslations("apiErrors");
   try {
     const session = await auth.api.getSession({
       headers: await headers(),
     });
 
     if (!session) {
-      return NextResponse.json(
-        { error: "Nicht authorisiert" },
-        { status: 401 },
-      );
+      return NextResponse.json({ error: t("unauthorized") }, { status: 401 });
     }
 
     const data = await req.json();
@@ -187,7 +182,7 @@ export async function PATCH(req: Request) {
 
     if (!membership?.organization?.companyId) {
       return NextResponse.json(
-        { error: "Kein Unternehmen gefunden bzw. keine Berechtigung" },
+        { error: t("companyNotFound") },
         { status: 404 },
       );
     }
@@ -249,9 +244,9 @@ export async function PATCH(req: Request) {
     console.error(error);
 
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      return NextResponse.json({ error: "Datenbankfehler" }, { status: 400 });
+      return NextResponse.json({ error: t("databaseError") }, { status: 400 });
     }
 
-    return NextResponse.json({ error: "Serverfehler" }, { status: 500 });
+    return NextResponse.json({ error: t("serverError") }, { status: 500 });
   }
 }

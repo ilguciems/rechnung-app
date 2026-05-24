@@ -1,16 +1,18 @@
 import crypto from "node:crypto";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
+import { getTranslations } from "next-intl/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma-client";
 import { sendAuthorizationEmail } from "@/utils/authorization-email";
 export async function POST(req: Request) {
+  const t = await getTranslations("apiErrors");
   const session = await auth.api.getSession({
     headers: await headers(),
   });
 
   if (!session) {
-    return NextResponse.json({ error: "Nicht authorisiert" }, { status: 401 });
+    return NextResponse.json({ error: t("unauthorized") }, { status: 401 });
   }
 
   const { email, role } = await req.json();
@@ -21,10 +23,7 @@ export async function POST(req: Request) {
   });
 
   if (existingUser?.memberships.length) {
-    return NextResponse.json(
-      { error: "Benutzer ist bereits in einer Organisation" },
-      { status: 400 },
-    );
+    return NextResponse.json({ error: t("userAlreadyInOrg") }, { status: 400 });
   }
 
   const membership = await prisma.organizationMember.findFirst({
@@ -35,7 +34,7 @@ export async function POST(req: Request) {
   });
 
   if (!membership) {
-    return NextResponse.json({ error: "Kein Administrator" }, { status: 403 });
+    return NextResponse.json({ error: t("notAdmin") }, { status: 403 });
   }
 
   const token = crypto.randomUUID();

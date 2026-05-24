@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { useAuth } from "@/hooks";
@@ -15,6 +16,7 @@ export default function DeleteLastInvoiceButton({
   const [apiError, setApiError] = useState<string | null>(null);
   const { orgRole } = useAuth();
   const queryClient = useQueryClient();
+  const t = useTranslations("invoicesList.deleteLast");
 
   const triggerButtonRef = useRef<HTMLButtonElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
@@ -24,7 +26,7 @@ export default function DeleteLastInvoiceButton({
       const res = await fetch(ROUTES.INVOICES_LAST, { method: "DELETE" });
       if (!res.ok) {
         const data = await res.json().catch(() => null);
-        throw new Error(data?.error ?? "Fehler beim Löschen der Rechnung");
+        throw new Error(data?.error ?? t("error"));
       }
       return res.json();
     },
@@ -35,7 +37,7 @@ export default function DeleteLastInvoiceButton({
           query.queryKey[0] === "organization-logs",
       });
       setOpen(false);
-      toast.success("Rechnung gelöscht!");
+      toast.success(t("success"));
     },
     onError: (error) => {
       setApiError(error.message);
@@ -106,7 +108,7 @@ export default function DeleteLastInvoiceButton({
         disabled={!hasInvoices || deleteLastInvoice.isPending}
         className="px-3 py-1 rounded bg-red-600 text-white hover:bg-red-700 disabled:opacity-70 disabled:cursor-not-allowed cursor-pointer"
       >
-        Letzte Rechnung löschen
+        {t("button")}
       </button>
       {apiError && <p className="text-red-600 mt-2 text-xs">{apiError}</p>}
       {/* Modal */}
@@ -119,17 +121,19 @@ export default function DeleteLastInvoiceButton({
         >
           <div
             ref={modalRef}
-            className="bg-white dark:bg-black rounded-lg shadow-lg p-6 max-w-sm w-full !opacity-100"
+            className="bg-white dark:bg-black rounded-lg shadow-lg p-6 max-w-sm w-full opacity-100!"
           >
-            <h2 className="text-lg font-semibold mb-2">Sicher löschen?</h2>
+            <h2 className="text-lg font-semibold mb-2">{t("modalTitle")}</h2>
             <p className="text-sm text-gray-600 dark:text-gray-200 mb-4">
-              Diese Aktion kann <strong>nicht</strong> rückgängig gemacht
-              werden. Die letzte Rechnung wird endgültig gelöscht.
+              {t.rich("modalText", {
+                strong: (chunks) => <strong>{chunks}</strong>,
+              })}
             </p>
             {orgRole === "member" && (
               <p className="text-sm text-red-600 mb-4">
-                <strong>Wichtig:</strong> Es können nur Rechnungen gelöscht
-                werden, die Sie selbst erstellt haben.
+                {t.rich("modalWarning", {
+                  strong: (chunks) => <strong>{chunks}</strong>,
+                })}
               </p>
             )}
             <div className="flex justify-end gap-2">
@@ -138,7 +142,7 @@ export default function DeleteLastInvoiceButton({
                 onClick={() => setOpen(false)}
                 className="px-3 py-1 rounded bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-900 text-gray-800 dark:text-gray-200 transition-colors"
               >
-                Abbrechen
+                {t("cancel")}
               </button>
               <button
                 type="button"
@@ -146,7 +150,7 @@ export default function DeleteLastInvoiceButton({
                 disabled={deleteLastInvoice.isPending}
                 className="px-3 py-1 rounded bg-red-600 text-white hover:bg-red-700 disabled:opacity-70"
               >
-                {deleteLastInvoice.isPending ? "Lösche..." : "Löschen"}
+                {deleteLastInvoice.isPending ? t("deleting") : t("confirm")}
               </button>
             </div>
           </div>

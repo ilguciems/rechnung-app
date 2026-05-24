@@ -1,5 +1,6 @@
 import Ably from "ably";
 import { NextResponse } from "next/server";
+import { getTranslations } from "next-intl/server";
 import { logActivity } from "@/lib/activity-log";
 import { getAuthData } from "@/lib/get-auth-data";
 import { generateInvoicePDF, generateMahnungPDF } from "@/lib/pdf";
@@ -10,6 +11,7 @@ export async function POST(
   req: Request,
   context: { params: Promise<{ id: string }> },
 ) {
+  const t = await getTranslations("apiErrors");
   try {
     const { id } = await context.params;
     const { to, subject, message, fee } = await req.json();
@@ -20,10 +22,7 @@ export async function POST(
 
     const session = await getAuthData();
     if (!session?.org)
-      return NextResponse.json(
-        { error: "Nicht authorisiert" },
-        { status: 401 },
-      );
+      return NextResponse.json({ error: t("unauthorized") }, { status: 401 });
 
     const invoice = await prisma.invoice.findUnique({
       where: { id, companyId: session.org.companyId },
@@ -32,7 +31,7 @@ export async function POST(
 
     if (!invoice?.companySnapshot) {
       return NextResponse.json(
-        { error: "Rechnungsdaten fehlen" },
+        { error: t("invoiceDataMissing") },
         { status: 400 },
       );
     }

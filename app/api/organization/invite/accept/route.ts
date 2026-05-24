@@ -1,15 +1,17 @@
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
+import { getTranslations } from "next-intl/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma-client";
 
 export async function POST(req: Request) {
+  const t = await getTranslations("apiErrors");
   const session = await auth.api.getSession({
     headers: await headers(),
   });
 
   if (!session) {
-    return NextResponse.json({ error: "Nicht authorisiert" }, { status: 401 });
+    return NextResponse.json({ error: t("unauthorized") }, { status: 401 });
   }
 
   if (!session.user.emailVerified) {
@@ -26,7 +28,10 @@ export async function POST(req: Request) {
   });
 
   if (!invite || invite.acceptedAt || invite.expiresAt < new Date()) {
-    return NextResponse.json({ error: "Ungültige Einladung" }, { status: 400 });
+    return NextResponse.json(
+      { error: t("invalidInvitation") },
+      { status: 400 },
+    );
   }
 
   const existingMembership = await prisma.organizationMember.findFirst({
@@ -35,16 +40,13 @@ export async function POST(req: Request) {
 
   if (existingMembership) {
     return NextResponse.json(
-      { error: "Benutzer ist bereits in der Organisation" },
+      { error: t("alreadyInOrganization") },
       { status: 400 },
     );
   }
 
   if (invite.email !== session.user.email) {
-    return NextResponse.json(
-      { error: "E-Mail für Einladung stimmt nicht überein" },
-      { status: 403 },
-    );
+    return NextResponse.json({ error: t("emailMismatch") }, { status: 403 });
   }
 
   await prisma.$transaction([

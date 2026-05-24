@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
+import { getTranslations } from "next-intl/server";
 import { Prisma } from "@/app/generated/prisma/client";
 import { logActivity } from "@/lib/activity-log";
 import { auth } from "@/lib/auth";
@@ -9,16 +10,14 @@ import diffObjects from "@/lib/diff-objects";
 import { prisma } from "@/lib/prisma-client";
 
 export async function GET() {
+  const t = await getTranslations("apiErrors");
   try {
     const session = await auth.api.getSession({
       headers: await headers(),
     });
 
     if (!session) {
-      return NextResponse.json(
-        { error: "Nicht authorisiert" },
-        { status: 401 },
-      );
+      return NextResponse.json({ error: t("unauthorized") }, { status: 401 });
     }
 
     const userId = session.user.id;
@@ -53,24 +52,22 @@ export async function GET() {
     console.error(error);
 
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      return NextResponse.json({ error: "Datenbankfehler" }, { status: 400 });
+      return NextResponse.json({ error: t("databaseError") }, { status: 400 });
     }
 
-    return NextResponse.json({ error: "Serverfehler" }, { status: 500 });
+    return NextResponse.json({ error: t("serverError") }, { status: 500 });
   }
 }
 
 export async function POST(req: Request) {
+  const t = await getTranslations("apiErrors");
   try {
     const session = await auth.api.getSession({
       headers: await headers(),
     });
 
     if (!session) {
-      return NextResponse.json(
-        { error: "Nicht authorisiert" },
-        { status: 401 },
-      );
+      return NextResponse.json({ error: t("unauthorized") }, { status: 401 });
     }
 
     const userId = session.user.id;
@@ -92,17 +89,14 @@ export async function POST(req: Request) {
     const company = organization?.company ?? null;
 
     if (company && membership?.role !== "admin") {
-      return NextResponse.json(
-        { error: "Keine Berechtigung" },
-        { status: 403 },
-      );
+      return NextResponse.json({ error: t("noPermission") }, { status: 403 });
     }
 
     const formData = await req.formData();
     const file = formData.get("file") as File;
 
     if (!file) {
-      return NextResponse.json({ error: "Kein File gewählt" }, { status: 400 });
+      return NextResponse.json({ error: t("noFileSelected") }, { status: 400 });
     }
 
     const arrayBuffer = await file.arrayBuffer();
@@ -207,9 +201,9 @@ export async function POST(req: Request) {
     console.error(error);
 
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      return NextResponse.json({ error: "Datenbankfehler" }, { status: 400 });
+      return NextResponse.json({ error: t("databaseError") }, { status: 400 });
     }
 
-    return NextResponse.json({ error: "Serverfehler" }, { status: 500 });
+    return NextResponse.json({ error: t("serverError") }, { status: 500 });
   }
 }
