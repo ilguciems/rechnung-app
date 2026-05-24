@@ -1,5 +1,6 @@
 "use client";
 import { X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect, useRef } from "react";
 
 interface ConfirmationModalProps {
@@ -19,12 +20,15 @@ export default function ConfirmationModal({
   onConfirm,
   title,
   description,
-  confirmText = "Bestätigen",
+  confirmText,
   isPending,
   children,
 }: ConfirmationModalProps) {
+  const t = useTranslations("confirmationModal");
   const modalRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
+
+  const confirmLabel = confirmText || t("confirm");
 
   const trapFocus = (e: React.KeyboardEvent) => {
     if (e.key === "Escape") {
@@ -91,7 +95,7 @@ export default function ConfirmationModal({
       >
         <button
           type="button"
-          aria-labelledby="Schließen"
+          aria-label={t("close")}
           className="absolute top-2 right-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
           onClick={onClose}
         >
@@ -112,7 +116,7 @@ export default function ConfirmationModal({
             onClick={onClose}
             className="px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 transition-colors"
           >
-            Abbrechen
+            {t("cancel")}
           </button>
           <button
             type="button"
@@ -120,7 +124,7 @@ export default function ConfirmationModal({
             disabled={isPending}
             className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white disabled:opacity-50 transition-colors"
           >
-            {isPending ? "Lädt..." : confirmText}
+            {isPending ? t("loading") : confirmLabel}
           </button>
         </div>
       </div>

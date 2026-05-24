@@ -1,12 +1,10 @@
+/** @type {import('next').NextConfig} */
 import type { NextConfig } from "next";
+import createNextIntlPlugin from "next-intl/plugin";
+
+const withNextIntlPlugin = createNextIntlPlugin();
 
 const nextConfig: NextConfig = {
-  allowedDevOrigins: ["local-origin.dev", "*.local-origin.dev"],
-};
-
-export default nextConfig;
-
-module.exports = {
   allowedDevOrigins: ["local-origin.dev", "*.local-origin.dev"],
   images: {
     qualities: [25, 50, 75, 80],
@@ -21,3 +19,5 @@ module.exports = {
     ],
   },
 };
+
+export default withNextIntlPlugin(nextConfig);

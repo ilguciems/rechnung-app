@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
@@ -12,6 +13,7 @@ import ImageWithFallback from "./ImageWithFallback";
 import { useUpload } from "./useUpload";
 
 export default function UploadLogoSection() {
+  const t = useTranslations("uploadLogo");
   const { data: session } = useSession();
   const userId = session?.user?.id;
   const {
@@ -42,9 +44,9 @@ export default function UploadLogoSection() {
       onSuccess: () => {
         setCacheBuster(Date.now());
         queryClient.invalidateQueries({ queryKey: ["company-logo"] });
-        toast.success("Logo hochgeladen!");
+        toast.success(t("uploadSuccess"));
       },
-      onError: () => toast.error("Fehler beim Hochladen des Logos"),
+      onError: () => toast.error(t("uploadError")),
     });
   };
   return (
@@ -63,7 +65,7 @@ export default function UploadLogoSection() {
             )}
           </div>
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-            Aktuelles Logo
+            {t("currentLogo")}
           </p>
         </div>
         <div className="flex flex-col w-full">
@@ -71,7 +73,7 @@ export default function UploadLogoSection() {
             htmlFor="file"
             className="text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
           >
-            Neues Logo hochladen
+            {t("uploadNew")}
           </label>
 
           <input
@@ -107,7 +109,7 @@ export default function UploadLogoSection() {
           disabled:bg-blue-300 disabled:cursor-not-allowed
         "
           >
-            {isPending ? "Hochladen..." : "Hochladen"}
+            {isPending ? t("uploading") : t("upload")}
           </button>
         </div>
       </div>

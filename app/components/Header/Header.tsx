@@ -1,11 +1,13 @@
 import { Activity, BookText, ShieldUser, UserRoundCog } from "lucide-react";
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { getAuthData } from "@/lib/get-auth-data";
 import { GLOBAL_ADMIN_ROLES, type GlobalRole } from "@/types/global-roles";
 import { ORG_ADMIN_ROLES, type OrgRole } from "@/types/org-roles";
 
 import {
   HeaderTimer,
+  LanguageSwitcher,
   LogoutButton,
   MobileMenu,
   NavLink,
@@ -21,6 +23,7 @@ export default async function Header() {
   );
   const isOrgAdmin = ORG_ADMIN_ROLES.includes(session?.org?.role as OrgRole);
   const orgId = session?.org?.id;
+  const t = await getTranslations("header");
 
   return (
     <header className="sticky top-0 z-200">
@@ -31,7 +34,11 @@ export default async function Header() {
             voice
           </h1>
         </Link>
-        {!session && <ThemeToggle />}
+        {!session && (
+          <span className="flex items-center gap-2">
+            <ThemeToggle /> <LanguageSwitcher />
+          </span>
+        )}
         {session && (
           <div className="flex items-center gap-2">
             <HeaderTimer />
@@ -42,74 +49,75 @@ export default async function Header() {
                 {orgId && (
                   <NavLink
                     href={`/`}
-                    title="Rechnungen"
+                    title={t("invoices")}
                     icon={<BookText />}
-                    text="Rechnungen"
+                    text={t("invoices")}
                   />
                 )}
               </NavLinkGuard>
               <NavLink
                 href={`/profile/${session.user.id}`}
-                title={`Profile von ${session.user.name}`}
+                title={t("profile")}
                 icon={<UserRoundCog />}
-                text="Profile"
+                text={t("profile")}
               />
               {isGlobalAdmin && (
                 <NavLink
                   href="/admin"
-                  title="Admin"
+                  title={t("admin")}
                   icon={<ShieldUser />}
-                  text="Admin"
+                  text={t("admin")}
                 />
               )}
               <NavLinkGuard serverOrgId={orgId}>
                 {isOrgAdmin && (
                   <NavLink
                     href={`/organization/${orgId}/admin`}
-                    title="Admin"
+                    title={t("admin")}
                     icon={<ShieldUser />}
-                    text="Admin"
+                    text={t("admin")}
                   />
                 )}
               </NavLinkGuard>
-              <LogoutButton />
+              <LogoutButton title={t("logout")} />
             </div>
+            <LanguageSwitcher />
             <MobileMenu>
               <NavLinkGuard serverOrgId={orgId}>
                 {orgId && (
                   <NavLink
                     href={`/`}
-                    title="Rechnungen"
+                    title={t("invoices")}
                     icon={<BookText />}
-                    text="Rechnungen"
+                    text={t("invoices")}
                   />
                 )}
               </NavLinkGuard>
               <NavLink
                 href={`/profile/${session.user.id}`}
-                title={`Profile von ${session.user.name}`}
+                title={t("profile")}
                 icon={<UserRoundCog />}
-                text="Profile"
+                text={t("profile")}
               />
               {isGlobalAdmin && (
                 <NavLink
                   href="/admin"
-                  title="Admin"
+                  title={t("admin")}
                   icon={<ShieldUser />}
-                  text="Admin"
+                  text={t("admin")}
                 />
               )}
               <NavLinkGuard serverOrgId={orgId}>
                 {isOrgAdmin && (
                   <NavLink
                     href={`/organization/${orgId}/admin`}
-                    title="Admin"
+                    title={t("admin")}
                     icon={<ShieldUser />}
-                    text="Admin"
+                    text={t("admin")}
                   />
                 )}
               </NavLinkGuard>
-              <LogoutButton />
+              <LogoutButton title={t("logout")} />
             </MobileMenu>
           </div>
         )}

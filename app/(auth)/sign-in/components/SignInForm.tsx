@@ -2,6 +2,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoaderCircle } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
@@ -11,6 +12,7 @@ import { signIn } from "@/lib/auth-client";
 import { type SignInType, signInSchema } from "@/lib/zod-schema";
 
 export default function SignInForm() {
+  const t = useTranslations("auth.signIn");
   const [loading, setLoading] = useState(false);
   const { session } = useAuth();
   const router = useRouter();
@@ -37,14 +39,11 @@ export default function SignInForm() {
 
   useEffect(() => {
     if (reason === "session_expired") {
-      toast.error(
-        "Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an.",
-        {
-          id: "session-expired-toast",
-        },
-      );
+      toast.error(t("sessionExpired"), {
+        id: "session-expired-toast",
+      });
     }
-  }, [reason]);
+  }, [reason, t]);
 
   async function onSubmit(values: SignInType) {
     const { email, password } = values;
@@ -96,24 +95,22 @@ export default function SignInForm() {
             <div className="p-6 flex flex-col gap-4">
               <div className="mb-2">
                 <h3 className="text-lg font-bold text-gray-900 dark:text-white leading-6">
-                  Einloggen
+                  {t("title")}
                 </h3>
                 {token ? (
                   <p className="text-sm text-gray-500 dark:text-gray-300 mt-1 bg-red-100 dark:bg-red-950/50 p-2 rounded">
-                    Sie haben eine Einladung erhalten. Bitte melden Sie sich an,
-                    um sie zu akzeptieren.
+                    {t("invitationMessage")}
                   </p>
                 ) : (
                   <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                    Bitte geben Sie Ihre E-Mail-Adresse und Ihr Passwort ein, um
-                    sich anzumelden.
+                    {t("subtitle")}
                   </p>
                 )}
               </div>
               {token ? (
                 <Output
                   name="email"
-                  label="E-Mail"
+                  label={t("email")}
                   register={register}
                   errors={formState.errors}
                   bgWhite
@@ -122,7 +119,7 @@ export default function SignInForm() {
                 <Input
                   name="email"
                   type="email"
-                  label="E-Mail"
+                  label={t("email")}
                   register={register}
                   errors={formState.errors}
                   bgWhite
@@ -131,7 +128,7 @@ export default function SignInForm() {
               <Input
                 name="password"
                 type="password"
-                label="Passwort"
+                label={t("password")}
                 register={register}
                 errors={formState.errors}
                 bgWhite
@@ -140,12 +137,12 @@ export default function SignInForm() {
             <div className="px-6 pb-6 pt-0">
               <div className="flex flex-col gap-4 w-full">
                 <Button type="submit" disabled={loading} variant="primary">
-                  Einloggen
+                  {t("submit")}
                 </Button>
                 <hr className="w-full border-t-2 border-gray-200 dark:border-gray-800" />
                 {!token && (
                   <LinkButton href="/sign-up" variant="secondary" size="full">
-                    Ich habe kein Konto
+                    {t("noAccount")}
                   </LinkButton>
                 )}
                 <LinkButton
@@ -153,7 +150,7 @@ export default function SignInForm() {
                   variant="secondary"
                   size="full"
                 >
-                  Ich habe mein Passwort vergessen
+                  {t("forgotPassword")}
                 </LinkButton>
               </div>
             </div>

@@ -1,4 +1,9 @@
+"use client";
+import { useTranslations } from "next-intl";
+
 export default function StartLoadingScreen() {
+  const t = useTranslations("startLoading");
+
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-white dark:bg-gray-900 z-[100]">
       <div className="flex flex-col items-center gap-4">
@@ -11,10 +16,10 @@ export default function StartLoadingScreen() {
           aria-live="polite"
           className="text-gray-700 dark:text-gray-300 font-medium"
         >
-          Lade Unternehmensdaten
+          {t("title")}
         </p>
         <p className="text-sm text-gray-500 dark:text-gray-400 animate-pulse">
-          Bitte warten, dies kann einige Sekunden dauern.
+          {t("helper")}
         </p>
       </div>
     </div>

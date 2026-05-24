@@ -19,7 +19,7 @@ export async function POST(
     const level = levelParam ? parseInt(levelParam, 10) : 1;
 
     const session = await getAuthData();
-    if (!session || !session.org)
+    if (!session?.org)
       return NextResponse.json(
         { error: "Nicht authorisiert" },
         { status: 401 },
@@ -30,7 +30,7 @@ export async function POST(
       include: { items: true, companySnapshot: true },
     });
 
-    if (!invoice || !invoice.companySnapshot) {
+    if (!invoice?.companySnapshot) {
       return NextResponse.json(
         { error: "Rechnungsdaten fehlen" },
         { status: 400 },

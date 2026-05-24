@@ -85,7 +85,7 @@ export default function Tabs({ tabs, defaultActiveTab }: TabsProps) {
               {isActive && (
                 <motion.div
                   layoutId="active-underline"
-                  className="absolute inset-x-0 bottom-0 h-[2px] bg-black dark:bg-white"
+                  className="absolute inset-x-0 bottom-0 h-0.5 bg-black dark:bg-white"
                   transition={
                     shouldReduceMotion
                       ? { duration: 0 }

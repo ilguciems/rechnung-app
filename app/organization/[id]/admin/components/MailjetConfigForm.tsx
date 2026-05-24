@@ -1,6 +1,7 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button, ConfirmationModal, Input } from "@/app/components";
@@ -11,6 +12,7 @@ import {
 } from "@/lib/zod-schema";
 
 export default function MailJetConfigForm() {
+  const t = useTranslations("organization.mailjet");
   const { data: config } = useMailConfigData();
   const { updateOrCreateMailConfig, deleteMailConfig } = useMailConfig(
     Boolean(config),
@@ -48,19 +50,19 @@ export default function MailJetConfigForm() {
     if (!config) {
       // Creating new config - validate all required fields
       if (!data.publicKeyEnc) {
-        setError("publicKeyEnc", { message: "Public key ist erförderlich" });
+        setError("publicKeyEnc", { message: t("errors.publicKey") });
         return;
       }
       if (!data.privateKeyEnc) {
-        setError("privateKeyEnc", { message: "Private key ist erförderlich" });
+        setError("privateKeyEnc", { message: t("errors.privateKey") });
         return;
       }
       if (!data.fromEmail) {
-        setError("fromEmail", { message: "Absender Email ist erförderlich" });
+        setError("fromEmail", { message: t("errors.fromEmail") });
         return;
       }
       if (!data.fromName) {
-        setError("fromName", { message: "Absender Name ist erförderlich" });
+        setError("fromName", { message: t("errors.fromName") });
         return;
       }
 
@@ -110,23 +112,26 @@ export default function MailJetConfigForm() {
       className="border border-gray-100 p-4 rounded-xl mt-2 dark:bg-black dark:border-gray-700"
     >
       <div className="grid grid-cols-1 gap-6 max-w-md mx-auto">
-        <h2 className="text-2xl mb-6">MailJet Konfiguration</h2>
+        <h2 className="text-2xl mb-6">{t("title")}</h2>
         <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
           <p className="text-sm text-gray-700 dark:text-gray-300">
-            Sie können einen kostenlosen Mailjet-Account erstellen unter{" "}
-            <Link
-              href="https://app.mailjet.com/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
-            >
-              app.mailjet.com
-            </Link>
+            {t.rich("description", {
+              link: (chunks) => (
+                <Link
+                  href="https://app.mailjet.com/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
+                >
+                  {chunks}
+                </Link>
+              ),
+            })}
           </p>
         </div>
         <form onSubmit={handleSubmit(onSubmit)}>
           <Input
-            label="Absender Name"
+            label={t("senderName")}
             className="mb-4"
             name="fromName"
             type="text"
@@ -135,7 +140,7 @@ export default function MailJetConfigForm() {
             bgWhite
           />
           <Input
-            label="Absender Email"
+            label={t("senderEmail")}
             className="mb-4"
             name="fromEmail"
             type="text"
@@ -144,21 +149,29 @@ export default function MailJetConfigForm() {
             bgWhite
           />
           <Input
-            label="Public Key"
+            label={t("publicKey")}
             className="mb-4"
             name="publicKeyEnc"
             type="text"
-            placeholder={`${config?.isPublicKeySet ? "***** ****** ***** *****" : "nicht gesetzt"}`}
+            placeholder={
+              config?.isPublicKeySet
+                ? t("placeholderMasked")
+                : t("placeholderNotSet")
+            }
             register={register}
             errors={errors}
             bgWhite
           />
           <Input
-            label="Private Key"
+            label={t("privateKey")}
             className="mb-4"
             name="privateKeyEnc"
             type="text"
-            placeholder={`${config?.isPrivateKeySet ? "***** ****** ***** *****" : "nicht gesetzt"}`}
+            placeholder={
+              config?.isPrivateKeySet
+                ? t("placeholderMasked")
+                : t("placeholderNotSet")
+            }
             register={register}
             errors={errors}
             bgWhite
@@ -170,7 +183,7 @@ export default function MailJetConfigForm() {
               id="isEnabled"
               {...register("isEnabled")}
             />
-            <label htmlFor="isEnabled">Aktiviert</label>
+            <label htmlFor="isEnabled">{t("enabled")}</label>
           </div>
           <Button
             type="submit"
@@ -180,7 +193,7 @@ export default function MailJetConfigForm() {
               updateOrCreateMailConfig.isPending || !isDirty || isSubmitting
             }
           >
-            {updateOrCreateMailConfig.isPending ? "Lade..." : "Speichern"}
+            {updateOrCreateMailConfig.isPending ? t("saving") : t("save")}
           </Button>
         </form>
         {config && (
@@ -191,7 +204,7 @@ export default function MailJetConfigForm() {
             disabled={deleteMailConfig.isPending}
             onClick={() => setIsDeleteModalOpen(true)}
           >
-            {deleteMailConfig.isPending ? "Lade..." : "Löschen"}
+            {deleteMailConfig.isPending ? t("saving") : t("delete")}
           </Button>
         )}
       </div>
@@ -199,9 +212,9 @@ export default function MailJetConfigForm() {
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={onDelete}
-        title="MailJet Konfiguration löschen"
-        description="Sind Sie sicher, dass Sie die MailJet Konfiguration löschen möchten? Alle gespeicherten Schlüssel werden unwiderruflich entfernt."
-        confirmText="Löschen"
+        title={t("deleteTitle")}
+        description={t("deleteConfirm")}
+        confirmText={t("delete")}
         isPending={deleteMailConfig.isPending}
       />
     </section>

@@ -1,102 +1,106 @@
 "use client";
+import { useTranslations } from "next-intl";
+import { useMemo } from "react";
 import { type ActivityLogType, useLogs } from "@/hooks";
 
 function getUserLabel(log: ActivityLogType) {
   return log.user.name ?? log.user.email;
 }
 
-const translateKeys = {
-  name: "Firmenname",
-  street: "Straße",
-  houseNumber: "Hausnummer",
-  zipCode: "PLZ",
-  city: "Ort",
-  country: "Land",
+function renderLogMessage(
+  log: ActivityLogType,
+  t: ReturnType<typeof useTranslations<"logs">>,
+) {
+  const invoiceNumber = log.metadata.invoiceNumber ?? "";
+  const level = log.metadata.level ?? 0;
+  const reminderType = level === 1 ? t("paymentReminder") : t("dunning");
 
-  phone: "Telefonnummer",
-  email: "E-Mail",
-  iban: "IBAN",
-  bic: "BIC",
-  bank: "Bank",
-  logoUrl: "Logo URL",
-
-  isSubjectToVAT: "Steuerpflichtig",
-  firstTaxRate: "Steuersatz 1",
-  secondTaxRate: "Steuersatz 2",
-
-  legalForm: "Gesellschaftsform",
-
-  steuernummer: "Steuernummer",
-  ustId: "USt-IdNr.",
-  handelsregisternummer: "Handelsregisternummer",
-
-  isPaid: "Bezahlstatus",
-  paidAt: "Bezahlt am",
-};
-
-const translateValues = {
-  yes: "Ja",
-  no: "Nein",
-
-  paid: "Bezahlt",
-  open: "Offen",
-
-  null: "-",
-};
-
-function renderLogMessage(log: ActivityLogType) {
   switch (log.entityType) {
     case "INVOICE":
-      if (log.action === "CREATE") {
-        return `Rechnung ${log.metadata.invoiceNumber} erstellt`;
-      }
-
-      if (log.action === "DELETE") {
-        return `Rechnung ${log.metadata.invoiceNumber} gelöscht`;
-      }
-
+      if (log.action === "CREATE")
+        return t("invoiceCreated", { number: invoiceNumber });
+      if (log.action === "DELETE")
+        return t("invoiceDeleted", { number: invoiceNumber });
       if (log.action === "DOWNLOAD") {
-        if (log.metadata.type === "payment-reminder") {
-          return `${log.metadata.level === 1 ? "Zahlungserinnerung" : "Mahnung"} (Stufe ${log.metadata.level}) für Rechnung ${log.metadata.invoiceNumber} als PDF heruntergeladen`;
-        }
-        return `Rechnung ${log.metadata.invoiceNumber} als PDF heruntergeladen`;
+        if (log.metadata.type === "payment-reminder")
+          return t("reminderDownloadedPdf", {
+            type: reminderType,
+            level,
+            number: invoiceNumber,
+          });
+        return t("invoiceDownloadedPdf", { number: invoiceNumber });
       }
-
-      if (log.action === "UPDATE") {
-        return `Rechnung ${log.metadata.invoiceNumber} aktualisiert`;
-      }
-
+      if (log.action === "UPDATE")
+        return t("invoiceUpdated", { number: invoiceNumber });
       break;
 
     case "COMPANY":
-      if (log.action === "UPDATE") {
-        return "Firmendaten aktualisiert";
-      }
-      if (log.action === "CREATE") {
-        return "Firma erstellt";
-      }
+      if (log.action === "UPDATE") return t("companyUpdated");
+      if (log.action === "CREATE") return t("companyCreated");
       break;
 
     case "EMAIL":
       if (log.action === "SEND") {
-        if (log.metadata.type === "payment-reminder") {
-          return `${log.metadata.level === 1 ? "Zahlungserinnerung" : "Mahnung"} (Stufe ${log.metadata.level}) für Rechnung ${log.metadata.invoiceNumber} per E-Mail versendet`;
-        }
-        return `Rechnung ${log.metadata.invoiceNumber} per E-Mail versendet`;
+        if (log.metadata.type === "payment-reminder")
+          return t("reminderSentEmail", {
+            type: reminderType,
+            level,
+            number: invoiceNumber,
+          });
+        return t("invoiceSentEmail", { number: invoiceNumber });
       }
       break;
   }
 
-  return "Unbekannte Aktion";
+  return t("unknownAction");
 }
 
 export default function Logs() {
+  const t = useTranslations("logs");
   const { data: logs, isLoading } = useLogs();
 
-  if (isLoading) return <div>Loading...</div>;
+  const fieldLabels = useMemo(
+    () => ({
+      name: t("fields.name"),
+      street: t("fields.street"),
+      houseNumber: t("fields.houseNumber"),
+      zipCode: t("fields.zipCode"),
+      city: t("fields.city"),
+      country: t("fields.country"),
+      phone: t("fields.phone"),
+      email: t("fields.email"),
+      iban: t("fields.iban"),
+      bic: t("fields.bic"),
+      bank: t("fields.bank"),
+      logoUrl: t("fields.logoUrl"),
+      isSubjectToVAT: t("fields.isSubjectToVAT"),
+      firstTaxRate: t("fields.firstTaxRate"),
+      secondTaxRate: t("fields.secondTaxRate"),
+      legalForm: t("fields.legalForm"),
+      steuernummer: t("fields.steuernummer"),
+      ustId: t("fields.ustId"),
+      handelsregisternummer: t("fields.handelsregisternummer"),
+      isPaid: t("fields.isPaid"),
+      paidAt: t("fields.paidAt"),
+    }),
+    [t],
+  );
+
+  const valueLabels = useMemo(
+    () => ({
+      yes: t("values.yes"),
+      no: t("values.no"),
+      paid: t("values.paid"),
+      open: t("values.open"),
+      null: t("values.null"),
+    }),
+    [t],
+  );
+
+  if (isLoading) return <div>{t("loading")}</div>;
 
   if (!logs?.length) {
-    return <div className="text-gray-500">Keine Aktivitäten vorhanden</div>;
+    return <div className="text-gray-500">{t("empty")}</div>;
   }
 
   return (
@@ -108,11 +112,11 @@ export default function Logs() {
         >
           <div className="flex justify-between items-center">
             <span className="text-sm text-gray-800 dark:text-gray-200">
-              <strong>{getUserLabel(log)}</strong> {renderLogMessage(log)}
+              <strong>{getUserLabel(log)}</strong> {renderLogMessage(log, t)}
             </span>
 
             <span className="text-xs text-gray-400 dark:text-gray-200">
-              {new Date(log.createdAt).toLocaleString("de-DE")}
+              {new Date(log.createdAt).toLocaleString()}
             </span>
           </div>
 
@@ -122,15 +126,10 @@ export default function Logs() {
                 ([field, { old, new: newVal }]) => (
                   <li key={field}>
                     <strong>
-                      {translateKeys[field as keyof typeof translateKeys] ??
-                        field}
+                      {fieldLabels[field as keyof typeof fieldLabels] ?? field}
                     </strong>
-                    : "
-                    {translateValues[old as keyof typeof translateValues] ??
-                      old}
-                    " → "
-                    {translateValues[newVal as keyof typeof translateValues] ??
-                      newVal}
+                    : "{valueLabels[old as keyof typeof valueLabels] ?? old}" →
+                    "{valueLabels[newVal as keyof typeof valueLabels] ?? newVal}
                     "
                   </li>
                 ),

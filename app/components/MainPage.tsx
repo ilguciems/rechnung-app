@@ -1,6 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { useTranslations } from "next-intl";
 import { useAuth, useCompany } from "@/hooks";
 import {
   CompanySection,
@@ -21,6 +22,7 @@ export default function MainPage({
   hasPendingInvite,
   userName,
 }: MainPageProps) {
+  const t = useTranslations("mainPage");
   const { data: company, isLoading: isCompanyLoading } = useCompany();
   const { isOrgAdmin, orgId, isLoading: isAuthLoading } = useAuth();
 
@@ -43,16 +45,13 @@ export default function MainPage({
       {!isLoading && !company && (
         <div className="space-y-2 rounded-lg border border-red-200 bg-red-50 p-5 text-gray-700 dark:border-red-900/60 dark:bg-red-950/30 dark:text-gray-300">
           <p className="font-medium text-gray-900 dark:text-gray-100">
-            Willkommen, {userName}!
+            {t("welcome", { userName })}
           </p>
-          <p>
-            Sie können entweder ein neues Unternehmen erstellen oder auf eine
-            Einladung warten, um einer bestehenden Organisation beizutreten.
-          </p>
+          <p>{t("description")}</p>
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            <strong>Hinweis:</strong> Wenn Sie ein eigenes Unternehmen
-            erstellen, können Sie mit diesem Konto später keiner anderen
-            Organisation mehr beitreten.
+            {t.rich("note", {
+              strong: (chunks) => <strong>{chunks}</strong>,
+            })}
           </p>
         </div>
       )}
@@ -94,8 +93,7 @@ export default function MainPage({
             aria-live="polite"
             className="rounded border border-gray-200 bg-gray-50 p-4 text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300"
           >
-            Bitte geben Sie zunächst Ihre Unternehmensdaten ein, um mit der
-            Rechnungserstellung fortzufahren.
+            {t("enterCompanyData")}
           </motion.section>
         )}
       </AnimatePresence>

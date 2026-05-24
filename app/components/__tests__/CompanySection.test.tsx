@@ -1,10 +1,10 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { HttpResponse, http } from "msw";
 import toast from "react-hot-toast";
 import { ROUTES } from "@/lib/api-routes";
 import { server } from "@/tests/mocks/server";
-import Providers from "../../providers";
+import { renderWithIntl } from "@/tests/test-utils";
 import CompanySection from "../CompanySection";
 
 // mock toast
@@ -28,11 +28,7 @@ describe("CompanySection", () => {
       http.get(ROUTES.COMPANY, () => new HttpResponse(null, { status: 200 })),
     );
 
-    render(
-      <Providers>
-        <CompanySection />
-      </Providers>,
-    );
+    renderWithIntl(<CompanySection />);
 
     expect(screen.getByText("Firmendaten eingeben")).toBeInTheDocument();
     expect(
@@ -118,12 +114,12 @@ describe("CompanySection", () => {
     expect(handelsregisternummerInput).toBeInTheDocument();
     await user.type(handelsregisternummerInput, "123456789");
 
-    const taxNumberInput = screen.getByLabelText("Steuernummer *");
+    const taxNumberInput = screen.getByLabelText("Steuernummer");
     expect(taxNumberInput).toBeInTheDocument();
     await user.type(taxNumberInput, "DE123456789");
 
     const vatInput = screen.getByLabelText(
-      "Umsatzsteuer-Identifikationsnummer *",
+      "Umsatzsteuer-Identifikationsnummer",
     );
     expect(vatInput).toBeInTheDocument();
     await user.type(vatInput, "DE123456789");
@@ -161,11 +157,7 @@ describe("CompanySection", () => {
     expect(screen.queryByText("Firmendaten eingeben")).not.toBeInTheDocument();
   });
   it("renders existing company", async () => {
-    render(
-      <Providers>
-        <CompanySection />
-      </Providers>,
-    );
+    renderWithIntl(<CompanySection />);
 
     expect(
       await screen.findByText("Firmendaten bearbeiten"),

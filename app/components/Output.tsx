@@ -39,7 +39,7 @@ export default function Output<T extends FieldValues>({
       <output
         id={name}
         {...register(name)}
-        className={`border border-gray-300 p-2 rounded w-full min min-h-[2.5rem] dark:bg-black dark:text-white dark:border-gray-700`}
+        className={`border border-gray-300 p-2 rounded w-full min min-h-10 dark:bg-black dark:text-white dark:border-gray-700`}
       />
       <p className="h-4 text-xs text-red-500 mt-1">
         {errorMessage ?? customError}

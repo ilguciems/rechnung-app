@@ -1,4 +1,5 @@
 import { HeaderTimer } from "./HeaderTimer";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 import { LogoutButton } from "./LogoutButton";
 import { MobileMenu } from "./MobileMenu";
 import { NavLink } from "./NavLink";
@@ -8,6 +9,7 @@ import { ThemeToggle } from "./ThemeToggle";
 
 export {
   HeaderTimer,
+  LanguageSwitcher,
   LogoutButton,
   MobileMenu,
   NavLink,

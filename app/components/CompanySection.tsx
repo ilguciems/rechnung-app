@@ -3,6 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useCompany, useSaveCompany } from "@/hooks";
@@ -33,6 +34,7 @@ const legalFormsOptions = [
 ];
 
 export default function CompanySection() {
+  const t = useTranslations("company");
   const [vatToggledByUser, setVatToggledByUser] = useState(false);
   const prefersReducedMotion = useReducedMotion();
 
@@ -176,13 +178,13 @@ export default function CompanySection() {
       className="p-4 mb-6 rounded-xl shadow bg-gray-100 dark:bg-black dark:text-white"
     >
       <h2 id="company-section" className="text-lg font-bold mb-4">
-        {company ? "Firmendaten bearbeiten" : "Firmendaten eingeben"}
+        {company ? t("editTitle") : t("newTitle")}
       </h2>
       <form onSubmit={onSubmit}>
         <div className="grid grid-cols-2 gap-3">
           <Input<Company>
             name="name"
-            label="Firmenname"
+            label={t("name")}
             className="col-span-2 sm:col-span-1"
             register={register}
             errors={errors}
@@ -190,42 +192,42 @@ export default function CompanySection() {
           <SelectField<Company>
             className="col-span-2 sm:col-span-1"
             name="legalForm"
-            label="Rechtsform"
+            label={t("legalForm")}
             options={legalFormsOptions}
             register={register}
             errors={errors}
           />
           <Input<Company>
             name="street"
-            label="Straße"
+            label={t("street")}
             className="col-span-2 sm:col-span-1"
             register={register}
             errors={errors}
           />
           <Input<Company>
             name="houseNumber"
-            label="Hausnummer"
+            label={t("houseNumber")}
             className="col-span-2 sm:col-span-1"
             register={register}
             errors={errors}
           />
           <Input<Company>
             name="zipCode"
-            label="PLZ"
+            label={t("zip")}
             className="col-span-2 sm:col-span-1"
             register={register}
             errors={errors}
           />
           <Input<Company>
             name="city"
-            label="Ort"
+            label={t("city")}
             className="col-span-2 sm:col-span-1"
             register={register}
             errors={errors}
           />
           <Input<Company>
             name="country"
-            label="Land"
+            label={t("country")}
             className="col-span-2"
             register={register}
             errors={errors}
@@ -233,7 +235,7 @@ export default function CompanySection() {
           <Input<Company>
             name="phone"
             type="phone"
-            label="Telefon"
+            label={t("phone")}
             className="col-span-2 sm:col-span-1"
             setValue={setValue}
             register={register}
@@ -241,7 +243,7 @@ export default function CompanySection() {
           />
           <Input<Company>
             name="email"
-            label="E-Mail"
+            label={t("email")}
             className="col-span-2 sm:col-span-1"
             register={register}
             errors={errors}
@@ -249,7 +251,7 @@ export default function CompanySection() {
           />
           <Input<Company>
             name="bank"
-            label="Bank"
+            label={t("bank")}
             className="col-span-2"
             register={register}
             errors={errors}
@@ -257,7 +259,7 @@ export default function CompanySection() {
           <Input<Company>
             name="iban"
             type="iban"
-            label="IBAN"
+            label={t("iban")}
             className="col-span-2 sm:col-span-1"
             setValue={setValue}
             register={register}
@@ -265,25 +267,21 @@ export default function CompanySection() {
           />
           <Input<Company>
             name="bic"
-            label="BIC"
+            label={t("bic")}
             className="col-span-2 sm:col-span-1"
             register={register}
             errors={errors}
           />
           <Input<Company>
             name="handelsregisternummer"
-            label={`${
-              isHandelsregisterRequired ? "" : ""
-            }Handelsregisternummer${
-              !isHandelsregisterRequired ? " (optional)" : ""
-            }`}
+            label={t("registrationNumber")}
             className="col-span-2"
             register={register}
             errors={errors}
           />
           <Input<Company>
             name="steuernummer"
-            label="Steuernummer *"
+            label={t("taxNumber")}
             className="col-span-2 sm:col-span-1"
             register={register}
             errors={errors}
@@ -291,7 +289,7 @@ export default function CompanySection() {
           />
           <Input<Company>
             name="ustId"
-            label="Umsatzsteuer-Identifikationsnummer *"
+            label={t("vatId")}
             className="col-span-2 sm:col-span-1"
             register={register}
             errors={errors}
@@ -301,8 +299,7 @@ export default function CompanySection() {
             id="tax-either"
             className="col-span-2 text-xs text-gray-700 dark:text-gray-300"
           >
-            * Sie können entweder Steuernummer oder
-            Umsatzsteuer-Identifikationsnummer eingeben.
+            {t("taxNote")}
           </p>
         </div>
         <div className="flex items-center gap-2 p-2 my-3">
@@ -321,9 +318,7 @@ export default function CompanySection() {
             htmlFor="isSubjectToVAT"
             className="text-sm text-gray-700 dark:text-gray-300"
           >
-            {isVatRequired
-              ? "Diese Rechtsform ist umsatzsteuerpflichtig."
-              : "Mein Unternehmen ist umsatzsteuerpflichtig."}
+            {isVatRequired ? t("vatLiable") : t("myCompanyVatLiable")}
           </label>
         </div>
         <AnimatePresence initial={false}>
@@ -354,7 +349,7 @@ export default function CompanySection() {
               />
               <Input<Company>
                 name="secondTaxRate"
-                label="Zweiter Steuersatz in %"
+                label={t("secondTaxRate")}
                 className="col-span-2 sm:col-span-1"
                 inputMode="decimal"
                 step="0.01"
@@ -367,13 +362,13 @@ export default function CompanySection() {
         </AnimatePresence>
         <button
           type="submit"
-          className="mt-4 px-3 py-1 bg-blue-500 text-white rounded-md flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed min-w-[160px] cursor-pointer"
+          className="mt-4 px-3 py-1 bg-blue-500 text-white rounded-md flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed min-w-40 cursor-pointer"
           disabled={isSubmitting || saveCompany.isPending || !isDirty}
         >
           {saveCompany.isPending || isSubmitting ? (
             <Loader2 className="h-6 w-6 animate-spin" />
           ) : (
-            <span>Speichern</span>
+            <span>{t("save")}</span>
           )}
         </button>
       </form>

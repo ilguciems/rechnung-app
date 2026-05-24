@@ -1,5 +1,6 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslations } from "next-intl";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Button, Input } from "@/app/components";
@@ -10,6 +11,7 @@ import {
 } from "@/lib/zod-schema";
 
 export default function NameForm() {
+  const t = useTranslations("organization.nameForm");
   const { data: organization } = useOrganizationName();
   const { register, handleSubmit, formState, reset } =
     useForm<OrganizationNameType>({
@@ -35,10 +37,10 @@ export default function NameForm() {
   return (
     <section className="border border-gray-100 p-4 rounded-xl dark:bg-black dark:border-gray-700">
       <div className="grid grid-cols-1 gap-6 max-w-md mx-auto">
-        <h2 className="text-2xl mb-6">Organization Name</h2>
+        <h2 className="text-2xl mb-6">{t("title")}</h2>
         <form onSubmit={handleSubmit(onSubmit)}>
           <Input
-            label="Organisationsname"
+            label={t("name")}
             className="mb-4"
             name="name"
             type="text"
@@ -52,7 +54,7 @@ export default function NameForm() {
             size="full"
             disabled={updateName.isPending}
           >
-            {updateName.isPending ? "Lade..." : "Namen ändern"}
+            {updateName.isPending ? t("saving") : t("save")}
           </Button>
         </form>
       </div>

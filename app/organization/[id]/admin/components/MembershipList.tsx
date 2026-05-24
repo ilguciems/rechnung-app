@@ -2,11 +2,13 @@
 
 import { Ban, LoaderCircle, ShieldAlert, ShieldCheck } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useTranslations } from "next-intl";
+import { useMemo, useState } from "react";
 import { ConfirmationModal } from "@/app/components";
 import { useAuth, useMembership } from "@/hooks";
 
 export default function MembershipList() {
+  const t = useTranslations("organization.members");
   const {
     data: memberships,
     isLoading,
@@ -14,6 +16,14 @@ export default function MembershipList() {
     deleteMembership,
   } = useMembership();
   const { session, orgId } = useAuth();
+
+  const roleLabels = useMemo(
+    () => ({
+      admin: t("admin"),
+      member: t("member"),
+    }),
+    [t],
+  );
 
   const [modalConfig, setModalConfig] = useState<{
     type: "role" | "delete";
@@ -48,15 +58,16 @@ export default function MembershipList() {
   if (memberships?.length === 1) {
     return (
       <div className="p-4 text-sm text-slate-500 dark:text-slate-200 bg-slate-50/50 dark:bg-slate-800 rounded-lg border border-dashed border-slate-200">
-        Bisher gibt es keine weiteren Mitglieder in Ihrer Organisation. Sie
-        können neue Mitglieder{" "}
-        <Link
-          href={`/organization/${orgId}/admin?tab=invitations`}
-          className="font-medium underline underline-offset-4 hover:text-slate-700 dark:hover:text-slate-300 transition-colors"
-        >
-          hier einladen
-        </Link>
-        .
+        {t.rich("empty", {
+          link: (chunks) => (
+            <Link
+              href={`/organization/${orgId}/admin?tab=invitations`}
+              className="font-medium underline underline-offset-4 hover:text-slate-700 dark:hover:text-slate-300 transition-colors"
+            >
+              {chunks}
+            </Link>
+          ),
+        })}
       </div>
     );
   }
@@ -79,24 +90,20 @@ export default function MembershipList() {
 
               <div className={`text-sm font-medium col-span-2 sm:col-span-1 `}>
                 <span
-                  title={isAdmin ? "Administrator" : "Mitglied"}
+                  title={roleLabels[role as keyof typeof roleLabels] ?? role}
                   className={`w-fit px-2 py-0.5 rounded text-[12px] font-bold uppercase ${
                     isAdmin
                       ? "bg-amber-100 text-amber-700"
                       : "bg-slate-100 text-slate-700"
                   }`}
                 >
-                  {role}
+                  {roleLabels[role as keyof typeof roleLabels] ?? role}
                 </span>
               </div>
               <div className="text-sm font-medium col-span-2 sm:col-span-1 text-right">
                 <button
                   type="button"
-                  title={
-                    isAdmin
-                      ? "Adminrechte entfernen"
-                      : "Zum Administrator machen"
-                  }
+                  title={isAdmin ? t("removeAdmin") : t("makeAdmin")}
                   onClick={() =>
                     setModalConfig({
                       type: "role",
@@ -118,7 +125,7 @@ export default function MembershipList() {
                 </button>
                 <button
                   type="button"
-                  title="Mitgliedschaft verlassen"
+                  title={t("leave")}
                   onClick={() =>
                     setModalConfig({
                       type: "delete",
@@ -139,21 +146,19 @@ export default function MembershipList() {
         })}
       </ul>
       {isLoading && (
-        <div className="absolute inset-0 bg-white/80 z-50 flex items-center justify-center rounded-xl">
+        <div className="absolute inset-0 bg-white/80 z-50 flex items-center justify-center rounded-xl dark:bg-gray-900/80">
           <LoaderCircle className="animate-spin w-12 h-12 text-blue-500" />
         </div>
       )}
       <ConfirmationModal
         isOpen={!!modalConfig}
         title={
-          modalConfig?.type === "role"
-            ? "Rolle ändern"
-            : "Mitgliedschaft beenden"
+          modalConfig?.type === "role" ? t("changeRole") : t("endMembership")
         }
         description={
           modalConfig?.type === "role"
-            ? `Möchten Sie die Rolle von ${modalConfig?.userName} wirklich ändern?`
-            : `Sind Sie sicher, dass Sie die Mitgliedschaft von ${modalConfig?.userName} beenden wollen?`
+            ? t("changeRoleConfirm", { name: modalConfig?.userName ?? "" })
+            : t("endMembershipConfirm", { name: modalConfig?.userName ?? "" })
         }
         isPending={changeRole.isPending || deleteMembership.isPending}
         onClose={() => setModalConfig(null)}

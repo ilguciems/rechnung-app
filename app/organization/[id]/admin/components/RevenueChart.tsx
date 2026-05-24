@@ -1,6 +1,7 @@
 "use client";
 
 import { useTheme } from "@teispace/next-themes";
+import { useTranslations } from "next-intl";
 import {
   Bar,
   BarChart,
@@ -14,18 +15,19 @@ import {
 import type { ChartDataType } from "@/hooks";
 
 const formattedValue = (value: number) =>
-  new Intl.NumberFormat("de-DE", {
+  new Intl.NumberFormat(undefined, {
     style: "currency",
     currency: "EUR",
   }).format(value || 0);
 
 export function RevenueChart({ data }: { data: ChartDataType }) {
+  const t = useTranslations("organization.statistics");
   const { theme } = useTheme();
 
   const dark = theme === "dark";
 
   return (
-    <div className="w-full h-[350px] min-w-0 overflow-hidden">
+    <div className="w-full h-87.5 min-w-0 overflow-hidden">
       <BarChart
         data={data}
         width="100%"
@@ -62,14 +64,14 @@ export function RevenueChart({ data }: { data: ChartDataType }) {
         />
         <Legend iconType="circle" />
         <Bar
-          name="Bezahlt"
+          name={t("paid")}
           dataKey="revenue"
           fill="#10b981"
           radius={[4, 4, 0, 0]}
           barSize={30}
         />
         <Bar
-          name="Offen"
+          name={t("open")}
           dataKey="pending"
           fill="#3b82f6"
           radius={[4, 4, 0, 0]}

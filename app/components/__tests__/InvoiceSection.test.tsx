@@ -1,7 +1,7 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import toast from "react-hot-toast";
-import Providers from "../../providers";
+import { renderWithIntl } from "@/tests/test-utils";
 import InvoiceSection from "../InvoiceSection";
 
 // mock toast
@@ -19,11 +19,7 @@ vi.mock("react-hot-toast", async () => {
 
 describe("InvoiceSection", () => {
   it("creates invoice for new customer", async () => {
-    render(
-      <Providers>
-        <InvoiceSection />
-      </Providers>,
-    );
+    renderWithIntl(<InvoiceSection />);
 
     expect(await screen.findByText(/Neue Rechnung/i)).toBeInTheDocument();
 
@@ -51,11 +47,7 @@ describe("InvoiceSection", () => {
     );
   });
   it("creates invoice for existing customer and product (with autocomplete)", async () => {
-    render(
-      <Providers>
-        <InvoiceSection />
-      </Providers>,
-    );
+    renderWithIntl(<InvoiceSection />);
 
     expect(await screen.findByText(/Neue Rechnung/i)).toBeInTheDocument();
 
