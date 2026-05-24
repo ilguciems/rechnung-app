@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma-client";
 export async function GET() {
   const session = await getAuthData();
 
-  if (!session || !session.org || session.org.role !== "admin") {
+  if (!session?.org || session.org.role !== "admin") {
     return NextResponse.json({ error: "Nicht authorisiert" }, { status: 401 });
   }
 

@@ -8,6 +8,8 @@ import Providers from "./providers";
 import "./globals.css";
 import { ThemeProvider } from "@teispace/next-themes";
 import { getTheme, getThemeScript } from "@teispace/next-themes/server";
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale, getMessages, getTranslations } from "next-intl/server";
 import RealtimeNotifications from "./realtime-notifications";
 
 const geistSans = Geist({
@@ -20,16 +22,22 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "Rechnungsgenerator",
-  description: "Rechnungen erstellen",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("metadata");
+  return {
+    title: t("title"),
+    description: t("description"),
+  };
+}
 
 export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getLocale();
+  const messages = await getMessages();
+
   const storedTheme = await getTheme({ headers: {} });
   const initialTheme =
     storedTheme === "dark" || storedTheme === "light" ? storedTheme : undefined;
@@ -42,7 +50,7 @@ export default async function RootLayout({
   });
 
   return (
-    <html lang="de" suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning>
       <head>
         {/* biome-ignore lint/security/noDangerouslySetInnerHtml: anti-FOUC */}
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
@@ -51,34 +59,36 @@ export default async function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         cz-shortcut-listen="true"
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="light"
-          enableSystem={false}
-          initialTheme={initialTheme}
-          noScript
-        >
-          <LogoutWrapper>
-            <TimerProvider>
-              <Providers>
-                <RealtimeProvider>
-                  <RealtimeNotifications />
-                  <Header />
-                  <main>{children}</main>
-                  <Toaster
-                    position="top-right"
-                    reverseOrder={false}
-                    toastOptions={{
-                      className:
-                        "bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100",
-                    }}
-                  />
-                  <SessionTimerUI />
-                </RealtimeProvider>
-              </Providers>
-            </TimerProvider>
-          </LogoutWrapper>
-        </ThemeProvider>
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="light"
+            enableSystem={false}
+            initialTheme={initialTheme}
+            noScript
+          >
+            <LogoutWrapper>
+              <TimerProvider>
+                <Providers>
+                  <RealtimeProvider>
+                    <RealtimeNotifications />
+                    <Header />
+                    <main>{children}</main>
+                    <Toaster
+                      position="top-right"
+                      reverseOrder={false}
+                      toastOptions={{
+                        className:
+                          "bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100",
+                      }}
+                    />
+                    <SessionTimerUI />
+                  </RealtimeProvider>
+                </Providers>
+              </TimerProvider>
+            </LogoutWrapper>
+          </ThemeProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

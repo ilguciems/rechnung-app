@@ -14,7 +14,7 @@ export async function PATCH(
     const { isPaid } = await req.json();
     const session = await getAuthData();
 
-    if (!session || !session.org) {
+    if (!session?.org) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 

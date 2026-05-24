@@ -15,7 +15,7 @@ type SendEmailProps = {
   text: string;
   recipientName: string;
   html?: string;
-  attachment?: string; 
+  attachment?: string;
   fileName?: string;
   attachments?: Attachment[];
 };
@@ -82,23 +82,23 @@ export async function sendOrganizationEmail({
 
     const mailjetAttachments = [];
 
-  if (attachment && fileName) {
-    mailjetAttachments.push({
-      ContentType: "application/pdf",
-      Filename: fileName,
-      Base64Content: attachment,
-    });
-  }
-
-  if (attachments && attachments.length > 0) {
-    attachments.forEach((att) => {
+    if (attachment && fileName) {
       mailjetAttachments.push({
         ContentType: "application/pdf",
-        Filename: att.fileName,
-        Base64Content: att.base64,
+        Filename: fileName,
+        Base64Content: attachment,
       });
-    });
-  }
+    }
+
+    if (attachments && attachments.length > 0) {
+      attachments.forEach((att) => {
+        mailjetAttachments.push({
+          ContentType: "application/pdf",
+          Filename: att.fileName,
+          Base64Content: att.base64,
+        });
+      });
+    }
 
     const response = await mailjet.post("send", { version: "v3.1" }).request({
       Messages: [

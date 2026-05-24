@@ -6,6 +6,7 @@ import {
   Users,
 } from "lucide-react";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { Tabs } from "@/app/components";
 import { getAuthData } from "@/lib/get-auth-data";
 import {
@@ -18,50 +19,8 @@ import {
   Statistics,
 } from "./components";
 
-const tabs = [
-  {
-    id: "statistics",
-    label: "Statistik",
-    icon: <Activity />,
-    content: <Statistics />,
-  },
-  {
-    id: "members",
-    label: "Mitglieder",
-    icon: <Users />,
-    content: <MembershipList />,
-  },
-  {
-    id: "invitations",
-    label: "Einladungen",
-    icon: <Handshake />,
-    content: (
-      <>
-        <SendInviteForm />
-        <PendingInvitationsList />
-      </>
-    ),
-  },
-  {
-    id: "settings",
-    label: "Einstellungen",
-    icon: <Settings />,
-    content: (
-      <>
-        <NameForm />
-        <MailJetConfigForm />
-      </>
-    ),
-  },
-  {
-    id: "logs",
-    label: "Logs",
-    icon: <LogsIcon />,
-    content: <Logs />,
-  },
-];
-
 export default async function Admin() {
+  const t = await getTranslations("organization.tabs");
   const session = await getAuthData();
 
   if (!session) {
@@ -71,6 +30,49 @@ export default async function Admin() {
   if (session.org?.role !== "admin") {
     redirect("/");
   }
+
+  const tabs = [
+    {
+      id: "statistics",
+      label: t("statistics"),
+      icon: <Activity />,
+      content: <Statistics />,
+    },
+    {
+      id: "members",
+      label: t("members"),
+      icon: <Users />,
+      content: <MembershipList />,
+    },
+    {
+      id: "invitations",
+      label: t("invitations"),
+      icon: <Handshake />,
+      content: (
+        <>
+          <SendInviteForm />
+          <PendingInvitationsList />
+        </>
+      ),
+    },
+    {
+      id: "settings",
+      label: t("settings"),
+      icon: <Settings />,
+      content: (
+        <>
+          <NameForm />
+          <MailJetConfigForm />
+        </>
+      ),
+    },
+    {
+      id: "logs",
+      label: t("logs"),
+      icon: <LogsIcon />,
+      content: <Logs />,
+    },
+  ];
 
   return (
     <div className="p-6 max-w-3xl mx-auto space-y-8">

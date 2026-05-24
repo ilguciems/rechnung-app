@@ -1,6 +1,7 @@
 "use client";
 
 import { BellRing, Square, SquareCheckBig } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import {
   useDownloadInvoicePdf,
@@ -19,9 +20,16 @@ import {
   SKELETON_KEYS,
 } from "./components";
 
-import { getInvoiceActions, type Invoice, MAHNUNG_OPTIONS } from "./helpers";
+import {
+  buildMahnungOptions,
+  getInvoiceActions,
+  type Invoice,
+} from "./helpers";
 
 export default function InvoicesListSection() {
+  const t = useTranslations("invoicesList");
+  const actionsT = useTranslations("invoicesList.actions");
+  const mahnungOpts = buildMahnungOptions(actionsT);
   const { setSearchDebounced, isPaid, setIsPaid, page, setPage, query } =
     useInvoicesList();
   const togglePaid = useToggleInvoicePaid();
@@ -56,18 +64,18 @@ export default function InvoicesListSection() {
   return (
     <>
       <div>
-        <h2 className="text-xl font-semibold my-5">Gespeicherte Rechnungen</h2>
+        <h2 className="text-xl font-semibold my-5">{t("title")}</h2>
         <DeleteLastInvoiceButton hasInvoices={invoices.length > 0} />
         {/* Filter */}
         <div className="flex gap-2 my-3">
           <input
             type="text"
-            placeholder="Suche nach Kunde, Kunden-Nr. oder Rechnungs-Nr..."
+            placeholder={t("searchPlaceholder")}
             onChange={(e) => setSearchDebounced(e.target.value)}
             className="border p-2 rounded flex-1"
           />
           <select
-            aria-label="Bezahlt Filter"
+            aria-label={t("filterLabel")}
             value={isPaid}
             onChange={handlePaidFilter}
             className="border p-2 rounded"
@@ -76,19 +84,19 @@ export default function InvoicesListSection() {
               className="bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200"
               value=""
             >
-              Alle
+              {t("filterAll")}
             </option>
             <option
               className="bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200"
               value="true"
             >
-              Bezahlt
+              {t("filterPaid")}
             </option>
             <option
               className="bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200"
               value="false"
             >
-              Offen
+              {t("filterOpen")}
             </option>
           </select>
         </div>
@@ -96,18 +104,16 @@ export default function InvoicesListSection() {
           <ul
             className="space-y-3 bg-gray-100 dark:bg-gray-800 rounded min-h-149"
             aria-busy="true"
-            aria-label="Rechnungen werden geladen"
+            aria-label={t("loading")}
           >
             {SKELETON_KEYS.map((key) => (
               <InvoicesSkeleton key={key} />
             ))}
           </ul>
         ) : query.error ? (
-          <p className="text-red-600">Fehler beim Laden</p>
+          <p className="text-red-600">{t("error")}</p>
         ) : invoices.length === 0 ? (
-          <p className="text-gray-600 dark:text-gray-300">
-            Keine Rechnungen gefunden
-          </p>
+          <p className="text-gray-600 dark:text-gray-300">{t("empty")}</p>
         ) : (
           <ul className="space-y-3 bg-gray-100 dark:bg-black rounded min-h-149">
             {invoices.map((inv: Invoice) => {
@@ -124,10 +130,10 @@ export default function InvoicesListSection() {
                     </p>
                     <p className="text-sm text-gray-600 dark:text-gray-300">
                       {inv.customerName} –{" "}
-                      {new Date(inv.createdAt).toLocaleDateString("de-DE")}
+                      {new Date(inv.createdAt).toLocaleDateString()}
                     </p>
                     <p className="text-sm font-semibold">
-                      Gesamt:{" "}
+                      {t("total")}:{" "}
                       {inv.items
                         .map((it) => it.quantity * it.unitPrice)
                         .reduce((a, b) => a + b, 0)
@@ -137,7 +143,8 @@ export default function InvoicesListSection() {
                     {inv.isPaid ? (
                       <p className="text-green-600 text-sm font-semibold">
                         <span className="flex items-center">
-                          <SquareCheckBig className="w-4 h-4 mr-2" /> Bezahlt
+                          <SquareCheckBig className="w-4 h-4 mr-2" />{" "}
+                          {t("statusPaid")}
                         </span>
                       </p>
                     ) : (
@@ -145,15 +152,18 @@ export default function InvoicesListSection() {
                         {inv.overduePaymentLevel &&
                         inv.overduePaymentLevel > 0 ? (
                           <span
-                            title={`für ${MAHNUNG_OPTIONS[inv.overduePaymentLevel].title} qualifiziert`}
-                            className={`${MAHNUNG_OPTIONS[inv.overduePaymentLevel].color} flex items-center`}
+                            title={t("qualifiesFor", {
+                              level: mahnungOpts[inv.overduePaymentLevel].title,
+                            })}
+                            className={`${mahnungOpts[inv.overduePaymentLevel].color} flex items-center`}
                           >
                             <BellRing className="w-4 h-4 mr-2" />
-                            <span>Zahlung überfällig</span>
+                            <span>{t("overdue")}</span>
                           </span>
                         ) : (
                           <span className="flex items-center text-sm text-gray-600 dark:text-gray-300 font-semibold">
-                            <Square className="w-4 h-4 mr-2" /> Offen
+                            <Square className="w-4 h-4 mr-2" />{" "}
+                            {t("statusOpen")}
                           </span>
                         )}
                       </p>
@@ -168,6 +178,7 @@ export default function InvoicesListSection() {
                       setEmailModalConfig,
                       togglePaid,
                       canSendEmail: inv.deliveryMethod === "EMAIL",
+                      t: actionsT,
                     })}
                   />
                 </li>

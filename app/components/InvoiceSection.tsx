@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowUp } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useAuth, useCompany, useCreateInvoice, useMailStatus } from "@/hooks";
@@ -20,6 +21,7 @@ type Product = {
 };
 
 export default function InvoiceSection() {
+  const t = useTranslations("invoice");
   const { data: company } = useCompany();
   const { isOrgAdmin, orgRole, orgId } = useAuth();
   const { data: mailStatus, isLoading: isMailStatusLoading } = useMailStatus();
@@ -33,12 +35,12 @@ export default function InvoiceSection() {
       if (canSendEmail && (!data.customerEmail || data.customerEmail === "")) {
         ctx.addIssue({
           code: "custom",
-          message: "E-Mail ist erforderlich für den E-Mail-Versand",
+          message: t("emailRequired"),
           path: ["customerEmail"],
         });
       }
     });
-  }, [canSendEmail]);
+  }, [canSendEmail, t]);
 
   useEffect(() => {
     if (company) {
@@ -148,7 +150,7 @@ export default function InvoiceSection() {
         )}
         <div className="flex flex-col justify-between gap-3 pt-3 sm:flex-row">
           <h2 className="order-last text-xl font-semibold sm:order-first">
-            Neue Rechnung
+            {t("newTitle")}
           </h2>
           <button
             type="button"
@@ -156,18 +158,18 @@ export default function InvoiceSection() {
             onClick={() => scrollTo({ top: 0, behavior: "smooth" })}
           >
             <span className="flex">
-              {`Firmendaten ${canEdit ? "bearbeiten" : "ansehen"}`}
+              {canEdit ? t("editCompany") : t("viewCompany")}
               <ArrowUp className="ml-1" />
             </span>
           </button>
         </div>
-        <h3 className="text-lg font-semibold">Kundeninformationen</h3>
+        <h3 className="text-lg font-semibold">{t("customerInfo")}</h3>
 
         <div className="grid grid-cols-2 gap-3">
           <AutoCompleteInput
             bgWhite
             name="customerName"
-            label="Kundenname / Firmenname"
+            label={t("customerName")}
             className="col-span-2"
             register={register}
             errors={errors}
@@ -180,7 +182,7 @@ export default function InvoiceSection() {
           <Input
             bgWhite
             name="customerStreet"
-            label="Strasse"
+            label={t("street")}
             className="col-span-2 sm:col-span-1"
             register={register}
             errors={errors}
@@ -188,7 +190,7 @@ export default function InvoiceSection() {
           <Input
             bgWhite
             name="customerHouseNumber"
-            label="Hausnummer"
+            label={t("houseNumber")}
             className="col-span-2 sm:col-span-1"
             register={register}
             errors={errors}
@@ -196,7 +198,7 @@ export default function InvoiceSection() {
           <Input
             bgWhite
             name="customerZipCode"
-            label="PLZ"
+            label={t("zip")}
             className="col-span-2 sm:col-span-1"
             register={register}
             errors={errors}
@@ -204,7 +206,7 @@ export default function InvoiceSection() {
           <Input
             bgWhite
             name="customerCity"
-            label="Ort"
+            label={t("city")}
             className="col-span-2 sm:col-span-1"
             register={register}
             errors={errors}
@@ -212,7 +214,7 @@ export default function InvoiceSection() {
           <Input
             bgWhite
             name="customerCountry"
-            label="Land"
+            label={t("country")}
             className="col-span-2"
             register={register}
             errors={errors}
@@ -221,7 +223,7 @@ export default function InvoiceSection() {
             bgWhite
             name="customerPhone"
             type="phone"
-            label="Telefon (optional)"
+            label={t("phoneOptional")}
             className="col-span-2 sm:col-span-1"
             setValue={setValue}
             register={register}
@@ -230,7 +232,7 @@ export default function InvoiceSection() {
           <Input
             bgWhite
             name="customerEmail"
-            label={`E-Mail ${canSendEmail ? "" : " (optional)"}`}
+            label={`${t("emailOptional")}${canSendEmail ? "" : " (optional)"}`}
             className="col-span-2 sm:col-span-1"
             register={register}
             errors={errors}
@@ -239,13 +241,13 @@ export default function InvoiceSection() {
         </div>
 
         {/* Items */}
-        <h3 className="text-lg font-semibold">Positionen</h3>
+        <h3 className="text-lg font-semibold">{t("items")}</h3>
         {fields.map((field, idx) => (
           <div key={field.id} className="mb-2 grid grid-cols-12 gap-2">
             <AutoCompleteInput
               bgWhite
               name={`items.${idx}.description`}
-              label="Warenbeschreibung"
+              label={t("description")}
               className={`col-span-12 ${
                 withVat ? "sm:col-span-5" : "sm:col-span-7"
               } mt-2 sm:mt-0`}
@@ -269,14 +271,14 @@ export default function InvoiceSection() {
               } mt-2 sm:col-span-2 sm:mt-0`}
               name={`items.${idx}.quantity`}
               type="number"
-              label="Menge"
+              label={t("quantity")}
               register={register}
               errors={errors}
             />
             {withVat && (
               <SelectField
                 name={`items.${idx}.taxRate`}
-                label="Steuersatz"
+                label={t("taxRate")}
                 options={[
                   { label: `${firstTaxRate}%`, value: firstTaxRate },
                   { label: `${secondTaxRate}%`, value: secondTaxRate },
@@ -298,7 +300,7 @@ export default function InvoiceSection() {
               inputMode="decimal"
               step="0.01"
               type="number"
-              label="Preis"
+              label={t("price")}
               register={register}
               errors={errors}
             />
@@ -307,7 +309,7 @@ export default function InvoiceSection() {
                 ref={(el) => {
                   deleteButtonsRef.current[idx] = el;
                 }}
-                aria-label="Artikel entfernen"
+                aria-label={t("removeItem")}
                 type="button"
                 className={`grid ${
                   withVat ? "col-span-3" : "col-span-4"
@@ -328,7 +330,7 @@ export default function InvoiceSection() {
                 }}
               >
                 <span className="block sm:hidden">
-                  {withVat ? "✕" : "Löschen"}
+                  {withVat ? "✕" : t("delete")}
                 </span>
                 <span className="hidden sm:block">✕</span>
               </button>
@@ -341,7 +343,7 @@ export default function InvoiceSection() {
           onClick={() => append({ description: "", quantity: 1, unitPrice: 0 })}
           className="my-2 cursor-pointer rounded bg-gray-200 px-3 py-1 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-800"
         >
-          + Artikel hinzufügen
+          {t("addItem")}
         </button>
 
         <button
@@ -349,7 +351,7 @@ export default function InvoiceSection() {
           className="mt-4 block w-full cursor-pointer rounded bg-blue-600 py-2 text-white hover:bg-blue-700"
           disabled={createInvoice.isPending}
         >
-          {createInvoice.isPending ? <>Speichern...</> : "Speichern"}
+          {createInvoice.isPending ? t("saving") : t("save")}
         </button>
       </div>
     </form>

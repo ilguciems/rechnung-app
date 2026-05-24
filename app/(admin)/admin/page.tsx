@@ -1,28 +1,15 @@
 import { ShieldPlus, UserCheck } from "lucide-react";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { auth } from "@/lib/auth";
 import { GLOBAL_ADMIN_ROLES, type GlobalRole } from "@/types/global-roles";
 import { Tabs } from "../../components";
 import CreateAdminForm from "./components/CreateAdminForm";
 import UsersList from "./components/UsersList";
 
-const tabs = [
-  {
-    id: "users",
-    label: "Benutzer",
-    icon: <UserCheck />,
-    content: <UsersList />,
-  },
-  {
-    id: "create-admin",
-    label: "Admin erstellen",
-    icon: <ShieldPlus />,
-    content: <CreateAdminForm />,
-  },
-];
-
 export default async function AdminPage() {
+  const t = await getTranslations("admin");
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -34,6 +21,21 @@ export default async function AdminPage() {
   if (!isAdmin) {
     redirect("/");
   }
+
+  const tabs = [
+    {
+      id: "users",
+      label: t("users"),
+      icon: <UserCheck />,
+      content: <UsersList />,
+    },
+    {
+      id: "create-admin",
+      label: t("createAdmin"),
+      icon: <ShieldPlus />,
+      content: <CreateAdminForm />,
+    },
+  ];
 
   return (
     <div className="p-6 max-w-3xl mx-auto space-y-8">

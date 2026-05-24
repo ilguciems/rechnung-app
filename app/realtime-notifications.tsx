@@ -3,6 +3,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useChannel } from "ably/react";
 import { useSetAtom } from "jotai";
+import { useTranslations } from "next-intl";
 import { toast } from "react-hot-toast";
 import { useAuth } from "@/hooks";
 import { type AppNotification, notificationsAtom } from "@/store/notifications";
@@ -22,6 +23,7 @@ export const NotificationHandler = ({
   orgId: string;
   userId: string;
 }) => {
+  const t = useTranslations("notifications");
   const queryClient = useQueryClient();
 
   const setNotifications = useSetAtom(notificationsAtom);
@@ -45,23 +47,46 @@ export const NotificationHandler = ({
       queryClient.invalidateQueries({ queryKey: ["organization-stats"] });
     }
 
+    const reminderType =
+      message.data.level === 1
+        ? t("paymentReminder")
+        : `${message.data.level - 1}. ${t("dunning")}`;
+    const action = message.data.isSend ? t("sent") : t("downloaded");
+
     const notifications: Record<string, string> = {
-      invoice_created: `${message.data.userName} hat eine neue Rechnungs 
-         ${message.data.number} erstellt.`,
-      invoice_deleted: `${message.data.userName} hat die Rechnungs 
-         ${message.data.number} gelöscht`,
-      invoice_paid: `${message.data.userName} hat die Rechnungs 
-         ${message.data.number} als ${message.data.isPaid ? "bezahlt" : "offen"} gesetzt`,
-      invoice_reminder_downloaded: `${message.data.userName} hat die 
-         ${message.data.level === 1 ? "Zahlungserinnerung" : `${message.data.level - 1}.Mahnung`} für Rechnung 
-         ${message.data.number} ${message.data.isSend ? "gesendet" : "heruntergeladen"}`,
-      invoice_downloaded: `${message.data.userName} hat die Rechnung 
-         ${message.data.number} ${message.data.isSend ? "gesendet" : "heruntergeladen"}`,
-      invoice_email_sent: `${message.data.userName} hat die Rechnung 
-         ${message.data.number} per E-Mail gesendet`,
-      invoice_reminder_email_sent: `${message.data.userName} hat die 
-         ${message.data.level === 1 ? "Zahlungserinnerung" : `${message.data.level - 1}.Mahnung`} für Rechnung 
-         ${message.data.number} per E-Mail gesendet`,
+      invoice_created: t("realtime.invoiceCreated", {
+        userName: message.data.userName,
+        number: message.data.number,
+      }),
+      invoice_deleted: t("realtime.invoiceDeleted", {
+        userName: message.data.userName,
+        number: message.data.number,
+      }),
+      invoice_paid: t("realtime.invoicePaid", {
+        userName: message.data.userName,
+        number: message.data.number,
+        status: message.data.isPaid ? t("paid") : t("open"),
+      }),
+      invoice_reminder_downloaded: t("realtime.reminderAction", {
+        userName: message.data.userName,
+        type: reminderType,
+        number: message.data.number,
+        action,
+      }),
+      invoice_downloaded: t("realtime.invoiceAction", {
+        userName: message.data.userName,
+        number: message.data.number,
+        action,
+      }),
+      invoice_email_sent: t("realtime.invoiceEmailSent", {
+        userName: message.data.userName,
+        number: message.data.number,
+      }),
+      invoice_reminder_email_sent: t("realtime.reminderEmailSent", {
+        userName: message.data.userName,
+        type: reminderType,
+        number: message.data.number,
+      }),
     };
 
     const newNotify: AppNotification = {
@@ -72,7 +97,7 @@ export const NotificationHandler = ({
       isRead: false,
     };
 
-    setNotifications((prev) => [newNotify, ...prev].slice(0, 30)); // храним последние 30
+    setNotifications((prev) => [newNotify, ...prev].slice(0, 30));
 
     const toastText = notifications[message.name as string];
 

@@ -1,5 +1,6 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
@@ -11,6 +12,7 @@ import {
 } from "@/lib/zod-schema";
 
 export default function ResetPasswordForm() {
+  const t = useTranslations("profile.changePassword");
   const [isLoading, setIsLoading] = useState(false);
   const { register, handleSubmit, formState, reset } =
     useForm<ChangePasswordType>({
@@ -32,13 +34,11 @@ export default function ResetPasswordForm() {
         },
         {
           onSuccess: () => {
-            toast.success("Passwort erfolgreich geändert!");
+            toast.success(t("success"));
             reset();
           },
           onError: (ctx) => {
-            toast.error(
-              ctx.error.message || "Fehler beim Ändern des Passworts",
-            );
+            toast.error(ctx.error.message || t("error"));
           },
         },
       );
@@ -52,10 +52,10 @@ export default function ResetPasswordForm() {
   return (
     <section className="border border-gray-100 p-4 rounded-xl dark:bg-black">
       <div className="grid grid-cols-1 gap-6 max-w-md mx-auto">
-        <h2 className="text-2xl mb-6">Passwort ändern</h2>
+        <h2 className="text-2xl mb-6">{t("title")}</h2>
         <form onSubmit={handleSubmit(handleChangePassword)}>
           <Input
-            label="Aktuelles Passwort"
+            label={t("currentPassword")}
             className="mb-4"
             name="currentPassword"
             type="password"
@@ -64,7 +64,7 @@ export default function ResetPasswordForm() {
             bgWhite
           />
           <Input
-            label="Neues Passwort"
+            label={t("newPassword")}
             className="mb-4"
             name="newPassword"
             type="password"
@@ -73,7 +73,7 @@ export default function ResetPasswordForm() {
             bgWhite
           />
           <Input
-            label="Neues Passwort bestätigen"
+            label={t("confirmNewPassword")}
             className="mb-4"
             name="confirmPassword"
             type="password"
@@ -87,7 +87,7 @@ export default function ResetPasswordForm() {
             size="full"
             disabled={isLoading}
           >
-            Passwort ändern
+            {t("submit")}
           </Button>
         </form>
       </div>

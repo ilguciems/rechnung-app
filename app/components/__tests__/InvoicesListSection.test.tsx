@@ -1,7 +1,7 @@
-import { render, screen, waitFor, within } from "@testing-library/react";
+import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { togglePaidSpy } from "@/tests/mocks/handlers";
-import Providers from "../../providers";
+import { renderWithIntl } from "@/tests/test-utils";
 import InvoicesListSection from "../InvoicesListSection";
 
 window.URL.createObjectURL = vi.fn();
@@ -12,11 +12,7 @@ describe("InvoicesListSection", () => {
   const user = userEvent.setup();
 
   it("renders invoice and interacts (toggle paid and download)", async () => {
-    render(
-      <Providers>
-        <InvoicesListSection />
-      </Providers>,
-    );
+    renderWithIntl(<InvoicesListSection />);
 
     expect(
       await screen.findByText("Gespeicherte Rechnungen"),

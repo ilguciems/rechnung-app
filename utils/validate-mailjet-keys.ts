@@ -18,10 +18,12 @@ export async function validateMailjetKeys(
       console.log("Validating sender email:", fromEmail);
       try {
         const senderResult = await mailjet.get("sender").request();
-        const responseBody = senderResult.body as { Data?: Array<{
-          Email: string;
-          Status: string;
-        }> };
+        const responseBody = senderResult.body as {
+          Data?: Array<{
+            Email: string;
+            Status: string;
+          }>;
+        };
         const senders = responseBody.Data || [];
 
         console.log("Available senders:", senders);

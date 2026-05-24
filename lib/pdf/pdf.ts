@@ -54,15 +54,15 @@ export async function generateInvoicePDF(
   // ---------------------------
 
   // logo (if exists)
-const fileName = company.logoUrl ? path.basename(company.logoUrl) : null;
-  const logoPath = fileName 
-    ? path.join(process.cwd(), "public", "assets", fileName) 
+  const fileName = company.logoUrl ? path.basename(company.logoUrl) : null;
+  const logoPath = fileName
+    ? path.join(process.cwd(), "public", "assets", fileName)
     : "";
 
   if (logoPath && fs.existsSync(logoPath)) {
     const logoImageBytes = fs.readFileSync(logoPath);
-    const isPng = logoPath.toLowerCase().endsWith('.png');
-    const logoImage = isPng 
+    const isPng = logoPath.toLowerCase().endsWith(".png");
+    const logoImage = isPng
       ? await pdfDoc.embedPng(logoImageBytes)
       : await pdfDoc.embedJpg(logoImageBytes);
 
@@ -73,7 +73,7 @@ const fileName = company.logoUrl ? path.basename(company.logoUrl) : null;
       width: logoDims.width,
       height: logoDims.height,
     });
-  } 
+  }
 
   // top: invoice number and date
   page.drawText(`Rechnungs-Nr. ${invoice.invoiceNumber}`, {
@@ -418,15 +418,15 @@ export async function generateMahnungPDF(
   const page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
   let y = PAGE_HEIGHT - TOP_MARGIN;
 
-const fileName = company.logoUrl ? path.basename(company.logoUrl) : null;
-  const logoPath = fileName 
-    ? path.join(process.cwd(), "public", "assets", fileName) 
+  const fileName = company.logoUrl ? path.basename(company.logoUrl) : null;
+  const logoPath = fileName
+    ? path.join(process.cwd(), "public", "assets", fileName)
     : "";
 
   if (logoPath && fs.existsSync(logoPath)) {
     const logoImageBytes = fs.readFileSync(logoPath);
-    const isPng = logoPath.toLowerCase().endsWith('.png');
-    const logoImage = isPng 
+    const isPng = logoPath.toLowerCase().endsWith(".png");
+    const logoImage = isPng
       ? await pdfDoc.embedPng(logoImageBytes)
       : await pdfDoc.embedJpg(logoImageBytes);
 
@@ -437,7 +437,7 @@ const fileName = company.logoUrl ? path.basename(company.logoUrl) : null;
       width: logoDims.width,
       height: logoDims.height,
     });
-  } 
+  }
 
   page.drawText(`${title}`, { x: 400, y, size: 9, font: boldFont });
   y -= 15;

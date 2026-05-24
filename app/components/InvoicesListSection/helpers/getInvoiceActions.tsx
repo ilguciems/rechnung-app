@@ -29,15 +29,20 @@ export type Invoice = {
   deliveryMethod: "EMAIL" | "POST";
 };
 
-type MahnungTitles = {
-  [key: number]: { title: string; color: string };
-};
+type ActionT = (
+  key: string,
+  params?: Record<string, string | number>,
+) => string;
 
-export const MAHNUNG_OPTIONS: MahnungTitles = {
-  1: { title: "Zahlungserinnerung als PDF", color: "text-blue-500" },
-  2: { title: "1. Mahnung als PDF", color: "text-orange-500" },
-  3: { title: "2. Mahnung als PDF", color: "text-red-500" },
-};
+type MahnungOptionsMap = Record<number, { title: string; color: string }>;
+
+export function buildMahnungOptions(t: ActionT): MahnungOptionsMap {
+  return {
+    1: { title: t("reminderPdf"), color: "text-blue-500" },
+    2: { title: t("firstDunningPdf"), color: "text-orange-500" },
+    3: { title: t("secondDunningPdf"), color: "text-red-500" },
+  };
+}
 
 function getAvailableMahnungLevel(invoice: Invoice) {
   if (invoice.isPaid) return null;
@@ -76,6 +81,7 @@ export function getInvoiceActions({
   setEmailModalConfig,
   togglePaid,
   canSendEmail,
+  t,
 }: {
   inv: Invoice;
   downloadInvoice: (id: string) => void;
@@ -87,12 +93,14 @@ export function getInvoiceActions({
   }) => void;
   togglePaid: { mutate: (data: { id: string; current: boolean }) => void };
   canSendEmail: boolean;
+  t: ActionT;
 }) {
+  const MAHNUNG_OPTIONS: MahnungOptionsMap = buildMahnungOptions(t);
   const actions = [];
 
   actions.push({
     id: `${inv.id}-toggle`,
-    text: inv.isPaid ? "Offen setzen" : "Bezahlt setzen",
+    text: inv.isPaid ? t("setOpen") : t("setPaid"),
     node: (
       <span className="flex items-center">
         {inv.isPaid ? (
@@ -100,7 +108,7 @@ export function getInvoiceActions({
         ) : (
           <SquareCheckBig className="w-4 h-4 mr-2" />
         )}
-        <span>{inv.isPaid ? "Offen setzen" : "Bezahlt setzen"}</span>
+        <span>{inv.isPaid ? t("setOpen") : t("setPaid")}</span>
       </span>
     ),
     onClick: () => togglePaid.mutate({ id: inv.id, current: inv.isPaid }),
@@ -108,15 +116,15 @@ export function getInvoiceActions({
 
   actions.push({
     id: `${inv.id}-download`,
-    text: "Rechnung als PDF",
+    text: t("pdf"),
     node: (
       <span className="flex items-center">
         <FileText className="w-4 h-4 mr-2" />
-        <span>Rechnung als PDF</span>
+        <span>{t("pdf")}</span>
         {canSendEmail && (
           <span
             className={`ml-2 w-3 h-3 rounded-full ${inv.invoiceSentAt ? "bg-green-500" : "bg-orange-400 animate-pulse"}`}
-            title={inv.invoiceSentAt ? "Versendet" : "Entwurf"}
+            title={inv.invoiceSentAt ? t("statusSent") : t("statusDraft")}
           />
         )}
       </span>
@@ -127,11 +135,11 @@ export function getInvoiceActions({
   if (canSendEmail && !inv.invoiceSentAt) {
     actions.push({
       id: `${inv.id}-email`,
-      text: "Rechnung per Email",
+      text: t("email"),
       node: (
         <span className="flex items-center">
           <Mail className="w-4 h-4 mr-2" />
-          <span>Rechnung per Email</span>
+          <span>{t("email")}</span>
         </span>
       ),
       onClick: () => setEmailModalConfig({ invoice: inv, type: "invoice" }),
@@ -155,7 +163,7 @@ export function getInvoiceActions({
             {canSendEmail && (
               <span
                 className={`ml-2 w-3 h-3 rounded-full ${isSent ? "bg-green-500" : "bg-orange-400 animate-pulse"}`}
-                title={isSent ? "Versendet" : "Entwurf"}
+                title={isSent ? t("statusSent") : t("statusDraft")}
               />
             )}
           </span>
@@ -169,13 +177,15 @@ export function getInvoiceActions({
     const nextAction = getAvailableMahnungLevel(inv);
 
     if (typeof nextAction === "number") {
+      const reminderLabel =
+        nextAction === 1 ? t("reminder") : `${nextAction - 1}. ${t("dunning")}`;
       actions.push({
         id: `${inv.id}-send-reminder-${nextAction}`,
-        text: `${nextAction === 1 ? "Zahlungserinnerung" : nextAction - 1 + ".Mahnung"} senden`,
+        text: `${reminderLabel} ${t("send")}`,
         node: (
           <span className="flex items-center font-bold">
             <Bell className="w-4 h-4 mr-2 text-orange-500" />
-            <span>{`${nextAction === 1 ? "Zahlungserinnerung" : nextAction - 1 + ".Mahnung"} senden`}</span>
+            <span>{`${reminderLabel} ${t("send")}`}</span>
           </span>
         ),
         onClick: () =>
@@ -191,23 +201,27 @@ export function getInvoiceActions({
       nextAction.status === "waiting"
     ) {
       const daysLeft = nextAction.daysLeft;
+      const daysText =
+        daysLeft === 1
+          ? t("waitingOneDay")
+          : t("waitingDays", { days: daysLeft });
 
       actions.push({
         id: `${inv.id}-waiting`,
-        text: `Warten (${daysLeft} Tage)`,
+        text: t("waiting", { days: daysLeft }),
         node: (
           <span className="flex items-center text-slate-400 cursor-not-allowed">
             <Clock className="w-4 h-4 mr-2" />
             <span className="text-xs">
-              Frist für{" "}
+              {t("deadlineFor")}{" "}
               {inv.lastReminderLevel === 0
-                ? "Zahlungserinnerung"
-                : inv.lastReminderLevel + ".Mahnung"}{" "}
-              noch {daysLeft === 1 ? "1 Tag" : `${daysLeft} Tage`}
+                ? t("reminder")
+                : `${inv.lastReminderLevel}. ${t("dunning")}`}{" "}
+              {daysText}
             </span>
           </span>
         ),
-        onClick: () => toast.error(`Die Frist läuft noch ${daysLeft} Tage.`),
+        onClick: () => toast.error(t("deadlineToast", { days: daysLeft })),
       });
     }
   }

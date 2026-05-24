@@ -19,7 +19,7 @@ export function DashboardSkeleton() {
       </div>
       <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
         <div className="h-6 w-48 bg-gray-200 dark:bg-gray-700 rounded mb-8" />
-        <div className="h-[350px] w-full bg-gray-50 dark:bg-gray-900 rounded-xl flex items-end justify-between p-6 gap-4">
+        <div className="h-87.5 w-full bg-gray-50 dark:bg-gray-900 rounded-xl flex items-end justify-between p-6 gap-4">
           {SIX_ARRAY.map((key) => (
             <div
               key={key}

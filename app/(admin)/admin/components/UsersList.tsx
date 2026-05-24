@@ -10,6 +10,7 @@ import {
   ShieldCheck,
   UserCheck,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
 import { ConfirmationModal } from "@/app/components";
 import { useGlobalUsersList } from "@/hooks";
@@ -21,6 +22,7 @@ import SkeletonLoader from "./SkeletonLoader";
 const PAGE_SIZE = 5;
 
 export default function UsersList() {
+  const t = useTranslations("admin.usersList");
   const [page, setPage] = useUrlState<number>("page", 1);
   const [sortDirection, setSortDirection] = useUrlState<"asc" | "desc">(
     "sortDirection",
@@ -133,12 +135,12 @@ export default function UsersList() {
       <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] mb-6 dark:bg-black dark:border-gray-800">
         <div className="flex flex-col lg:flex-row lg:items-center gap-4">
           <div className="flex-1 flex flex-col sm:flex-row items-stretch gap-4">
-            <div className="relative min-w-[5.5rem]">
+            <div className="relative min-w-22">
               <label
                 htmlFor="page-size"
                 className="text-[10px] uppercase tracking-wider font-bold text-slate-500 px-1.5 absolute -top-2 left-2 bg-white z-10 dark:bg-black dark:text-slate-400"
               >
-                pro Seite
+                {t("perPage")}
               </label>
               <div className="relative h-11">
                 <select
@@ -157,7 +159,7 @@ export default function UsersList() {
               </div>
             </div>
             <div className="flex-1 flex items-stretch h-11">
-              <div className="relative flex-shrink-0 group">
+              <div className="relative shrink-0 group">
                 <select
                   value={searchField}
                   onChange={(e) =>
@@ -166,20 +168,22 @@ export default function UsersList() {
                   className="h-full pl-4 pr-9 py-2 bg-slate-50 border border-slate-200 rounded-l-xl text-sm font-medium text-slate-600 outline-none hover:bg-slate-100 cursor-pointer appearance-none transition-all border-r-0
                focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-black focus-visible:bg-white z-20 relative dark:bg-black dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-900 dark:focus-visible:bg-black dark:focus-visible:ring-white"
                 >
-                  <option value="name">Name</option>
-                  <option value="email">Email</option>
+                  <option value="name">{t("name")}</option>
+                  <option value="email">{t("email")}</option>
                 </select>
                 <ChevronDown
                   className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none transition-colors
                group-focus-within:text-black z-30 dark:text-gray-500 dark:group-focus-within:text-white"
                 />
               </div>
-              <div className="w-[1px] bg-slate-200 my-2 z-10 dark:bg-gray-700" />
+              <div className="w-px bg-slate-200 my-2 z-10 dark:bg-gray-700" />
               <div className="relative flex-1 group">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-black transition-colors dark:text-gray-500 dark:group-focus-within:text-white" />
                 <input
                   type="text"
-                  placeholder={`Suche nach ${searchField === "name" ? "Name" : "Email"}...`}
+                  placeholder={t("searchPlaceholder", {
+                    field: searchField === "name" ? t("name") : t("email"),
+                  })}
                   value={tempSearchValue}
                   onChange={(e) => setTempSearchValue(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && executeSearch()}
@@ -196,16 +200,16 @@ export default function UsersList() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <div className="relative min-w-[130px]">
+            <div className="relative min-w-32.5">
               <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
               <select
                 onChange={(e) => handleFilterValue(e.target.value)}
                 value={filterValue}
                 className="h-11 w-full pl-10 pr-8 py-2 bg-slate-50 border border-slate-200 rounded-xl appearance-none focus:ring-2 focus:ring-black outline-none cursor-pointer text-sm font-medium text-slate-700 dark:bg-black dark:border-gray-700 dark:text-gray-200 dark:focus:ring-white"
               >
-                <option value="">Alle Rollen</option>
-                <option value="admin">Admin</option>
-                <option value="user">User</option>
+                <option value="">{t("allRoles")}</option>
+                <option value="admin">{t("adminRole")}</option>
+                <option value="user">{t("userRole")}</option>
               </select>
               <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
             </div>
@@ -238,9 +242,7 @@ export default function UsersList() {
           <div>
             {users?.length === 0 ? (
               <div className="flex items-center justify-center h-40">
-                <span className="text-gray-500 text-sm">
-                  Keine Benutzer gefunden
-                </span>
+                <span className="text-gray-500 text-sm">{t("noUsers")}</span>
               </div>
             ) : (
               <ul className="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm dark:bg-black">
@@ -271,7 +273,7 @@ export default function UsersList() {
                             }`}
                           >
                             {user.id === session?.user?.id
-                              ? "Mein Konto"
+                              ? t("myAccount")
                               : user.role}
                           </span>
                         </div>
@@ -281,15 +283,27 @@ export default function UsersList() {
                           {user.banned ? (
                             <div className="flex flex-col">
                               <span className="bg-red-100 text-red-700 w-fit px-2 py-0.5 rounded text-[10px] font-bold uppercase">
-                                {`Gesperrt ${user.banExpires ? `bis ${new Date(user.banExpires).toLocaleDateString()}` : "permanent"}`}
+                                {user.banExpires
+                                  ? t("bannedUntil", {
+                                      date: new Date(
+                                        user.banExpires,
+                                      ).toLocaleDateString(),
+                                    })
+                                  : t("bannedPermanent")}
                               </span>
                               <span className="text-gray-500 text-xs">
-                                {`Grund: ${user.banReason && user.banReason !== "No reason" ? `${user.banReason}` : "nicht angegeben"} `}
+                                {t("banReason", {
+                                  reason:
+                                    user.banReason &&
+                                    user.banReason !== "No reason"
+                                      ? user.banReason
+                                      : t("noReason"),
+                                })}
                               </span>
                             </div>
                           ) : (
                             <span className="w-fit px-2 py-0.5 rounded text-[12px] font-bold uppercase bg-emerald-100 text-emerald-700">
-                              aktiv
+                              {t("active")}
                             </span>
                           )}
                         </div>
@@ -312,7 +326,7 @@ export default function UsersList() {
                                 user.id === session?.user.id
                               }
                               className="p-2 hover:bg-gray-100 rounded-lg cursor:pointer dark:hover:bg-gray-800"
-                              title="Rolle ändern"
+                              title={t("changeRole")}
                             >
                               {user.role === "admin" ? (
                                 <ShieldAlert className="w-6 h-6 text-amber-600 dark:text-amber-400" />
@@ -334,7 +348,7 @@ export default function UsersList() {
                                 setBan.isPending || user.id === session?.user.id
                               }
                               className="p-2 hover:bg-red-50 rounded-lg cursor:pointer dark:hover:bg-gray-800"
-                              title={user.banned ? "Entsperren" : "Sperren"}
+                              title={user.banned ? t("unban") : t("ban")}
                             >
                               {user.banned ? (
                                 <UserCheck className="w-6 h-6 text-green-600 dark:text-green-400" />
@@ -363,15 +377,15 @@ export default function UsersList() {
         isPending={setRole.isPending || setBan.isPending}
         title={
           modalConfig?.type === "role"
-            ? "Rolle ändern"
+            ? t("changeRole")
             : modalConfig?.currentVal
-              ? "Entsperren"
-              : "Benutzer sperren"
+              ? t("unban")
+              : t("banUser")
         }
         description={
           modalConfig?.type === "role"
-            ? `Möchten Sie die Rolle von ${modalConfig?.userName} wirklich ändern?`
-            : `Aktion für Benutzer ${modalConfig?.userName} bestätigen.`
+            ? t("changeRoleConfirm", { name: modalConfig?.userName ?? "" })
+            : t("banUserConfirm", { name: modalConfig?.userName ?? "" })
         }
       >
         {modalConfig?.type === "ban" && !modalConfig.currentVal && (
@@ -381,13 +395,13 @@ export default function UsersList() {
                 htmlFor="ban-reason"
                 className="text-xs text-gray-700 px-2 absolute -top-2 left-2 z-10 bg-white dark:bg-gray-800 dark:text-gray-400"
               >
-                Grund (optional)
+                {t("banReasonLabel")}
               </label>
               <div className="relative">
                 <input
                   id="ban-reason"
                   className="border p-2 rounded w-full border-gray-500 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-400"
-                  placeholder="z.B. Verstoß gegen Regeln"
+                  placeholder={t("banReasonPlaceholder")}
                   value={banReason}
                   onChange={(e) => setBanReason(e.target.value)}
                 />
@@ -398,18 +412,18 @@ export default function UsersList() {
                 htmlFor="ban-duration"
                 className="text-xs text-gray-700 px-2 absolute -top-2 left-2 bg-white dark:bg-gray-800 dark:text-gray-400 z-10"
               >
-                Dauer
+                {t("duration")}
               </label>
               <select
                 id="ban-duration"
-                className="border p-2 rounded w-full border-gray-500 min-h-[2.5rem] dark:bg-gray-800 dark:border-gray-600 dark:text-gray-400"
+                className="border p-2 rounded w-full border-gray-500 min-h-10 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-400"
                 value={banDuration}
                 onChange={(e) => setBanDuration(e.target.value)}
               >
-                <option value="0">Permanent</option>
-                <option value="1">1 Tag</option>
-                <option value="7">7 Tage</option>
-                <option value="30">30 Tage</option>
+                <option value="0">{t("permanent")}</option>
+                <option value="1">{t("oneDay")}</option>
+                <option value="7">{t("sevenDays")}</option>
+                <option value="30">{t("thirtyDays")}</option>
               </select>
             </div>
           </div>

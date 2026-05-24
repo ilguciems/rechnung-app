@@ -7,11 +7,11 @@ import SendInviteForm from "./SendInviteForm";
 import Statistics from "./Statistics";
 
 export {
-  NameForm,
-  SendInviteForm,
   Logs,
-  MembershipList,
-  PendingInvitationsList,
   MailJetConfigForm,
+  MembershipList,
+  NameForm,
+  PendingInvitationsList,
+  SendInviteForm,
   Statistics,
 };

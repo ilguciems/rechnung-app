@@ -1,6 +1,9 @@
+import { useTranslations } from "next-intl";
 import { useEffect } from "react";
 
 export default function PdfLoadingModal({ isLoading }: { isLoading: boolean }) {
+  const t = useTranslations("invoicesList.pdfLoading");
+
   useEffect(() => {
     if (isLoading) {
       document.body.style.overflow = "hidden";
@@ -19,7 +22,7 @@ export default function PdfLoadingModal({ isLoading }: { isLoading: boolean }) {
       <div className="bg-white rounded-lg shadow-lg p-6 flex flex-col items-center">
         <svg
           role="img"
-          aria-label="PDF wird erstellt"
+          aria-label={t("label")}
           className="animate-spin h-8 w-8 text-blue-600 mb-3"
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
@@ -39,10 +42,8 @@ export default function PdfLoadingModal({ isLoading }: { isLoading: boolean }) {
             d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
           />
         </svg>
-        <p className="text-gray-700 font-medium">PDF wird erstellt...</p>
-        <p className="text-sm text-gray-500">
-          Bitte warten, dies kann einige Sekunden dauern.
-        </p>
+        <p className="text-gray-700 font-medium">{t("text")}</p>
+        <p className="text-sm text-gray-500">{t("helper")}</p>
       </div>
     </div>
   );

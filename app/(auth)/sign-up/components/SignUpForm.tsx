@@ -2,6 +2,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoaderCircle } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
@@ -10,6 +11,7 @@ import { signUp } from "@/lib/auth-client";
 import { type SignUpType, signUpSchema } from "@/lib/zod-schema";
 
 export default function SignUpForm() {
+  const t = useTranslations("auth.signUp");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
@@ -44,7 +46,7 @@ export default function SignUpForm() {
         },
         onSuccess: () => {
           router.push(`/verify-email?email=${encodeURIComponent(email)}`);
-          toast.success("Konto erstellt!");
+          toast.success(t("accountCreated"));
         },
         onCallback: () => {
           reset();
@@ -66,22 +68,21 @@ export default function SignUpForm() {
             <div className="p-6 flex flex-col gap-4">
               <div className="mb-2">
                 <h3 className="text-lg font-bold text-gray-900 dark:text-white leading-6">
-                  Benutzerkonto erstellen
+                  {t("title")}
                 </h3>
                 {token ? (
                   <p className="text-sm text-gray-500 dark:text-gray-300 mt-1 bg-red-100 dark:bg-red-950/50 p-2 rounded">
-                    Sie haben eine Einladung zur Organisation erhalten.
-                    Erstellen Sie ein Konto, um die Einladung zu akzeptieren.
+                    {t("invitationMessage")}
                   </p>
                 ) : (
                   <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                    Bitte geben Sie Ihre Daten ein.
+                    {t("subtitle")}
                   </p>
                 )}
               </div>
               <Input
                 name="name"
-                label="Name"
+                label={t("name")}
                 register={register}
                 errors={formState.errors}
                 bgWhite
@@ -89,7 +90,7 @@ export default function SignUpForm() {
               {token ? (
                 <Output
                   name="email"
-                  label="Email"
+                  label={t("email")}
                   register={register}
                   errors={formState.errors}
                   bgWhite
@@ -97,7 +98,7 @@ export default function SignUpForm() {
               ) : (
                 <Input
                   name="email"
-                  label="Email"
+                  label={t("email")}
                   register={register}
                   errors={formState.errors}
                   bgWhite
@@ -106,7 +107,7 @@ export default function SignUpForm() {
 
               <Input
                 name="password"
-                label="Passwort"
+                label={t("password")}
                 register={register}
                 errors={formState.errors}
                 type="password"
@@ -115,7 +116,7 @@ export default function SignUpForm() {
 
               <Input
                 name="confirmPassword"
-                label="Passwort bestätigen"
+                label={t("confirmPassword")}
                 register={register}
                 errors={formState.errors}
                 type="password"
@@ -130,13 +131,13 @@ export default function SignUpForm() {
                   variant="primary"
                   size="full"
                 >
-                  Erstellen
+                  {t("submit")}
                 </Button>
                 {!token && (
                   <>
                     <hr className="w-full border-t-2 border-gray-200 dark:border-gray-800" />
                     <LinkButton href="/sign-in" variant="secondary" size="full">
-                      Ich habe bereits ein Konto
+                      {t("hasAccount")}
                     </LinkButton>
                   </>
                 )}

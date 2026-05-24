@@ -13,7 +13,7 @@ export async function GET(
 
   const session = await getAuthData();
 
-  if (!session || !session.org) {
+  if (!session?.org) {
     return NextResponse.json({ error: "Nicht authorisiert" }, { status: 401 });
   }
 

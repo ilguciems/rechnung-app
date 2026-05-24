@@ -1,8 +1,10 @@
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { getAuthData } from "@/lib/get-auth-data";
 import ResetPasswordForm from "./components/ResetPasswordForm";
 
 export default async function Profile({ params }: { params: { id: string } }) {
+  const t = await getTranslations("profile");
   const session = await getAuthData();
 
   const { id: paramsId } = await params;
@@ -39,16 +41,16 @@ export default async function Profile({ params }: { params: { id: string } }) {
     <div className="p-6 max-w-3xl mx-auto space-y-8">
       <section className="border border-gray-100 p-4 rounded-xl dark:bg-black">
         <div className="grid grid-cols-1 gap-3 max-w-md mx-auto">
-          <h1 className="text-2xl mb-6">Profile</h1>
-          <ItemWrapper item="Name">{userName}</ItemWrapper>
-          <ItemWrapper item="E-Mail">{userEmail}</ItemWrapper>
-          <ItemWrapper item="Globale Rolle">{userRole}</ItemWrapper>
-          <ItemWrapper item="Organisationsrolle">{orgRole}</ItemWrapper>
-          <ItemWrapper item="ID">{userId}</ItemWrapper>
-          <ItemWrapper item="Erstellungsdatum">
+          <h1 className="text-2xl mb-6">{t("title")}</h1>
+          <ItemWrapper item={t("name")}>{userName}</ItemWrapper>
+          <ItemWrapper item={t("email")}>{userEmail}</ItemWrapper>
+          <ItemWrapper item={t("globalRole")}>{userRole}</ItemWrapper>
+          <ItemWrapper item={t("orgRole")}>{orgRole}</ItemWrapper>
+          <ItemWrapper item={t("id")}>{userId}</ItemWrapper>
+          <ItemWrapper item={t("createdAt")}>
             {new Date(createdAt).toLocaleString()}
           </ItemWrapper>
-          <ItemWrapper item="Aktualisierungsdatum">
+          <ItemWrapper item={t("updatedAt")}>
             {new Date(updatedAt).toLocaleString()}
           </ItemWrapper>
         </div>
