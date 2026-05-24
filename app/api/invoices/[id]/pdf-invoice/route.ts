@@ -1,5 +1,6 @@
 import Ably from "ably";
 import { NextResponse } from "next/server";
+import { getTranslations } from "next-intl/server";
 import { logActivity } from "@/lib/activity-log";
 import { getAuthData } from "@/lib/get-auth-data";
 import { generateInvoicePDF } from "@/lib/pdf";
@@ -9,12 +10,13 @@ export async function GET(
   _req: Request,
   context: { params: Promise<{ id: string }> },
 ) {
+  const t = await getTranslations("apiErrors");
   const { id } = await context.params;
 
   const session = await getAuthData();
 
   if (!session?.org) {
-    return NextResponse.json({ error: "Nicht authorisiert" }, { status: 401 });
+    return NextResponse.json({ error: t("unauthorized") }, { status: 401 });
   }
 
   const invoice = await prisma.invoice.findUnique({
@@ -26,15 +28,12 @@ export async function GET(
   });
 
   if (!invoice) {
-    return NextResponse.json(
-      { error: "Keine Rechnung gefunden" },
-      { status: 404 },
-    );
+    return NextResponse.json({ error: t("noInvoiceFound") }, { status: 404 });
   }
 
   if (!invoice.companySnapshot) {
     return NextResponse.json(
-      { error: "Company snapshot für diese Rechnung nicht gefunden" },
+      { error: t("companySnapshotNotFound") },
       { status: 500 },
     );
   }
@@ -54,7 +53,7 @@ export async function GET(
 
   if (!finalInvoice.companySnapshot) {
     return NextResponse.json(
-      { error: "Company snapshot fehlt" },
+      { error: t("companySnapshotAbsent") },
       { status: 500 },
     );
   }

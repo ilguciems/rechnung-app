@@ -1,18 +1,17 @@
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
+import { getTranslations } from "next-intl/server";
 import { Prisma } from "@/app/generated/prisma/client";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma-client";
 
 export async function GET() {
+  const t = await getTranslations("apiErrors");
   try {
     const session = await auth.api.getSession({ headers: await headers() });
 
     if (!session) {
-      return NextResponse.json(
-        { error: "Nicht authorisiert" },
-        { status: 401 },
-      );
+      return NextResponse.json({ error: t("unauthorized") }, { status: 401 });
     }
 
     const organization = await prisma.organization.findFirst({
@@ -30,10 +29,7 @@ export async function GET() {
     });
 
     if (!organization) {
-      return NextResponse.json(
-        { error: "Nicht authorisiert" },
-        { status: 401 },
-      );
+      return NextResponse.json({ error: t("unauthorized") }, { status: 401 });
     }
 
     return NextResponse.json({ name: organization.name });
@@ -41,19 +37,20 @@ export async function GET() {
     console.error(error);
 
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      return NextResponse.json({ error: "Datenbankfehler" }, { status: 400 });
+      return NextResponse.json({ error: t("databaseError") }, { status: 400 });
     }
 
-    return NextResponse.json({ error: "Serverfehler" }, { status: 500 });
+    return NextResponse.json({ error: t("serverError") }, { status: 500 });
   }
 }
 
 export async function PATCH(req: Request) {
+  const t = await getTranslations("apiErrors");
   try {
     const session = await auth.api.getSession({ headers: await headers() });
 
     if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: t("unauthorized") }, { status: 401 });
     }
 
     const { name } = await req.json();
@@ -70,7 +67,7 @@ export async function PATCH(req: Request) {
     });
 
     if (!organization) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: t("unauthorized") }, { status: 401 });
     }
 
     await prisma.organization.update({
@@ -87,9 +84,9 @@ export async function PATCH(req: Request) {
     console.error(error);
 
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      return NextResponse.json({ error: "Datenbankfehler" }, { status: 400 });
+      return NextResponse.json({ error: t("databaseError") }, { status: 400 });
     }
 
-    return NextResponse.json({ error: "Serverfehler" }, { status: 500 });
+    return NextResponse.json({ error: t("serverError") }, { status: 500 });
   }
 }

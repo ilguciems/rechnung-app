@@ -1,21 +1,20 @@
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
+import { getTranslations } from "next-intl/server";
 import { z } from "zod";
 import { Prisma } from "@/app/generated/prisma/client";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma-client";
 
 export async function GET() {
+  const t = await getTranslations("apiErrors");
   try {
     const session = await auth.api.getSession({
       headers: await headers(),
     });
 
     if (!session) {
-      return NextResponse.json(
-        { error: "Nicht authorisiert" },
-        { status: 401 },
-      );
+      return NextResponse.json({ error: t("unauthorized") }, { status: 401 });
     }
 
     const membership = await prisma.organizationMember.findFirst({
@@ -45,7 +44,7 @@ export async function GET() {
 
     if (!membership?.organization) {
       return NextResponse.json(
-        { error: "Keine Organisation gefunden" },
+        { error: t("noOrganizationFound") },
         { status: 404 },
       );
     }
@@ -55,24 +54,22 @@ export async function GET() {
     console.error(error);
 
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      return NextResponse.json({ error: "Datenbankfehler" }, { status: 400 });
+      return NextResponse.json({ error: t("databaseError") }, { status: 400 });
     }
 
-    return NextResponse.json({ error: "Fehler beim Laden" }, { status: 500 });
+    return NextResponse.json({ error: t("loadingError") }, { status: 500 });
   }
 }
 
 export async function PATCH(req: Request) {
+  const t = await getTranslations("apiErrors");
   try {
     const session = await auth.api.getSession({
       headers: await headers(),
     });
 
     if (!session) {
-      return NextResponse.json(
-        { error: "Nicht authorisiert" },
-        { status: 401 },
-      );
+      return NextResponse.json({ error: t("unauthorized") }, { status: 401 });
     }
 
     const { userId, role } = z
@@ -116,7 +113,7 @@ export async function PATCH(req: Request) {
 
     if (targetMember.userId === organization.ownerId) {
       return NextResponse.json(
-        { error: "Diese Rolle kann nicht geändert werden" },
+        { error: t("roleCannotChange") },
         { status: 403 },
       );
     }
@@ -135,24 +132,22 @@ export async function PATCH(req: Request) {
     console.error(error);
 
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      return NextResponse.json({ error: "Datenbankfehler" }, { status: 400 });
+      return NextResponse.json({ error: t("databaseError") }, { status: 400 });
     }
 
-    return NextResponse.json({ error: "Fehler beim Laden" }, { status: 500 });
+    return NextResponse.json({ error: t("loadingError") }, { status: 500 });
   }
 }
 
 export async function DELETE(req: Request) {
+  const t2 = await getTranslations("apiErrors");
   try {
     const session = await auth.api.getSession({
       headers: await headers(),
     });
 
     if (!session) {
-      return NextResponse.json(
-        { error: "Nicht authorisiert" },
-        { status: 401 },
-      );
+      return NextResponse.json({ error: t2("unauthorized") }, { status: 401 });
     }
 
     const { userId } = z
@@ -177,7 +172,7 @@ export async function DELETE(req: Request) {
 
     if (!organization) {
       return NextResponse.json(
-        { error: "Keine Organisation gefunden bzw. keine Berechtigung" },
+        { error: t2("noOrganizationOrPermission") },
         { status: 403 },
       );
     }
@@ -187,15 +182,12 @@ export async function DELETE(req: Request) {
     );
 
     if (!targetMember) {
-      return NextResponse.json(
-        { error: "Kein Mitglied gefunden" },
-        { status: 404 },
-      );
+      return NextResponse.json({ error: t2("noMemberFound") }, { status: 404 });
     }
 
     if (targetMember.userId === organization.ownerId) {
       return NextResponse.json(
-        { error: "Diese Rolle kann nicht gelöscht werden" },
+        { error: t2("roleCannotDelete") },
         { status: 403 },
       );
     }
@@ -211,9 +203,9 @@ export async function DELETE(req: Request) {
     console.error(error);
 
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      return NextResponse.json({ error: "Datenbankfehler" }, { status: 400 });
+      return NextResponse.json({ error: t2("databaseError") }, { status: 400 });
     }
 
-    return NextResponse.json({ error: "Fehler beim Laden" }, { status: 500 });
+    return NextResponse.json({ error: t2("loadingError") }, { status: 500 });
   }
 }

@@ -1,6 +1,7 @@
 import Ably from "ably";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
+import { getTranslations } from "next-intl/server";
 import { z } from "zod";
 import { Prisma } from "@/app/generated/prisma/client";
 import { logActivity } from "@/lib/activity-log";
@@ -53,12 +54,13 @@ function calculateOverduePaymentLevel(invoice: {
 }
 
 export async function GET(req: Request) {
+  const t = await getTranslations("apiErrors");
   const session = await auth.api.getSession({
     headers: await headers(),
   });
 
   if (!session) {
-    return NextResponse.json({ error: "Nicht authorisiert" }, { status: 401 });
+    return NextResponse.json({ error: t("unauthorized") }, { status: 401 });
   }
   const userId = session.user.id;
   const membership = await prisma.organizationMember.findFirst({
@@ -74,7 +76,7 @@ export async function GET(req: Request) {
 
   if (!membership?.organization.company) {
     return NextResponse.json(
-      { error: "Kein Unternehmen zugeordnet" },
+      { error: t("noCompanyAssigned") },
       { status: 400 },
     );
   }
@@ -127,16 +129,14 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
+  const t2 = await getTranslations("apiErrors");
   try {
     const session = await auth.api.getSession({
       headers: await headers(),
     });
 
     if (!session) {
-      return NextResponse.json(
-        { error: "Nicht authorisiert" },
-        { status: 401 },
-      );
+      return NextResponse.json({ error: t2("unauthorized") }, { status: 401 });
     }
     // 1. Validate input
     const data = createInvoiceSchema.parse(await req.json());
@@ -183,7 +183,7 @@ export async function POST(req: Request) {
 
     if (!organization?.company) {
       return NextResponse.json(
-        { error: "Organisation hat kein Unternehmen" },
+        { error: t2("organizationNoCompany") },
         { status: 400 },
       );
     }
@@ -194,10 +194,7 @@ export async function POST(req: Request) {
     const companyId = companyData?.id;
 
     if (!companyData) {
-      return NextResponse.json(
-        { error: "Keine Unternehmensdaten gefunden" },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: t2("noCompanyData") }, { status: 400 });
     }
 
     // 2. Find latest snapshot
@@ -373,9 +370,9 @@ export async function POST(req: Request) {
     console.error(error);
 
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      return NextResponse.json({ error: "Datenbankfehler" }, { status: 400 });
+      return NextResponse.json({ error: t2("databaseError") }, { status: 400 });
     }
 
-    return NextResponse.json({ error: "Serverfehler" }, { status: 500 });
+    return NextResponse.json({ error: t2("serverError") }, { status: 500 });
   }
 }

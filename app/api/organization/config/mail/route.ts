@@ -1,5 +1,6 @@
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
+import { getTranslations } from "next-intl/server";
 import { Prisma } from "@/app/generated/prisma/client";
 import { auth } from "@/lib/auth";
 import { decrypt, encrypt } from "@/lib/crypto-utils";
@@ -11,16 +12,14 @@ import {
 import { validateMailjetKeys } from "@/utils/validate-mailjet-keys";
 
 export async function GET() {
+  const t = await getTranslations("apiErrors");
   try {
     const session = await auth.api.getSession({
       headers: await headers(),
     });
 
     if (!session) {
-      return NextResponse.json(
-        { error: "Nicht authorisiert" },
-        { status: 401 },
-      );
+      return NextResponse.json({ error: t("unauthorized") }, { status: 401 });
     }
 
     const organization = await prisma.organization.findFirst({
@@ -46,10 +45,7 @@ export async function GET() {
     });
 
     if (!organization) {
-      return NextResponse.json(
-        { error: "Nicht authorisiert" },
-        { status: 401 },
-      );
+      return NextResponse.json({ error: t("unauthorized") }, { status: 401 });
     }
 
     if (!organization.mailjet) {
@@ -67,12 +63,12 @@ export async function GET() {
     console.error(error);
 
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      return NextResponse.json({ error: "Datenbankfehler" }, { status: 400 });
+      return NextResponse.json({ error: t("databaseError") }, { status: 400 });
     }
 
     return NextResponse.json(
       {
-        error: "Interner Serverfehler",
+        error: t("internalServerError"),
       },
       {
         status: 500,
@@ -85,16 +81,14 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+  const t2 = await getTranslations("apiErrors");
   try {
     const session = await auth.api.getSession({
       headers: await headers(),
     });
 
     if (!session) {
-      return NextResponse.json(
-        { error: "Nicht authorisiert" },
-        { status: 401 },
-      );
+      return NextResponse.json({ error: t2("unauthorized") }, { status: 401 });
     }
 
     const {
@@ -115,7 +109,7 @@ export async function POST(req: Request) {
     );
     if (!validation.valid) {
       return NextResponse.json(
-        { error: validation.error || "Ungültige API-Schlüssel" },
+        { error: validation.error || t2("invalidApiKeys") },
         { status: 400 },
       );
     }
@@ -132,10 +126,7 @@ export async function POST(req: Request) {
     });
 
     if (!organization) {
-      return NextResponse.json(
-        { error: "Nicht authorisiert" },
-        { status: 401 },
-      );
+      return NextResponse.json({ error: t2("unauthorized") }, { status: 401 });
     }
 
     const mailjet = await prisma.mailjetConfig.create({
@@ -162,12 +153,12 @@ export async function POST(req: Request) {
     console.error(error);
 
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      return NextResponse.json({ error: "Datenbankfehler" }, { status: 400 });
+      return NextResponse.json({ error: t2("databaseError") }, { status: 400 });
     }
 
     return NextResponse.json(
       {
-        error: "Interner Serverfehler",
+        error: t2("internalServerError"),
         details: JSON.stringify(error, null, 2),
       },
       {
@@ -181,16 +172,14 @@ export async function POST(req: Request) {
 }
 
 export async function PATCH(req: Request) {
+  const t3 = await getTranslations("apiErrors");
   try {
     const session = await auth.api.getSession({
       headers: await headers(),
     });
 
     if (!session) {
-      return NextResponse.json(
-        { error: "Nicht authorisiert" },
-        { status: 401 },
-      );
+      return NextResponse.json({ error: t3("unauthorized") }, { status: 401 });
     }
 
     const data: Partial<OrganizationConfigMailType> =
@@ -217,10 +206,7 @@ export async function PATCH(req: Request) {
     });
 
     if (!organization) {
-      return NextResponse.json(
-        { error: "Nicht authorisiert" },
-        { status: 401 },
-      );
+      return NextResponse.json({ error: t3("unauthorized") }, { status: 401 });
     }
 
     // Validate new keys if provided
@@ -232,8 +218,7 @@ export async function PATCH(req: Request) {
       if (!publicKey || !privateKey) {
         return NextResponse.json(
           {
-            error:
-              "Beide Schlüssel (Public und Private) müssen zusammen aktualisiert werden",
+            error: t3("bothKeysRequired"),
           },
           { status: 400 },
         );
@@ -256,7 +241,7 @@ export async function PATCH(req: Request) {
       );
       if (!validation.valid) {
         return NextResponse.json(
-          { error: validation.error || "Ungültige API-Schlüssel" },
+          { error: validation.error || t3("invalidApiKeys") },
           { status: 400 },
         );
       }
@@ -277,7 +262,7 @@ export async function PATCH(req: Request) {
         );
         if (!validation.valid) {
           return NextResponse.json(
-            { error: validation.error || "Ungültige Absender-E-Mail-Adresse" },
+            { error: validation.error || t3("invalidSenderEmail") },
             { status: 400 },
           );
         }
@@ -310,12 +295,12 @@ export async function PATCH(req: Request) {
     console.error(error);
 
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      return NextResponse.json({ error: "Datenbankfehler" }, { status: 400 });
+      return NextResponse.json({ error: t3("databaseError") }, { status: 400 });
     }
 
     return NextResponse.json(
       {
-        error: "Interner Serverfehler",
+        error: t3("internalServerError"),
         details: JSON.stringify(error, null, 2),
       },
       {
@@ -329,16 +314,14 @@ export async function PATCH(req: Request) {
 }
 
 export async function DELETE() {
+  const t4 = await getTranslations("apiErrors");
   try {
     const session = await auth.api.getSession({
       headers: await headers(),
     });
 
     if (!session) {
-      return NextResponse.json(
-        { error: "Nicht authorisiert" },
-        { status: 401 },
-      );
+      return NextResponse.json({ error: t4("unauthorized") }, { status: 401 });
     }
 
     const organization = await prisma.organization.findFirst({
@@ -353,10 +336,7 @@ export async function DELETE() {
     });
 
     if (!organization) {
-      return NextResponse.json(
-        { error: "Nicht authorisiert" },
-        { status: 401 },
-      );
+      return NextResponse.json({ error: t4("unauthorized") }, { status: 401 });
     }
 
     await prisma.mailjetConfig.delete({
@@ -370,12 +350,12 @@ export async function DELETE() {
     console.error(error);
 
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      return NextResponse.json({ error: "Datenbankfehler" }, { status: 400 });
+      return NextResponse.json({ error: t4("databaseError") }, { status: 400 });
     }
 
     return NextResponse.json(
       {
-        error: "Interner Serverfehler",
+        error: t4("internalServerError"),
         details: JSON.stringify(error, null, 2),
       },
       {
