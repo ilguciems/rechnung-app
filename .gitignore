@@ -46,8 +46,12 @@ next-env.d.ts
 # assets
 /public/assets/
 
-# agents
+# ai assistants
 .agents/
+.claude/
+.cursor/
+.qwen/
+.windsurf/
 
 # others+
 PRODUCT.md

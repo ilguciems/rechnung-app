@@ -29,7 +29,7 @@ export type Invoice = {
   deliveryMethod: "EMAIL" | "POST";
 };
 
-type ActionT = (
+export type ActionT = (
   key: string,
   params?: Record<string, string | number>,
 ) => string;

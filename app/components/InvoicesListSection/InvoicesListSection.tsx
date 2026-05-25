@@ -23,12 +23,13 @@ import {
 import {
   buildMahnungOptions,
   getInvoiceActions,
+  type ActionT,
   type Invoice,
 } from "./helpers";
 
 export default function InvoicesListSection() {
   const t = useTranslations("invoicesList");
-  const actionsT = useTranslations("invoicesList.actions");
+  const actionsT = useTranslations("invoicesList.actions") as ActionT;
   const mahnungOpts = buildMahnungOptions(actionsT);
   const { setSearchDebounced, isPaid, setIsPaid, page, setPage, query } =
     useInvoicesList();
