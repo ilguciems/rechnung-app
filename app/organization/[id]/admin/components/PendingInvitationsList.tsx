@@ -45,7 +45,7 @@ export default function PendingInvitationsList() {
   };
 
   return (
-    <div className="border border-gray-100 p-4 rounded-xl mt-2 dark:bg-black dark:border-gray-700">
+    <div className="border border-gray-100 p-4 rounded-xl mt-2 dark:bg-gray-950 dark:border-gray-700">
       <h2 className="text-2xl mb-6">{t("pending")}</h2>
       <div className="grid grid-cols-5 px-4 py-2 text-xs text-gray-500 dark:text-gray-400 border-b">
         <span className="col-span-3 sm:col-span-2">{t("email")}</span>

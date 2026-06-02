@@ -175,7 +175,7 @@ export default function CompanySection() {
   return (
     <section
       aria-labelledby="company-section"
-      className="p-4 mb-6 rounded-xl shadow bg-gray-100 dark:bg-black dark:text-white"
+      className="p-4 mb-6 rounded-xl shadow bg-gray-100 dark:bg-gray-950 dark:text-white"
     >
       <h2 id="company-section" className="text-lg font-bold mb-4">
         {company ? t("editTitle") : t("newTitle")}

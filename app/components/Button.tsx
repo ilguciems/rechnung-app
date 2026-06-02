@@ -24,7 +24,7 @@ export function Button({
   onClick,
 }: ButtonProps) {
   const variantClasses = {
-    primary: `bg-black dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200`,
+    primary: `bg-gray-950 dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200`,
     secondary: `bg-gray-600 text-white hover:bg-gray-700`,
     danger: `bg-red-600 text-white hover:bg-red-700`,
     info: `bg-blue-500 text-white hover:bg-blue-600`,
@@ -60,7 +60,7 @@ export function LinkButton({
   size = "medium",
 }: ButtonProps & { href: string }) {
   const variantClasses = {
-    primary: `py-2 px-4 rounded-md font-medium text-sm transition-colors duration-200 cursor-pointer bg-black dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200`,
+    primary: `py-2 px-4 rounded-md font-medium text-sm transition-colors duration-200 cursor-pointer bg-gray-950 dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200`,
     secondary: `py-2 px-4 rounded-md font-medium text-sm transition-colors text-center duration-200
                                bg-gray-100 text-gray-900 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700`,
     danger: `py-2 px-4 rounded-md font-medium text-sm transition-colors duration-200 cursor-pointer bg-red-600 text-white hover:bg-red-700`,

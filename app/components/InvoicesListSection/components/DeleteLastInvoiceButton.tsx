@@ -114,14 +114,14 @@ export default function DeleteLastInvoiceButton({
       {/* Modal */}
       {open && (
         <div
-          className="fixed inset-0 bg-black-rgba flex items-center justify-center z-50"
+          className="fixed inset-0 bg-gray-950-rgba flex items-center justify-center z-50"
           role="dialog"
           aria-modal="true"
           onKeyDown={trapFocus}
         >
           <div
             ref={modalRef}
-            className="bg-white dark:bg-black rounded-lg shadow-lg p-6 max-w-sm w-full opacity-100!"
+            className="bg-white dark:bg-gray-950 rounded-lg shadow-lg p-6 max-w-sm w-full opacity-100!"
           >
             <h2 className="text-lg font-semibold mb-2">{t("modalTitle")}</h2>
             <p className="text-sm text-gray-600 dark:text-gray-200 mb-4">

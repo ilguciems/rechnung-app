@@ -56,7 +56,7 @@ export default function ForgotPasswordForm() {
     <div className="relative isolate">
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="flex flex-row flex-wrap gap-4 items-start justify-center">
-          <div className="w-[320px] bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm overflow-hidden">
+          <div className="w-[320px] bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm overflow-hidden">
             <div className="p-6 flex flex-col gap-4">
               <div className="mb-2">
                 <h3 className="text-lg font-bold text-gray-900 dark:text-white leading-6">
@@ -102,7 +102,7 @@ export default function ForgotPasswordForm() {
       </form>
 
       {loading && (
-        <div className="absolute inset-0 bg-white/80 dark:bg-black/80 z-50 flex items-center justify-center rounded-xl">
+        <div className="absolute inset-0 bg-white/80 dark:bg-gray-950/80 z-50 flex items-center justify-center rounded-xl">
           <LoaderCircle className="animate-spin w-12 h-12 text-blue-500" />
         </div>
       )}

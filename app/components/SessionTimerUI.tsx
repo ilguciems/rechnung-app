@@ -44,7 +44,7 @@ export function SessionTimerUI() {
             <button
               type="button"
               onClick={resetTimer}
-              className="cursor-pointer rounded-md bg-black px-4 py-2 text-sm font-medium text-white transition-colors duration-200 hover:bg-gray-800 dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-gray-300"
+              className="cursor-pointer rounded-md bg-gray-950 px-4 py-2 text-sm font-medium text-white transition-colors duration-200 hover:bg-gray-800 dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-gray-300"
             >
               {t("extend")}
             </button>

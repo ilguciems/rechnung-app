@@ -15,7 +15,7 @@ export function NavLink({ href, icon, text, title }: Props) {
   return (
     <Link
       title={title}
-      className={`p-2 cursor-pointer rounded-full flex items-center justify-between gap-2 transition-colors duration-100 ${isActive ? "bg-black dark:bg-gray-100 text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-300" : "bg-gray-200 dark:bg-gray-900 hover:bg-gray-300 dark:hover:bg-gray-700"}`}
+      className={`p-2 cursor-pointer rounded-full flex items-center justify-between gap-2 transition-colors duration-100 ${isActive ? "bg-gray-950 dark:bg-gray-100 text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-300" : "bg-gray-200 dark:bg-gray-900 hover:bg-gray-300 dark:hover:bg-gray-700"}`}
       href={isActive ? "#" : href}
     >
       <span

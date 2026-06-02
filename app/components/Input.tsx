@@ -101,7 +101,7 @@ export default function Input<T extends FieldValues>({
         htmlFor={name}
         className={`text-xs text-gray-700 px-2 absolute -top-2 left-2 z-10 ${
           bgWhite ? "bg-white" : "bg-gray-100"
-        } dark:bg-black dark:text-white`}
+        } dark:bg-gray-950 dark:text-white`}
       >
         {label}
       </label>
@@ -119,7 +119,7 @@ export default function Input<T extends FieldValues>({
           className={`border p-2 rounded w-full 
           ${errorMessage ? "border-red-500" : "border-gray-300"}
           ${isPassword ? "pr-10" : ""}
-          dark:bg-black dark:text-white dark:border-gray-700 dark:placeholder:text-gray-500
+          dark:bg-gray-950 dark:text-white dark:border-gray-700 dark:placeholder:text-gray-500
           `}
         />
 

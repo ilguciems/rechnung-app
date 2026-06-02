@@ -54,7 +54,7 @@ export function MobileMenu({ children }: Props) {
         <>
           <button
             type="button"
-            className="fixed inset-0 bg-black/50 z-199 md:hidden cursor-default"
+            className="fixed inset-0 bg-gray-950/50 z-199 md:hidden cursor-default"
             onClick={() => setIsOpen(false)}
             aria-label={t("close")}
             tabIndex={-1}

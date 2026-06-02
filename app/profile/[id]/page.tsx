@@ -3,18 +3,17 @@ import { getTranslations } from "next-intl/server";
 import { getAuthData } from "@/lib/get-auth-data";
 import ResetPasswordForm from "./components/ResetPasswordForm";
 
-
 const ItemWrapper = ({
-    children,
-    item,
-  }: {
-    children: React.ReactNode;
-    item: string;
-  }) => (
-    <p className="text-sm text-gray-800 dark:text-gray-200">
-      <span className="font-semibold">{item}:</span> {children}
-    </p>
-  );
+  children,
+  item,
+}: {
+  children: React.ReactNode;
+  item: string;
+}) => (
+  <p className="text-sm text-gray-800 dark:text-gray-200">
+    <span className="font-semibold">{item}:</span> {children}
+  </p>
+);
 
 export default async function Profile({ params }: { params: { id: string } }) {
   const t = await getTranslations("profile");
@@ -40,7 +39,7 @@ export default async function Profile({ params }: { params: { id: string } }) {
 
   return (
     <div className="p-6 max-w-3xl mx-auto space-y-8">
-      <section className="border border-gray-100 p-4 rounded-xl dark:bg-black">
+      <section className="border border-gray-100 p-4 rounded-xl dark:bg-gray-950">
         <div className="grid grid-cols-1 gap-3 max-w-md mx-auto">
           <h1 className="text-2xl mb-6">{t("title")}</h1>
           <ItemWrapper item={t("name")}>{userName}</ItemWrapper>

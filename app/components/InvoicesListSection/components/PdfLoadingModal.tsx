@@ -18,7 +18,7 @@ export default function PdfLoadingModal({ isLoading }: { isLoading: boolean }) {
   if (!isLoading) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black-rgba">
+    <div className="fixed inset-0 flex items-center justify-center bg-gray-950-rgba">
       <div className="bg-white rounded-lg shadow-lg p-6 flex flex-col items-center">
         <svg
           role="img"

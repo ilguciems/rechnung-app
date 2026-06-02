@@ -32,7 +32,7 @@ export default function SendInviteForm() {
   };
 
   return (
-    <section className="border border-gray-100 p-4 rounded-xl dark:bg-black dark:border-gray-700">
+    <section className="border border-gray-100 p-4 rounded-xl dark:bg-gray-950 dark:border-gray-700">
       <div className="grid grid-cols-1 gap-6 max-w-md mx-auto">
         <h2 className="text-2xl mb-6">{t("send")}</h2>
         <form onSubmit={handleSubmit(onSubmit)}>

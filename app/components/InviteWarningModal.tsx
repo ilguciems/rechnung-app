@@ -10,7 +10,7 @@ export function InviteWarningModal() {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/70">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-950/40 dark:bg-gray-950/70">
       <div className="w-full max-w-md rounded-xl border border-gray-200 bg-white p-6 shadow-lg dark:border-gray-700 dark:bg-gray-800">
         <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
           {t("title")}
@@ -27,7 +27,7 @@ export function InviteWarningModal() {
           <button
             type="button"
             onClick={() => setOpen(false)}
-            className="rounded-md bg-black px-4 py-2 text-sm text-white transition-colors hover:bg-gray-800 dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-gray-300"
+            className="rounded-md bg-gray-950 px-4 py-2 text-sm text-white transition-colors hover:bg-gray-800 dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-gray-300"
           >
             {t("understood")}
           </button>

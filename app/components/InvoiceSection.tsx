@@ -144,7 +144,7 @@ export default function InvoiceSection() {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div className="py-6" ref={invoiceFormRef} />
-      <div className="space-y-4 dark:rounded-xl dark:bg-black dark:p-4 dark:text-white">
+      <div className="space-y-4 dark:rounded-xl dark:bg-gray-950 dark:p-4 dark:text-white">
         {!canSendEmail && isOrgAdmin && !isMailStatusLoading && (
           <EmailSettingHint id={orgId} />
         )}

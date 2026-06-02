@@ -22,7 +22,7 @@ export default function InviteConfirm({ token }: { token: string }) {
         type="button"
         disabled={acceptInvite.isPending}
         onClick={() => acceptInvite.mutate(token)}
-        className="mt-6 px-6 py-2 bg-black text-white rounded disabled:opacity-50"
+        className="mt-6 px-6 py-2 bg-gray-950 text-white rounded disabled:opacity-50"
       >
         {acceptInvite.isPending ? "Bitte warten..." : "Beitreten"}
       </button>

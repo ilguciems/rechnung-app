@@ -50,7 +50,7 @@ export default function ResetPasswordForm() {
   }
 
   return (
-    <section className="border border-gray-100 p-4 rounded-xl dark:bg-black">
+    <section className="border border-gray-100 p-4 rounded-xl dark:bg-gray-950">
       <div className="grid grid-cols-1 gap-6 max-w-md mx-auto">
         <h2 className="text-2xl mb-6">{t("title")}</h2>
         <form onSubmit={handleSubmit(handleChangePassword)}>

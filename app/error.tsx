@@ -19,7 +19,7 @@ export default function GlobalError({
       <button
         type="button"
         onClick={() => reset()}
-        className="px-4 py-2 bg-black text-white rounded-md"
+        className="px-4 py-2 bg-gray-950 text-white rounded-md"
       >
         Versuchen Sie es erneut
       </button>

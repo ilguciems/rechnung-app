@@ -21,9 +21,9 @@ import {
 } from "./components";
 
 import {
+  type ActionT,
   buildMahnungOptions,
   getInvoiceActions,
-  type ActionT,
   type Invoice,
 } from "./helpers";
 
@@ -116,7 +116,7 @@ export default function InvoicesListSection() {
         ) : invoices.length === 0 ? (
           <p className="text-gray-600 dark:text-gray-300">{t("empty")}</p>
         ) : (
-          <ul className="space-y-3 bg-gray-100 dark:bg-black rounded min-h-149">
+          <ul className="space-y-3 bg-gray-100 dark:bg-gray-950 rounded min-h-149">
             {invoices.map((inv: Invoice) => {
               return (
                 <li

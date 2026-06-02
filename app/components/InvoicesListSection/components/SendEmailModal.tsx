@@ -145,7 +145,7 @@ export function SendEmailModal({
       role="dialog"
       aria-modal="true"
       onKeyDown={trapFocus}
-      className="fixed inset-0 z-100 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+      className="fixed inset-0 z-100 flex items-center justify-center bg-gray-950/50 backdrop-blur-sm p-4"
     >
       <div
         ref={modalRef}
@@ -187,7 +187,7 @@ export function SendEmailModal({
                   <div
                     className={`w-3 h-3 rounded-full border-2 transition-all duration-500 ${
                       isCompleted
-                        ? "bg-black border-black shadow-[0_0_0_4px_rgba(0,0,0,0.05)] dark:bg-white dark:border-gray-300 dark:shadow-[0_0_0_4px_rgba(255,255,255,0.1)]"
+                        ? "bg-gray-950 border-black shadow-[0_0_0_4px_rgba(0,0,0,0.05)] dark:bg-white dark:border-gray-300 dark:shadow-[0_0_0_4px_rgba(255,255,255,0.1)]"
                         : isCurrentAction
                           ? "bg-white border-black animate-pulse shadow-[0_0_0_4px_rgba(0,0,0,0.1)]"
                           : "bg-slate-200 border-slate-200"
@@ -325,7 +325,7 @@ export function SendEmailModal({
             <button
               type="submit"
               disabled={isPending}
-              className="flex items-center gap-2 px-6 py-2 bg-black text-white rounded-xl text-xs font-bold hover:bg-slate-800 disabled:bg-slate-300 dark:bg-white dark:text-black dark:hover:bg-gray-200 dark:disabled:bg-gray-600 dark:disabled:text-gray-400 transition-all shadow-lg shadow-black/10 cursor-pointer disabled:cursor-not-allowed"
+              className="flex items-center gap-2 px-6 py-2 bg-gray-950 text-white rounded-xl text-xs font-bold hover:bg-slate-800 disabled:bg-slate-300 dark:bg-white dark:text-black dark:hover:bg-gray-200 dark:disabled:bg-gray-600 dark:disabled:text-gray-400 transition-all shadow-lg shadow-black/10 cursor-pointer disabled:cursor-not-allowed"
             >
               {isPending ? (
                 <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />

@@ -86,7 +86,7 @@ export default function ConfirmationModal({
     <div
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 bg-black/50 flex items-center justify-center z-100 p-4"
+      className="fixed inset-0 bg-gray-950/50 flex items-center justify-center z-100 p-4"
       onKeyDown={trapFocus}
     >
       <div

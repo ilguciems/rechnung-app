@@ -31,7 +31,7 @@ export default function Pagination({
         className={`${baseCircle} ${
           isFirst
             ? "bg-gray-100 text-gray-400 cursor-not-allowed dark:bg-gray-800 dark:text-gray-600"
-            : "bg-black text-white hover:bg-gray-800 cursor-pointer shadow-sm dark:bg-white dark:text-black dark:hover:bg-gray-200"
+            : "bg-gray-950 text-white hover:bg-gray-800 cursor-pointer shadow-sm dark:bg-white dark:text-black dark:hover:bg-gray-200"
         }`}
       >
         <ChevronLeft className="w-5 h-5" />
@@ -62,7 +62,7 @@ export default function Pagination({
               onClick={() => onChange(p as number)}
               className={`${baseCircle} ${
                 isActive
-                  ? "bg-black text-white shadow-md scale-110 z-10 dark:bg-white dark:text-black"
+                  ? "bg-gray-950 text-white shadow-md scale-110 z-10 dark:bg-white dark:text-black"
                   : "bg-transparent text-black hover:bg-gray-100 cursor-pointer dark:text-white dark:hover:bg-gray-800"
               }`}
             >
@@ -78,7 +78,7 @@ export default function Pagination({
         className={`${baseCircle} ${
           isLast
             ? "bg-gray-100 text-gray-400 cursor-not-allowed dark:bg-gray-800 dark:text-gray-600"
-            : "bg-black text-white hover:bg-gray-800 cursor-pointer shadow-sm dark:bg-white dark:text-black dark:hover:bg-gray-200"
+            : "bg-gray-950 text-white hover:bg-gray-800 cursor-pointer shadow-sm dark:bg-white dark:text-black dark:hover:bg-gray-200"
         }`}
       >
         <ChevronRight className="w-5 h-5" />

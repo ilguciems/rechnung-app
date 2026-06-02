@@ -132,13 +132,13 @@ export default function UsersList() {
 
   return (
     <>
-      <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] mb-6 dark:bg-black dark:border-gray-800">
+      <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] mb-6 dark:bg-gray-950 dark:border-gray-800">
         <div className="flex flex-col lg:flex-row lg:items-center gap-4">
           <div className="flex-1 flex flex-col sm:flex-row items-stretch gap-4">
             <div className="relative min-w-22">
               <label
                 htmlFor="page-size"
-                className="text-[10px] uppercase tracking-wider font-bold text-slate-500 px-1.5 absolute -top-2 left-2 bg-white z-10 dark:bg-black dark:text-slate-400"
+                className="text-[10px] uppercase tracking-wider font-bold text-slate-500 px-1.5 absolute -top-2 left-2 bg-white z-10 dark:bg-gray-950 dark:text-slate-400"
               >
                 {t("perPage")}
               </label>
@@ -147,7 +147,7 @@ export default function UsersList() {
                   id="page-size"
                   value={pageSize}
                   onChange={(e) => handlePageSize(parseInt(e.target.value, 10))}
-                  className="w-full h-full pl-3 pr-8 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 outline-none hover:border-slate-400 focus:ring-2 focus:ring-black appearance-none transition-all cursor-pointer dark:bg-black dark:border-gray-700 dark:text-gray-200 dark:hover:border-gray-500 dark:focus:ring-white"
+                  className="w-full h-full pl-3 pr-8 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 outline-none hover:border-slate-400 focus:ring-2 focus:ring-black appearance-none transition-all cursor-pointer dark:bg-gray-950 dark:border-gray-700 dark:text-gray-200 dark:hover:border-gray-500 dark:focus:ring-white"
                 >
                   {[5, 10, 15, 20, 50].map((size) => (
                     <option key={size} value={size}>
@@ -166,7 +166,7 @@ export default function UsersList() {
                     setSearchField(e.target.value as "name" | "email")
                   }
                   className="h-full pl-4 pr-9 py-2 bg-slate-50 border border-slate-200 rounded-l-xl text-sm font-medium text-slate-600 outline-none hover:bg-slate-100 cursor-pointer appearance-none transition-all border-r-0
-               focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-black focus-visible:bg-white z-20 relative dark:bg-black dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-900 dark:focus-visible:bg-black dark:focus-visible:ring-white"
+               focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-black focus-visible:bg-white z-20 relative dark:bg-gray-950 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-900 dark:focus-visible:bg-gray-950 dark:focus-visible:ring-white"
                 >
                   <option value="name">{t("name")}</option>
                   <option value="email">{t("email")}</option>
@@ -187,13 +187,13 @@ export default function UsersList() {
                   value={tempSearchValue}
                   onChange={(e) => setTempSearchValue(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && executeSearch()}
-                  className="w-full h-full pl-10 pr-4 py-2 bg-slate-50 border-y border-slate-200 outline-none text-sm text-slate-700 transition-all focus:bg-white placeholder:text-slate-400 dark:bg-black dark:border-gray-700 dark:text-gray-100 dark:placeholder:text-gray-500 dark:focus:bg-black"
+                  className="w-full h-full pl-10 pr-4 py-2 bg-slate-50 border-y border-slate-200 outline-none text-sm text-slate-700 transition-all focus:bg-white placeholder:text-slate-400 dark:bg-gray-950 dark:border-gray-700 dark:text-gray-100 dark:placeholder:text-gray-500 dark:focus:bg-gray-950"
                 />
               </div>
               <button
                 type="button"
                 onClick={executeSearch}
-                className="px-3 bg-black hover:bg-gray-800 active:bg-gray-900 text-white font-semibold text-sm rounded-r-xl transition-all flex items-center shadow-[inset_-1px_0_0_rgba(0,0,0,0.1)] dark:bg-white dark:text-black dark:hover:bg-gray-200 dark:active:bg-gray-300"
+                className="px-3 bg-gray-950 hover:bg-gray-800 active:bg-gray-900 text-white font-semibold text-sm rounded-r-xl transition-all flex items-center shadow-[inset_-1px_0_0_rgba(0,0,0,0.1)] dark:bg-white dark:text-black dark:hover:bg-gray-200 dark:active:bg-gray-300"
               >
                 <Search className="w-4 h-4" />
               </button>
@@ -205,7 +205,7 @@ export default function UsersList() {
               <select
                 onChange={(e) => handleFilterValue(e.target.value)}
                 value={filterValue}
-                className="h-11 w-full pl-10 pr-8 py-2 bg-slate-50 border border-slate-200 rounded-xl appearance-none focus:ring-2 focus:ring-black outline-none cursor-pointer text-sm font-medium text-slate-700 dark:bg-black dark:border-gray-700 dark:text-gray-200 dark:focus:ring-white"
+                className="h-11 w-full pl-10 pr-8 py-2 bg-slate-50 border border-slate-200 rounded-xl appearance-none focus:ring-2 focus:ring-black outline-none cursor-pointer text-sm font-medium text-slate-700 dark:bg-gray-950 dark:border-gray-700 dark:text-gray-200 dark:focus:ring-white"
               >
                 <option value="">{t("allRoles")}</option>
                 <option value="admin">{t("adminRole")}</option>
@@ -216,7 +216,7 @@ export default function UsersList() {
             <button
               type="button"
               onClick={handleSortDirection}
-              className="h-11 flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 active:bg-slate-100 transition-colors shadow-sm group text-sm font-medium text-slate-600 dark:bg-black dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-900 dark:active:bg-gray-800"
+              className="h-11 flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 active:bg-slate-100 transition-colors shadow-sm group text-sm font-medium text-slate-600 dark:bg-gray-950 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-900 dark:active:bg-gray-800"
             >
               <ArrowUpDown className="w-4 h-4 text-slate-400 group-hover:text-black transition-colors dark:text-gray-500 dark:group-hover:text-white" />
               {sortDirection === "asc" ? (
@@ -233,7 +233,7 @@ export default function UsersList() {
       )}
       <div className="min-h-[40.1rem] sm:min-h-[22.6rem]">
         {isLoading ? (
-          <ul className="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm dark:bg-black">
+          <ul className="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm dark:bg-gray-950">
             {Array.from({ length: pageSize }).map(() => (
               <SkeletonLoader key={Math.random()} />
             ))}
@@ -245,7 +245,7 @@ export default function UsersList() {
                 <span className="text-gray-500 text-sm">{t("noUsers")}</span>
               </div>
             ) : (
-              <ul className="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm dark:bg-black">
+              <ul className="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm dark:bg-gray-950">
                 {users?.map((user) => {
                   const isActionsAllowed =
                     user.role !== "superadmin" && user.id !== session?.user?.id;
