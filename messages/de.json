@@ -53,6 +53,55 @@
       "submit": "Erstellen",
       "hasAccount": "Ich habe bereits ein Konto",
       "accountCreated": "Konto erstellt!"
+    },
+    "forgotPassword": {
+      "title": "Passwort vergessen",
+      "subtitle": "Bitte geben Sie Ihre E-Mail-Adresse ein, um Ihr Passwort zurückzusetzen",
+      "email": "E-Mail",
+      "submit": "Passwort zurücksetzen",
+      "cancel": "Abbrechen",
+      "errorSendingEmail": "Fehler beim Senden der E-Mail"
+    },
+    "forgotPasswordEmailSent": {
+      "title": "Bitte prüfen Sie Ihr E-Mail-Postfach.",
+      "sentToPrefix": "Wir haben eine Bestätigungs-E-Mail an",
+      "sentToSuffix": "gesendet. Bitte klicken Sie auf den Link in der E-Mail, um Ihr Passwort zurückzusetzen.",
+      "checkSpam": "Falls Sie die E-Mail nicht erhalten haben, prüfen Sie bitte auch Ihren Spam-Ordner.",
+      "resendIfNotReceived": "Wenn Sie die E-Mail innerhalb der nächsten Minuten nicht erhalten haben, prüfen Sie bitte Ihre E-Mail-Adresse und versuchen Sie es erneut.",
+      "closeWindow": "Dieses Fenster können Sie jetzt schließen."
+    },
+    "refreshEmailVerification": {
+      "title": "Bestätigungslink erneut senden",
+      "description": "Ihre E-Mail-Adresse wurde nicht rechtzeitig bestätigt, daher können Sie sich nicht anmelden. Bitte verwenden Sie den Button unten, um einen neuen Link für Ihre E-Mail-Adresse zu erhalten.",
+      "emailLabel": "E-Mail",
+      "submit": "Bestätigungslink erneut senden",
+      "toastSuccess": "E-Mail erfolgreich versendet",
+      "toastErrorSendingEmail": "Fehler beim Senden der E-Mail",
+      "toastUnexpectedError": "Ein unerwarteter Fehler ist aufgetreten: {error}"
+    },
+    "verifyEmail": {
+      "title": "E-Mail-Bestätigung erforderlich.",
+      "messageSent": "Wir haben Ihnen eine Bestätigungs-E-Mail an {email} gesendet. Bitte klicken Sie auf den Link in der E-Mail, um Ihre Registrierung abzuschließen.",
+      "checkSpam": "Falls Sie die E-Mail nicht erhalten haben, überprüfen Sie bitte Ihren Spam-Ordner.",
+      "resendIfNotReceived": "Falls Sie die E-Mail nicht innerhalb weniger Minuten erhalten haben, überprüfen Sie bitte Ihre E-Mail-Adresse und versuchen Sie es erneut.",
+      "closeWindow": "Sie können dieses Fenster jetzt schließen."
+    },
+    "resetPassword": {
+      "welcome": {
+        "title": "Konto aktivieren",
+        "subtitle": "Willkommen! Bitte legen Sie Ihr Passwort fest, um Ihr Konto zu aktivieren."
+      },
+      "reset": {
+        "title": "Passwort zurücksetzen",
+        "subtitle": "Bitte geben Sie ein neues Passwort ein."
+      },
+      "passwordLabel": "Passwort",
+      "confirmPasswordLabel": "Passwort bestätigen",
+      "submitReset": "Passwort zurücksetzen",
+      "submitWelcome": "Passwort festlegen",
+      "toastSuccessWelcome": "Passwort erfolgreich gesetzt!",
+      "toastSuccessReset": "Passwort erfolgreich geändert!",
+      "toastError": "Fehler: {message}"
     }
   },
   "profile": {

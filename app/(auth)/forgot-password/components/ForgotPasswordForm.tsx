@@ -2,6 +2,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoaderCircle } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
@@ -13,6 +14,7 @@ import {
 } from "@/lib/zod-schema";
 
 export default function ForgotPasswordForm() {
+  const t = useTranslations("auth.forgotPassword");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -45,7 +47,7 @@ export default function ForgotPasswordForm() {
           );
         },
         onError: () => {
-          toast.error("Fehler beim Senden der E-Mail");
+          toast.error(t("errorSendingEmail"));
           setLoading(false);
         },
       },
@@ -60,17 +62,16 @@ export default function ForgotPasswordForm() {
             <div className="p-6 flex flex-col gap-4">
               <div className="mb-2">
                 <h3 className="text-lg font-bold text-gray-900 dark:text-white leading-6">
-                  Passwort vergessen
+                  {t("title")}
                 </h3>
                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                  Bitte geben Sie Ihre E-Mail-Adresse ein, um Ihr Passwort
-                  zurückzusetzen
+                  {t("subtitle")}
                 </p>
               </div>
               <Input
                 type="email"
                 name="email"
-                label="E-Mail"
+                label={t("email")}
                 register={register}
                 errors={formState.errors}
                 bgWhite
@@ -84,7 +85,7 @@ export default function ForgotPasswordForm() {
                   variant="primary"
                   size="full"
                 >
-                  Passwort zurücksetzen
+                  {t("submit")}
                 </Button>
                 <hr className="w-full border-t-2 border-gray-200 dark:border-gray-800" />
                 <Button
@@ -93,7 +94,7 @@ export default function ForgotPasswordForm() {
                   variant="secondary"
                   size="full"
                 >
-                  Abbrechen
+                  {t("cancel")}
                 </Button>
               </div>
             </div>

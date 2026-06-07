@@ -53,6 +53,55 @@
       "submit": "Create",
       "hasAccount": "I already have an account",
       "accountCreated": "Account created!"
+    },
+    "forgotPassword": {
+      "title": "Forgot your password?",
+      "subtitle": "Please enter your email address to reset your password.",
+      "email": "Email",
+      "submit": "Reset password",
+      "cancel": "Cancel",
+      "errorSendingEmail": "Error sending the email"
+    },
+    "forgotPasswordEmailSent": {
+      "title": "Please check your email inbox.",
+      "sentToPrefix": "We have sent a confirmation email to",
+      "sentToSuffix": ". Please click the link in the email to reset your password.",
+      "checkSpam": "If you did not receive the email, please check your spam folder.",
+      "resendIfNotReceived": "If you have not received the email within a few minutes, please check your email address and try again.",
+      "closeWindow": "You can close this window now."
+    },
+    "refreshEmailVerification": {
+      "title": "Resend confirmation link",
+      "description": "Your email address has not been verified in time, so you cannot sign in. Please use the button below to receive a new link for your email address.",
+      "emailLabel": "Email",
+      "submit": "Resend confirmation link",
+      "toastSuccess": "Email sent successfully",
+      "toastErrorSendingEmail": "Error sending the email",
+      "toastUnexpectedError": "An unexpected error occurred: {error}"
+    },
+    "verifyEmail": {
+      "title": "Email verification required.",
+      "messageSent": "We have sent you a confirmation email to {email}. Please click the link in the email to complete your registration.",
+      "checkSpam": "If you did not receive the email, please check your spam folder.",
+      "resendIfNotReceived": "If you have not received the email within a few minutes, please check your email address and try again.",
+      "closeWindow": "You can close this window now."
+    },
+    "resetPassword": {
+      "welcome": {
+        "title": "Activate your account",
+        "subtitle": "Welcome! Please set your password to activate your account."
+      },
+      "reset": {
+        "title": "Reset your password",
+        "subtitle": "Please enter a new password."
+      },
+      "passwordLabel": "Password",
+      "confirmPasswordLabel": "Confirm password",
+      "submitReset": "Set password",
+      "submitWelcome": "Set password",
+      "toastSuccessWelcome": "Password has been set successfully!",
+      "toastSuccessReset": "Password has been changed successfully!",
+      "toastError": "Error: {message}"
     }
   },
   "profile": {

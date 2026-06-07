@@ -2,6 +2,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoaderCircle } from "lucide-react";
 import { redirect, useRouter, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
@@ -10,6 +11,7 @@ import { resetPassword } from "@/lib/auth-client";
 import { type ResetPasswordType, resetPasswordSchema } from "@/lib/zod-schema";
 
 export default function ResetPasswordForm() {
+  const t = useTranslations("auth.resetPassword");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -24,6 +26,7 @@ export default function ResetPasswordForm() {
         confirmPassword: "",
       },
     });
+
   async function onSubmit(values: ResetPasswordType) {
     const { password } = values;
     await resetPassword(
@@ -44,18 +47,18 @@ export default function ResetPasswordForm() {
               : "/sign-in",
           );
           toast.success(
-            isWelcome
-              ? "Passwort erfolgreich gesetzt!"
-              : "Password erfolgreich geändert!",
+            isWelcome ? t("toastSuccessWelcome") : t("toastSuccessReset"),
           );
         },
         onError: (ctx) => {
-          toast.error(ctx.error.message);
+          const message = ctx.error?.message ?? "Unknown error";
+          toast.error(t("toastError", { message }));
           setLoading(false);
         },
       },
     );
   }
+
   if (!token) redirect("/");
   return (
     <div className="relative isolate">
@@ -65,18 +68,16 @@ export default function ResetPasswordForm() {
             <div className="p-6 flex flex-col gap-4">
               <div className="mb-2">
                 <h3 className="text-lg font-bold text-gray-900 dark:text-white leading-6">
-                  {isWelcome ? "Konto aktivieren" : "Passwort zurücksetzen"}
+                  {isWelcome ? t("welcome.title") : t("reset.title")}
                 </h3>
                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                  {isWelcome
-                    ? "Willkommen! Bitte legen Sie Ihr Passwort fest, um Ihr Konto zu aktivieren."
-                    : "Bitte geben Sie ein neues Passwort ein."}
+                  {isWelcome ? t("welcome.subtitle") : t("reset.subtitle")}
                 </p>
               </div>
               <Input
                 type="password"
                 name="password"
-                label="Passwort"
+                label={t("passwordLabel")}
                 register={register}
                 errors={formState.errors}
                 bgWhite
@@ -84,7 +85,7 @@ export default function ResetPasswordForm() {
               <Input
                 type="password"
                 name="confirmPassword"
-                label="Passwort best&auml;tigen"
+                label={t("confirmPasswordLabel")}
                 register={register}
                 errors={formState.errors}
                 bgWhite
@@ -98,13 +99,14 @@ export default function ResetPasswordForm() {
                   variant="primary"
                   size="full"
                 >
-                  {isWelcome ? "Passwort festlegen" : "Passwort zurücksetzen"}
+                  {isWelcome ? t("submitWelcome") : t("submitReset")}
                 </Button>
               </div>
             </div>
           </div>
         </div>
       </form>
+
       {loading && (
         <div className="absolute inset-0 bg-white/80 dark:bg-gray-950/80 z-50 flex items-center justify-center rounded-xl">
           <div className="flex flex-col items-center gap-2">

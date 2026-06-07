@@ -2,6 +2,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoaderCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
@@ -19,6 +20,7 @@ export default function ResfreshVerificationForm({
   email: string;
   token?: string;
 }) {
+  const t = useTranslations("auth.refreshEmailVerification");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { register, handleSubmit, reset, formState } =
@@ -28,6 +30,7 @@ export default function ResfreshVerificationForm({
         email,
       },
     });
+
   async function onSubmit(values: emailVerificationType) {
     const { email } = values;
     setLoading(true);
@@ -41,16 +44,16 @@ export default function ResfreshVerificationForm({
         {
           onSuccess: () => {
             reset();
-            toast.success("E-Mail erfolgreich versendet");
+            toast.success(t("toastSuccess"));
             router.push("/verify-email");
           },
-          onError: (ctx) => {
-            toast.error(ctx.error.message || "Fehler beim Senden der E-Mail");
+          onError: () => {
+            toast.error(t("toastErrorSendingEmail"));
           },
         },
       );
     } catch (error) {
-      toast.error(`Ein unerwarteter Fehler ist aufgetreten: ${error}`);
+      toast.error(t("toastUnexpectedError", { error: String(error) }));
     } finally {
       setLoading(false);
     }
@@ -64,17 +67,15 @@ export default function ResfreshVerificationForm({
             <div className="p-6 flex flex-col gap-4">
               <div className="mb-2">
                 <h3 className="text-lg font-bold text-gray-900 dark:text-white leading-6">
-                  Bestätigungslink erneut senden
+                  {t("title")}
                 </h3>
                 <p className="mt-1 text-xs text-red-500 dark:text-red-400">
-                  Sie haben Ihre E-Mail-Adresse nicht rechtzeitig bestätigt und
-                  können sich daher nicht anmelden. Bitte klicken Sie auf den
-                  Button unten, um einen neuen Link zu Ihrer E-Mail zu erhalten.
+                  {t("description")}
                 </p>
               </div>
               <Output
                 name="email"
-                label="E-Mail"
+                label={t("emailLabel")}
                 register={register}
                 bgWhite
                 errors={formState.errors}
@@ -88,7 +89,7 @@ export default function ResfreshVerificationForm({
                   variant="primary"
                   size="full"
                 >
-                  Bestätigungslink erneut senden
+                  {t("submit")}
                 </Button>
               </div>
             </div>

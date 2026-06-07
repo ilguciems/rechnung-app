@@ -1,5 +1,6 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { auth } from "@/lib/auth";
 import { emailVerificationSchema } from "@/lib/zod-schema";
 
@@ -12,37 +13,24 @@ export default async function VerifyEmail({
     headers: await headers(),
   });
 
-  const email = (await searchParams).email || "";
+  const rawEmail = (await searchParams).email;
+  const email = Array.isArray(rawEmail) ? rawEmail[0] : rawEmail || "";
 
   if (session || !emailVerificationSchema.safeParse({ email }).success)
     redirect("/");
 
+  const t = await getTranslations("auth.verifyEmail");
+
   return (
     <div className="flex h-screen">
       <div className="m-auto">
-        <h1 className="text-2xl mb-4 text-center">
-          E-Mail-Bestätigung erforderlich.
-        </h1>
+        <h1 className="text-2xl mb-4 text-center">{t("title")}</h1>
         <ul>
-          <li>
-            - Wir haben Ihnen eine Bestätigungs-E-Mail an{" "}
-            <span className="font-semibold">{email}</span> gesendet. Bitte
-            klicken Sie auf den Link in der E-Mail, um Ihre Registrierung
-            abzuschließen.
-          </li>
-          <li>
-            - Falls Sie die E-Mail nicht erhalten haben, überprüfen Sie bitte
-            Ihren Spam-Ordner.
-          </li>
-          <li>
-            - Falls Sie die E-Mail nicht innerhalb weniger Minuten erhalten
-            haben, überprüfen Sie bitte Ihre E-Mail-Adresse und versuchen Sie es
-            erneut.
-          </li>
+          <li>- {t("messageSent", { email })}</li>
+          <li>- {t("checkSpam")}</li>
+          <li>- {t("resendIfNotReceived")}</li>
         </ul>
-        <h2 className="mt-4 text-center">
-          Sie können dieses Fenster jetzt schließen.
-        </h2>
+        <h2 className="mt-4 text-center">{t("closeWindow")}</h2>
       </div>
     </div>
   );
