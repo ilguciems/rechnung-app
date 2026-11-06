@@ -55,7 +55,7 @@ This file is the entry point. Deeper material lives in:
 ## Verification before committing
 
 1. `pnpm lint`
-2. `pnpm exec tsc --noEmit`
+2. `pnpm typecheck`
 3. `pnpm test --run`
 4. `pnpm build` — required for anything touching routes, config, or dependencies
 
