@@ -28,7 +28,7 @@
     "@tanstack/react-query-devtools": "^5.106.1",
     "@teispace/next-themes": "^3.1.0",
     "ably": "^2.30.0",
-    "better-auth": "^1.6.11",
+    "better-auth": "^1.7.18",
     "date-fns": "^4.4.0",
     "dotenv": "^18.0.9",
     "framer-motion": "^14.10.1",
