@@ -17,7 +17,7 @@ This file is the entry point. Deeper material lives in:
 - **Package manager is pnpm** (pinned in `packageManager`). Never use `npm install` or bare `npx`; use `pnpm` and `pnpm exec`.
 - **Line endings are LF** (`.gitattributes`, `.editorconfig`, `files.eol`). Biome enforces formatting.
 - **Never edit `app/generated/prisma/**`** — it is produced by `prisma generate` and is gitignored.
-- **Pushing to `main` deploys to production.** Dokploy watches the branch and runs `pnpm start`, which executes `prisma migrate deploy` — a merged migration hits the live database immediately.
+- **Pushing to `main` deploys to production.** Dokploy watches the branch and runs `pnpm start`, which executes `prisma migrate deploy` — a merged migration hits the live database immediately. It only rebuilds when a watched path changes (`app/**`, `lib/**`, `prisma/**`, `messages/**`, `public/**`, configs, `package.json`/lockfile, `Dockerfile`); documentation-only commits (README, `docs/`, `AGENTS.md`) do not trigger a deploy.
 
 ## Commands
 
