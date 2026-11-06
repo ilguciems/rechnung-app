@@ -1,5 +1,6 @@
 {
   "editor.formatOnSave": true,
+  "files.eol": "\n",
   "prettier.enable": false,
   "[javascript]": {
     "editor.defaultFormatter": "biomejs.biome",
