@@ -1,11 +1,11 @@
-import "@testing-library/jest-dom";
+import "@testing-library/jest-dom/vitest";
 import { afterAll, afterEach, beforeAll } from "vitest";
 import { server } from "./tests/mocks/server";
 
 Element.prototype.scrollIntoView = vi.fn();
 window.scrollTo = vi.fn();
 
-beforeAll(() => server.listen({ onUnhandledRequest: "error" }));
+beforeAll(() => server.listen({ onUnhandledFrame: "error" }));
 afterEach(() => {
   server.resetHandlers();
   vi.restoreAllMocks();
