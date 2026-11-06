@@ -30,7 +30,7 @@
     "ably": "^2.30.0",
     "better-auth": "^1.6.11",
     "date-fns": "^4.4.0",
-    "dotenv": "^17.2.3",
+    "dotenv": "^18.0.9",
     "framer-motion": "^14.10.1",
     "fs": "^0.0.1-security",
     "jotai": "^3.0.1",
