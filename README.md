@@ -8,36 +8,21 @@ The application is designed with data privacy (Datenschutz) and local-first deve
 
 ## ⚙️ Environment
 
-All variables live in [`env.example`](env.example) — copy it and fill in the values:
+All variables live in [`env.example`](env.example) — it is the single source of truth:
 
 ```bash
 cp env.example .env
 ```
 
-Key values:
+| Group    | Variables                                                       | Notes                                              |
+| -------- | --------------------------------------------------------------- | -------------------------------------------------- |
+| Database | `DATABASE_URL`, `DB_ENCRYPTION_KEY`                             | the default URL matches `docker-compose.yml`       |
+| Auth     | `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `NEXT_PUBLIC_BASE_URL` | generate the secret with `openssl rand -base64 32` |
+| Email    | `MAILJET_API_KEY`, `MAILJET_API_SECRET`, `EMAIL_FROM`           | Mailjet account required                           |
+| Realtime | `ABLY_API_KEY`                                                  | Ably powers live notifications                     |
+| App      | `APP_URL`, `PORT`                                               | used in emails and redirects                       |
 
-```bash
-# Database
-DATABASE_URL="postgresql://myuser:mypassword@localhost:5432/invoicedb?schema=public"
-PORT=3000
-DB_ENCRYPTION_KEY=YOUR_DB_ENCRYPTION_KEY
-
-# Auth
-BETTER_AUTH_SECRET=YOUR_BETTER_AUTH_SECRET_KEY
-BETTER_AUTH_URL=http://localhost:3000
-NEXT_PUBLIC_BASE_URL=http://localhost:3000
-
-# Mailjet
-MAILJET_API_KEY=YOUR_MAILJET_API_KEY
-MAILJET_API_SECRET=YOUR_MAILJET_SECRET_KEY
-EMAIL_FROM=YOUR_EMAIL
-
-# Ably
-ABLY_API_KEY=YOUR_ABLY_TOKEN
-
-# App
-APP_URL=http://localhost:3000
-```
+Never commit `.env` — it is covered by `.gitignore`.
 
 ## ✨ Key Features
 
