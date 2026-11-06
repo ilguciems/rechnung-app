@@ -13,7 +13,7 @@ export async function GET() {
 
   const logs = await prisma.activityLog.findMany({
     where: {
-      organizationId: session.org?.id,
+      organizationId: session.org.id,
     },
     include: {
       user: {
