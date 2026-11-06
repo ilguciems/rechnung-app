@@ -16,7 +16,6 @@
 # next.js
 /.next/
 /out/
-/AGENTS.md
 
 # production
 /build
@@ -53,7 +52,3 @@ next-env.d.ts
 .cursor/
 .qwen/
 .windsurf/
-
-# others+
-PRODUCT.md
-CONTEXT_RECHNUNG_APP.md

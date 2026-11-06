@@ -4,7 +4,17 @@ A modern Next.js 16 application for creating professional PDF invoices compliant
 
 The application is designed with data privacy (Datenschutz) and local-first development in mind, while being fully extensible towards a secure multi-user web application.
 
-.env example:
+**Documentation:** [agent guide](AGENTS.md) · [architecture](docs/architecture.md) · [product & design](docs/product.md)
+
+## ⚙️ Environment
+
+All variables live in [`env.example`](env.example) — copy it and fill in the values:
+
+```bash
+cp env.example .env
+```
+
+Key values:
 
 ```bash
 # Database
@@ -15,6 +25,7 @@ DB_ENCRYPTION_KEY=YOUR_DB_ENCRYPTION_KEY
 # Auth
 BETTER_AUTH_SECRET=YOUR_BETTER_AUTH_SECRET_KEY
 BETTER_AUTH_URL=http://localhost:3000
+NEXT_PUBLIC_BASE_URL=http://localhost:3000
 
 # Mailjet
 MAILJET_API_KEY=YOUR_MAILJET_API_KEY
@@ -120,10 +131,7 @@ APP_URL=http://localhost:3000
 
 - Correct VAT display
 
-- PDF logic lives in:
-```bash
-src/lib/pdf/generateInvoicePDF.ts
-```
+- PDF logic lives in `lib/pdf/` (`pdf.ts`, `helpers.ts`)
 
 ## 🎨 UI / UX Highlights
 
@@ -177,16 +185,16 @@ cd rechnung-app
 Run PostgreSQL only via Docker:
 
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 Then:
 
 ```bash
-npm install
-npx prisma generate
-npx prisma migrate dev
-npm run dev
+pnpm install
+pnpm exec prisma generate
+pnpm exec prisma migrate dev
+pnpm dev
 ```
 
 Open:
@@ -198,13 +206,13 @@ http://localhost:3000
 Stop database:
 
 ```bash
-docker-compose down
+docker compose down
 ```
 
 Optional — Prisma Studio:
 
 ```bash
-npx prisma studio
+pnpm exec prisma studio
 ```
 
 ### 🐳 Option 2 — Full Docker Setup (App + DB)
@@ -212,7 +220,7 @@ npx prisma studio
 Suitable for testing or production-like environments:
 
 ```bash
-docker-compose up --build
+docker compose up --build
 ```
 
 .env:
@@ -244,8 +252,8 @@ Prisma Setup
 DATABASE_URL="postgresql://myuser:mypassword@localhost:5432/invoicedb?schema=public"
 ```
 ```bash
-npx prisma generate
-npx prisma migrate dev --name init
+pnpm exec prisma generate
+pnpm exec prisma migrate dev --name init
 ```
 
 Prisma schema includes:
@@ -263,6 +271,8 @@ Prisma schema includes:
 - Invoice items
 
 - Organization invites
+
+> Keep [`env.example`](env.example) in sync whenever a new variable is introduced.
 
 ### 🔐 Authentication Notes
 
