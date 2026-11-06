@@ -1,4 +1,5 @@
 import {
+  type FieldError,
   type FieldErrors,
   type FieldValues,
   get,
@@ -25,7 +26,7 @@ export default function Output<T extends FieldValues>({
   errors,
   customError = "",
 }: OutputProps<T>) {
-  const errorMessage = get(errors, name)?.message as string | undefined;
+  const errorMessage = (get(errors, name) as FieldError | undefined)?.message;
   return (
     <div className={`grid relative ${className ?? ""}`}>
       <label

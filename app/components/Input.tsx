@@ -2,6 +2,7 @@
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import {
+  type FieldError,
   type FieldErrors,
   type FieldValues,
   get,
@@ -51,7 +52,7 @@ export default function Input<T extends FieldValues>({
   ...props
 }: InputProps<T>) {
   const [showPassword, setShowPassword] = useState(false);
-  const errorMessage = get(errors, name)?.message as string | undefined;
+  const errorMessage = (get(errors, name) as FieldError | undefined)?.message;
 
   const { onChange, onBlur, ...rest } = register(name, {
     valueAsNumber: type === "number" || inputMode === "decimal",

@@ -1,4 +1,5 @@
 import {
+  type FieldError,
   type FieldErrors,
   type FieldValues,
   get,
@@ -33,7 +34,7 @@ export function SelectField<T extends FieldValues>({
   className = "",
   ...props
 }: SelectFieldProps<T>) {
-  const errorMessage = get(errors, name)?.message as string | undefined;
+  const errorMessage = (get(errors, name) as FieldError | undefined)?.message;
 
   return (
     <div className={`grid relative ${className ?? ""}`}>

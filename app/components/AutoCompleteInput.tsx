@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import {
   type Control,
+  type FieldError,
   type FieldErrors,
   type FieldValues,
   get,
@@ -57,7 +58,7 @@ export default function AutoCompleteInput<
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
-  const errorMessage = get(errors, name)?.message as string | undefined;
+  const errorMessage = (get(errors, name) as FieldError | undefined)?.message;
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
