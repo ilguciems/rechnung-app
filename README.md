@@ -5,6 +5,7 @@ A modern Next.js 16 application for creating professional PDF invoices compliant
 The application is designed with data privacy (Datenschutz) and local-first development in mind, while being fully extensible towards a secure multi-user web application.
 
 .env example:
+
 ```bash
 # Database
 DATABASE_URL="postgresql://myuser:mypassword@localhost:5432/invoicedb?schema=public"
@@ -31,47 +32,47 @@ APP_URL=http://localhost:3000
 
 ### 🏢 Organization & Company Management
 
-* Users belong to exactly one organization
+- Users belong to exactly one organization
 
-* Each organization owns one company profile
+- Each organization owns one company profile
 
-* Store complete company information:
+- Store complete company information:
 
-* Legal form
+- Legal form
 
-* Tax numbers (Steuernummer, USt-ID)
+- Tax numbers (Steuernummer, USt-ID)
 
-* Contact and bank details
+- Contact and bank details
 
 ### Dynamic validation:
 
-* Handelsregister number required depending on legal form
+- Handelsregister number required depending on legal form
 
 ## 🧑‍🤝‍🧑 User Management & Invitations
 
-* User registration
+- User registration
 
-* Global admin role
+- Global admin role
 
-* Organization admin role
+- Organization admin role
 
-* Email-based authentication
+- Email-based authentication
 
-* Email verification required
+- Email verification required
 
-* Organization invites via secure token links
+- Organization invites via secure token links
 
 ### Session Management:
 
-* Automatic logout after a certain period of time with modal warning
+- Automatic logout after a certain period of time with modal warning
 
 ### Invite flow supports:
 
-* Existing users
+- Existing users
 
-* New users (registration via invite)
+- New users (registration via invite)
 
-* One user can only belong to one organization (by design)
+- One user can only belong to one organization (by design)
 
 ### 🧾 Invoice and payment reminder(three levels) Creation
 
@@ -80,12 +81,11 @@ APP_URL=http://localhost:3000
 - Support for different VAT rates per item
 
 - Automatic calculation of:
+  - Net amount
 
-   - Net amount
+  - VAT
 
-   - VAT
-
-   - Total amount
+  - Total amount
 
 - Kleinunternehmerregelung support
 
@@ -96,6 +96,7 @@ APP_URL=http://localhost:3000
 - Fully server-side PDF generation
 
 ### 📧 Automated Email & Delivery
+
 - **Direct PDF Delivery**: Send generated invoices to clients with a single click.
 - **Three-Level Dunning System**: Automatic generation and email delivery of payment reminders (Mahnung 1, 2, and 3).
 - **Transactional Integrity**: Emails are triggered only after successful PDF generation and database updates.
@@ -174,11 +175,13 @@ cd rechnung-app
 ### 🐘 Option 1 — Local Development (recommended)
 
 Run PostgreSQL only via Docker:
+
 ```bash
 docker-compose up -d
 ```
 
 Then:
+
 ```bash
 npm install
 npx prisma generate
@@ -187,16 +190,19 @@ npm run dev
 ```
 
 Open:
+
 ```bash
 http://localhost:3000
 ```
 
 Stop database:
+
 ```bash
 docker-compose down
 ```
 
 Optional — Prisma Studio:
+
 ```bash
 npx prisma studio
 ```
@@ -204,18 +210,22 @@ npx prisma studio
 ### 🐳 Option 2 — Full Docker Setup (App + DB)
 
 Suitable for testing or production-like environments:
+
 ```bash
 docker-compose up --build
 ```
 
 .env:
+
 ```bash
 DATABASE_URL="postgresql://myuser:mypassword@postgres:5432/invoicedb?schema=public"
 ```
 > Important: postgres is used as host because both services run in the same Docker network.
 
 ### 🗄 Database & Prisma
+
 Default local DB connection
+
 ```bash
 Host: localhost
 
@@ -229,6 +239,7 @@ Database: invoicedb
 ```
 
 Prisma Setup
+
 ```bash
 DATABASE_URL="postgresql://myuser:mypassword@localhost:5432/invoicedb?schema=public"
 ```
@@ -260,7 +271,6 @@ Prisma schema includes:
 - A Mailjet account (app.mailjet.com) is required (free for up to 6 000 emails per month, sufficient for testing and small businesses).
 
 - Invite links handle:
-
   - Login
 
   - Registration
@@ -282,9 +292,11 @@ No localStorage hacks — everything works via URLs & server validation
 4. 🌱 Easy transition to hosted SaaS later
 
 ### 🏠 Self-hosting (Docker/VPS)
+
 #### Current implementation uses Local Bind Mounts. Ensure your Docker container has a persistent volume mounted at /app/public/assets.
 
 ### ☁️ Serverless Deployment (Vercel/Netlify)
+
 - Warning: Local file storage will not work. To deploy on Vercel:
 
 1. Replace the file upload logic with a cloud provider (e.g., Vercel Blob, AWS S3).
@@ -294,7 +306,9 @@ No localStorage hacks — everything works via URLs & server validation
 3. Update `next.config.js` to allow your cloud provider's domain in images.remotePatterns.
 
 ## 🛣 Roadmap
+
 ### Planned / In Progress
+
 - [ ] **Dashboard & Statistics**: Visual charts for revenue and outstanding payments.
 - [ ] **Custom Templates**: Drag-and-drop editor for invoice layouts.
 - [ ] **DATEV Export**: Export financial data for tax consultants.

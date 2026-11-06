@@ -7,7 +7,7 @@ export async function GET() {
   const t = await getTranslations("apiErrors");
   const session = await getAuthData();
 
-  if (!session?.org || session.org.role !== "admin") {
+  if (session?.org?.role !== "admin") {
     return NextResponse.json({ error: t("unauthorized") }, { status: 401 });
   }
 
