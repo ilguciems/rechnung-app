@@ -8,6 +8,8 @@ export default defineConfig({
     environment: "jsdom",
     globals: true,
     setupFiles: "./vitest.setup.ts",
+    // DOM suites here take 2-4s each; the 5s default times out under load.
+    testTimeout: 15_000,
     coverage: {
       provider: "v8",
       reporter: ["text", "html"],
