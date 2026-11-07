@@ -2,17 +2,11 @@
 
 import { useTheme } from "@teispace/next-themes";
 import { useTranslations } from "next-intl";
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Legend,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
+import { useEffect, useState } from "react";
 
 import type { ChartDataType } from "@/hooks";
+
+type Recharts = typeof import("recharts");
 
 const formattedValue = (value: number) =>
   new Intl.NumberFormat(undefined, {
@@ -23,8 +17,28 @@ const formattedValue = (value: number) =>
 export function RevenueChart({ data }: { data: ChartDataType }) {
   const t = useTranslations("organization.statistics");
   const { theme } = useTheme();
+  const [recharts, setRecharts] = useState<Recharts | null>(null);
+
+  // recharts is the heaviest dependency of this page and the chart sits below
+  // the fold, so it is fetched after mount instead of shipped with the route.
+  useEffect(() => {
+    let cancelled = false;
+
+    import("recharts").then((module) => {
+      if (!cancelled) setRecharts(module);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const dark = theme === "dark";
+
+  if (!recharts) return null;
+
+  const { Bar, BarChart, CartesianGrid, Legend, Tooltip, XAxis, YAxis } =
+    recharts;
 
   return (
     <div className="w-full h-87.5 min-w-0 overflow-hidden">
