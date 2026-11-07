@@ -12,7 +12,7 @@ export function useDownloadInvoicePdf() {
   const downloadInvoice = async (id: string) => {
     try {
       setLoading(true);
-      const res = await fetch(ROUTES.INVOICE_PDF(id));
+      const res = await fetch(ROUTES.INVOICE_PDF(id), { method: "POST" });
 
       if (!res.ok) {
         toast.error("Fehler beim PDF-Export");

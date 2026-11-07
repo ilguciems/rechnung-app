@@ -500,6 +500,7 @@
   },
   "apiErrors": {
     "unauthorized": "Not authorized",
+    "forbidden": "Forbidden",
     "organizationExists": "Organization already exists",
     "companyNotFound": "Company not found or no permission",
     "noPermission": "No permission",

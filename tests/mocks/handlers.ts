@@ -153,7 +153,7 @@ export const handlers = [
     return HttpResponse.json(invoicePayload);
   }),
 
-  http.get(ROUTES.INVOICE_PDF("1"), () =>
+  http.post(ROUTES.INVOICE_PDF("1"), () =>
     HttpResponse.text("PDF-BINARY-DUMMY"),
   ),
 

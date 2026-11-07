@@ -19,7 +19,9 @@ export function useDownloadReminderPdf() {
         level: level.toString(),
       });
 
-      const res = await fetch(`${ROUTES.REMINDER_PDF(id)}?${query}`);
+      const res = await fetch(`${ROUTES.REMINDER_PDF(id)}?${query}`, {
+        method: "POST",
+      });
 
       if (!res.ok) {
         toast.error("Fehler beim Mahnung-Export");

@@ -5,13 +5,19 @@ import { logActivity } from "@/lib/activity-log";
 import { getAuthData } from "@/lib/get-auth-data";
 import { generateMahnungPDF } from "@/lib/pdf";
 import { prisma } from "@/lib/prisma-client";
+import { isAllowedRequestOrigin } from "@/lib/verify-request-origin";
 
-export async function GET(
+export async function POST(
   req: Request,
   context: { params: Promise<{ id: string }> },
 ) {
   const t = await getTranslations("apiErrors");
   const { id } = await context.params;
+
+  if (!isAllowedRequestOrigin(req)) {
+    return NextResponse.json({ error: t("forbidden") }, { status: 403 });
+  }
+
   const session = await getAuthData();
 
   if (!session?.org) {
