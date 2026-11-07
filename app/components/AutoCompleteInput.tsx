@@ -153,6 +153,9 @@ export default function AutoCompleteInput<
           setOpen(true);
         }}
         onKeyDown={(e) => {
+          // Enter confirms an IME candidate; arrows move through the IME list.
+          if (e.nativeEvent.isComposing) return;
+
           if (!open || results.length === 0) return;
 
           if (e.key === "Tab") {
