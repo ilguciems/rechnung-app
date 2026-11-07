@@ -86,6 +86,11 @@ export default function UsersList() {
     return Math.ceil((totalUsers || 0) / pageSize);
   }, [totalUsers, pageSize]);
 
+  const skeletonSlots = useMemo(
+    () => Array.from({ length: pageSize }, (_, index) => `skeleton-${index}`),
+    [pageSize],
+  );
+
   const [modalConfig, setModalConfig] = useState<{
     type: "role" | "ban";
     userId: string;
@@ -234,8 +239,8 @@ export default function UsersList() {
       <div className="min-h-[40.1rem] sm:min-h-[22.6rem]">
         {isLoading ? (
           <ul className="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm dark:bg-gray-950">
-            {Array.from({ length: pageSize }).map(() => (
-              <SkeletonLoader key={Math.random()} />
+            {skeletonSlots.map((slot) => (
+              <SkeletonLoader key={slot} />
             ))}
           </ul>
         ) : (
