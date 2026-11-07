@@ -41,9 +41,6 @@ importers:
       framer-motion:
         specifier: ^14.10.1
         version: 14.10.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
-      fs:
-        specifier: ^0.0.1-security
-        version: 0.0.1-security
       jotai:
         specifier: ^3.0.1
         version: 3.0.1(@types/react@19.3.0)(react@19.3.1)
@@ -3466,9 +3463,6 @@ packages:
         optional: true
       remix:
         optional: true
-
-  fs@0.0.1-security:
-    resolution: {integrity: sha512-3XY9e1pP0CVEUCdj5BmfIZxRBTSDycnbqhIOGec9QYtmVH2fbLpj86CFWkrNOkt/Fvty4KZG5lTglL9j/gJ87w==}
 
   fsevents@2.3.3:
     resolution: {integrity: sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==}
@@ -7550,8 +7544,6 @@ snapshots:
     optionalDependencies:
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
-
-  fs@0.0.1-security: {}
 
   fsevents@2.3.3:
     optional: true
