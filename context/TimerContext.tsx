@@ -70,50 +70,42 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    let eventSource: EventSource;
+    const eventSource = new EventSource(
+      `/api/timer/sse?v=${timerVersion}&t=${Date.now()}`,
+    );
 
-    const connectSSE = () => {
-      if (eventSource) eventSource.close();
+    eventSource.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      const serverTime = data.timeLeft;
 
-      eventSource = new EventSource(
-        `/api/timer/sse?v=${timerVersion}&t=${Date.now()}`,
-      );
+      if (serverTime === null) {
+        if (session) resetTimer();
+        setTimeLeft(null);
+        return;
+      }
 
-      eventSource.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-        const serverTime = data.timeLeft;
+      setTimeLeft(serverTime);
 
-        if (serverTime === null) {
-          if (session) resetTimer();
-          setTimeLeft(null);
-          return;
-        }
-
-        setTimeLeft(serverTime);
-
-        if (serverTime <= 0) {
-          eventSource.close();
-          handleLogout();
-        }
-      };
-
-      eventSource.onerror = () => {
+      if (serverTime <= 0) {
         eventSource.close();
-      };
+        handleLogout();
+      }
     };
 
-    connectSSE();
+    eventSource.onerror = () => {
+      eventSource.close();
+    };
 
     const handleFocus = () => {
       console.log("Window focused, syncing timer...");
-      connectSSE();
+      setTimerVersion((prev) => prev + 1);
     };
 
     window.addEventListener("focus", handleFocus);
 
     return () => {
       window.removeEventListener("focus", handleFocus);
-      if (eventSource) eventSource.close();
+      eventSource.close();
     };
   }, [session, isPending, timerVersion, pathname, handleLogout, resetTimer]);
 
