@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 type ImageWithFallbackProps = {
   src: string;
@@ -19,12 +19,6 @@ function ImageWithFallback({
   fallBackSrc,
 }: ImageWithFallbackProps) {
   const [imageError, setImageError] = useState(false);
-
-  useEffect(() => {
-    if (src) {
-      setImageError(false);
-    }
-  }, [src]);
 
   return (
     <Image

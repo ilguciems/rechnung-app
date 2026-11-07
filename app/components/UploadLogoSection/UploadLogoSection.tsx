@@ -52,6 +52,7 @@ export default function UploadLogoSection() {
           <div className="sm:w-60 w-full h-28 rounded border border-gray-300 bg-white dark:bg-gray-800 flex items-center justify-center overflow-hidden shadow-sm">
             {!isLoading && (
               <ImageWithFallback
+                key={logoUrl}
                 src={logoUrl}
                 fallBackSrc={`/assets/noimage.png?ts=${cacheBuster}`}
                 height={0}
