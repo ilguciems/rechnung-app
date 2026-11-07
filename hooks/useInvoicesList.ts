@@ -2,7 +2,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import _ from "lodash";
+import debounce from "lodash/debounce";
 import { useEffect, useMemo, useState } from "react";
 import { ROUTES } from "@/lib/api-routes";
 
@@ -16,7 +16,7 @@ export function useInvoicesList() {
   // Debounce search
   const debouncedSearch = useMemo(
     () =>
-      _.debounce((val: string) => {
+      debounce((val: string) => {
         setSearch(val);
       }, 500),
     [],
