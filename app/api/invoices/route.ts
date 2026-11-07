@@ -103,15 +103,16 @@ export async function GET(req: Request) {
         ],
       };
 
-      const total = await prisma.invoice.count({ where });
-
-      const invoices = await prisma.invoice.findMany({
-        where,
-        include: { items: true },
-        orderBy: { createdAt: "desc" },
-        skip: (page - 1) * pageSize,
-        take: pageSize,
-      });
+      const [total, invoices] = await Promise.all([
+        prisma.invoice.count({ where }),
+        prisma.invoice.findMany({
+          where,
+          include: { items: true },
+          orderBy: { createdAt: "desc" },
+          skip: (page - 1) * pageSize,
+          take: pageSize,
+        }),
+      ]);
       const invoicesWithOverduePaymentLevel = invoices.map((invoice) => ({
         ...invoice,
         overduePaymentLevel: calculateOverduePaymentLevel(invoice),

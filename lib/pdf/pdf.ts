@@ -1,5 +1,5 @@
-import fs from "fs";
-import path from "path";
+import fs from "node:fs";
+import path from "node:path";
 import { PDFDocument, type PDFPage, rgb, StandardFonts } from "pdf-lib";
 import type { Company, Invoice } from "@/lib/zod-schema";
 import {
@@ -33,8 +33,10 @@ export async function generateInvoicePDF(
   company: Company,
 ): Promise<Uint8Array> {
   const pdfDoc = await PDFDocument.create();
-  const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
-  const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+  const [font, boldFont] = await Promise.all([
+    pdfDoc.embedFont(StandardFonts.Helvetica),
+    pdfDoc.embedFont(StandardFonts.HelveticaBold),
+  ]);
 
   const pages: Array<PDFPage> = [];
   let page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
@@ -412,8 +414,10 @@ export async function generateMahnungPDF(
   const issuedDateStr = issuedDate.toLocaleDateString("de-DE");
 
   const pdfDoc = await PDFDocument.create();
-  const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
-  const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+  const [font, boldFont] = await Promise.all([
+    pdfDoc.embedFont(StandardFonts.Helvetica),
+    pdfDoc.embedFont(StandardFonts.HelveticaBold),
+  ]);
 
   const page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
   let y = PAGE_HEIGHT - TOP_MARGIN;
