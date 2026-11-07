@@ -51,12 +51,21 @@ export default function AutoCompleteInput<
 }: AutoCompleteInputProps<T, K>) {
   const watchedValue = useWatch({ control, name });
   const [query, setQuery] = useState(watchedValue ?? "");
+  const [prevWatchedValue, setPrevWatchedValue] = useState(watchedValue);
   const [open, setOpen] = useState(false);
   const [highlightIndex, setHighlightIndex] = useState(-1);
   const containerRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
+
+  // The form owns the value, but only clearing it (reset) has to reach the
+  // local draft; typing must not be overwritten. Adjusting during render keeps
+  // the field in sync without an extra pass.
+  if (watchedValue !== prevWatchedValue) {
+    setPrevWatchedValue(watchedValue);
+    if (!watchedValue) setQuery("");
+  }
 
   const errorMessage = (get(errors, name) as FieldError | undefined)?.message;
 
@@ -72,20 +81,6 @@ export default function AutoCompleteInput<
     };
   }, [query]);
 
-  useEffect(() => {
-    if (!watchedValue) setQuery("");
-  }, [watchedValue]);
-
-  useEffect(() => {
-    if (!open) return;
-    if (highlightIndex < 0 || !listRef.current) return;
-
-    const el = listRef.current.children[highlightIndex] as
-      | HTMLElement
-      | undefined;
-    el?.scrollIntoView({ block: "nearest" });
-  }, [highlightIndex, open]);
-
   const { data: results = [] } = useQuery({
     queryKey: ["autocomplete", fetchUrl, debouncedQuery],
     queryFn: async () => {
@@ -99,13 +94,18 @@ export default function AutoCompleteInput<
     staleTime: 60 * 1000,
   });
 
+  const highlightedIndex =
+    highlightIndex < 0 ? -1 : Math.min(highlightIndex, results.length - 1);
+
   useEffect(() => {
-    setHighlightIndex((i) => {
-      if (i < 0) return -1;
-      if (i >= results.length) return results.length - 1;
-      return i;
-    });
-  }, [results.length]);
+    if (!open) return;
+    if (highlightedIndex < 0 || !listRef.current) return;
+
+    const el = listRef.current.children[highlightedIndex] as
+      | HTMLElement
+      | undefined;
+    el?.scrollIntoView({ block: "nearest" });
+  }, [highlightedIndex, open]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -175,9 +175,9 @@ export default function AutoCompleteInput<
             );
           }
 
-          if (e.key === "Enter" && highlightIndex >= 0) {
+          if (e.key === "Enter" && highlightedIndex >= 0) {
             e.preventDefault();
-            handleSelect(results[highlightIndex]);
+            handleSelect(results[highlightedIndex]);
           }
 
           if (e.key === "Escape") {
@@ -208,11 +208,11 @@ export default function AutoCompleteInput<
                 key={String(id)}
                 id={`${name}-option-${index}`}
                 role="option"
-                aria-selected={highlightIndex === index}
+                aria-selected={highlightedIndex === index}
                 onClick={() => handleSelect(item)}
                 onKeyDown={(e) => e.key === "Enter" && handleSelect(item)}
                 className={`px-3 py-2 cursor-pointer border-b border-gray-200 dark:border-gray-800 ${
-                  highlightIndex === index
+                  highlightedIndex === index
                     ? "bg-blue-200 dark:bg-gray-800"
                     : "hover:bg-blue-100 dark:hover:bg-gray-900"
                 }`}
