@@ -35,10 +35,12 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const locale = await getLocale();
-  const messages = await getMessages();
+  const [locale, messages, storedTheme] = await Promise.all([
+    getLocale(),
+    getMessages(),
+    getTheme({ headers: {} }),
+  ]);
 
-  const storedTheme = await getTheme({ headers: {} });
   const initialTheme =
     storedTheme === "dark" || storedTheme === "light" ? storedTheme : undefined;
 
