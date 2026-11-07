@@ -1,7 +1,6 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -24,8 +23,6 @@ export default function UploadLogoSection() {
     resolver: zodResolver(uploadSchema),
   });
 
-  const queryClient = useQueryClient();
-
   const [cacheBuster, setCacheBuster] = useState<number | null>(null);
 
   const { data: logo, isLoading } = useCompanyLogo();
@@ -43,7 +40,6 @@ export default function UploadLogoSection() {
     upload(data.file[0], {
       onSuccess: () => {
         setCacheBuster(Date.now());
-        queryClient.invalidateQueries({ queryKey: ["company-logo"] });
         toast.success(t("uploadSuccess"));
       },
       onError: () => toast.error(t("uploadError")),

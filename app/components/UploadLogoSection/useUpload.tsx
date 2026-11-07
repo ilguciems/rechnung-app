@@ -1,7 +1,9 @@
 "use client";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ROUTES } from "@/lib/api-routes";
 export const useUpload = () => {
+  const queryClient = useQueryClient();
+
   const uploadFn = async (file: File) => {
     const formData = new FormData();
     formData.append("file", file);
@@ -14,5 +16,8 @@ export const useUpload = () => {
   };
   return useMutation({
     mutationFn: uploadFn,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["company-logo"] });
+    },
   });
 };
