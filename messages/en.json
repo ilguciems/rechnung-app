@@ -272,7 +272,9 @@
       "expectedHelper": "(next 14 days)",
       "additionalInfo": "Additional information about {label}",
       "paid": "Paid",
-      "open": "Open"
+      "open": "Open",
+      "chartLoadError": "The chart could not be loaded.",
+      "chartRetry": "Try again"
     },
     "members": {
       "empty": "There are currently no other members in your organization. You can <link>invite them here</link>.",

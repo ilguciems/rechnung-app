@@ -272,7 +272,9 @@
       "expectedHelper": "(nächste 14 Tage)",
       "additionalInfo": "Zusätzliche Informationen zu {label}",
       "paid": "Bezahlt",
-      "open": "Offen"
+      "open": "Offen",
+      "chartLoadError": "Das Diagramm konnte nicht geladen werden.",
+      "chartRetry": "Erneut versuchen"
     },
     "members": {
       "empty": "Bisher gibt es keine weiteren Mitglieder in Ihrer Organisation. Sie können neue Mitglieder <link>hier einladen</link>.",
