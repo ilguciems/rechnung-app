@@ -21,8 +21,9 @@ export default function ResfreshVerificationForm({
   token?: string;
 }) {
   const t = useTranslations("auth.refreshEmailVerification");
-  const [loading, setLoading] = useState(false);
+  const [pendingRequestId, setPendingRequestId] = useState(0);
   const latestRequestId = useRef(0);
+  const loading = pendingRequestId !== 0;
   const router = useRouter();
   const { register, handleSubmit, reset, formState } =
     useForm<emailVerificationType>({
@@ -36,7 +37,7 @@ export default function ResfreshVerificationForm({
     const { email } = values;
     const requestId = latestRequestId.current + 1;
     latestRequestId.current = requestId;
-    setLoading(true);
+    setPendingRequestId(requestId);
 
     try {
       await sendVerificationEmail(
@@ -58,8 +59,9 @@ export default function ResfreshVerificationForm({
     } catch (error) {
       toast.error(t("toastUnexpectedError", { error: String(error) }));
     } finally {
-      // A newer submit owns the spinner; only the latest request clears it.
-      if (latestRequestId.current === requestId) setLoading(false);
+      // Clears only if this request still owns the spinner, so a request that
+      // settles after a newer one cannot release it early.
+      setPendingRequestId((current) => (current === requestId ? 0 : current));
     }
   }
 
