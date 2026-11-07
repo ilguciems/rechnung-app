@@ -11,6 +11,7 @@ import {
 } from "@/types/global-roles";
 import { sendAuthorizationEmail } from "@/utils/authorization-email";
 import { ac, admin, superadmin, user } from "./permissions";
+import { safeDecodeURIComponent } from "./safe-decode";
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
@@ -20,7 +21,7 @@ export const auth = betterAuth({
     enabled: true,
     requireEmailVerification: true,
     sendResetPassword: async ({ user, url }) => {
-      const decodedUrl = decodeURIComponent(url);
+      const decodedUrl = safeDecodeURIComponent(url);
       const isWelcome = decodedUrl.includes("welcome=true");
 
       const subject = isWelcome

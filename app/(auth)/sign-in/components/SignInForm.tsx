@@ -9,6 +9,7 @@ import toast from "react-hot-toast";
 import { Button, Input, LinkButton, Output } from "@/app/components";
 import { useAuth } from "@/hooks";
 import { signIn } from "@/lib/auth-client";
+import { safeDecodeURIComponent } from "@/lib/safe-decode";
 import { safeRedirectPath } from "@/lib/safe-redirect-path";
 import { type SignInType, signInSchema } from "@/lib/zod-schema";
 
@@ -27,7 +28,7 @@ export default function SignInForm() {
   const { register, handleSubmit, formState, reset } = useForm<SignInType>({
     resolver: zodResolver(signInSchema),
     defaultValues: {
-      email: token ? decodeURIComponent(email as string) : "",
+      email: token ? safeDecodeURIComponent(email) : "",
       password: "",
     },
   });

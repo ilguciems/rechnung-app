@@ -8,6 +8,7 @@ import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { Button, Input, LinkButton, Output } from "@/app/components";
 import { signUp } from "@/lib/auth-client";
+import { safeDecodeURIComponent } from "@/lib/safe-decode";
 import { type SignUpType, signUpSchema } from "@/lib/zod-schema";
 
 export default function SignUpForm() {
@@ -23,7 +24,7 @@ export default function SignUpForm() {
     resolver: zodResolver(signUpSchema),
     defaultValues: {
       name: "",
-      email: token ? decodeURIComponent(email as string) : "",
+      email: token ? safeDecodeURIComponent(email) : "",
       password: "",
       confirmPassword: "",
     },
