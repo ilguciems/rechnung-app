@@ -2,6 +2,7 @@
 import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 import { type ActivityLogType, useLogs } from "@/hooks";
+import { formatDateTime } from "@/lib/format-date";
 
 function getUserLabel(log: ActivityLogType) {
   return log.user.name ?? log.user.email;
@@ -116,7 +117,7 @@ export default function Logs() {
             </span>
 
             <span className="text-xs text-gray-400 dark:text-gray-200">
-              {new Date(log.createdAt).toLocaleString()}
+              {formatDateTime(log.createdAt)}
             </span>
           </div>
 

@@ -9,6 +9,7 @@ import {
   useInvoicesList,
   useToggleInvoicePaid,
 } from "@/hooks";
+import { formatDate } from "@/lib/format-date";
 
 import {
   ActionMenu,
@@ -130,8 +131,7 @@ export default function InvoicesListSection() {
                       <span>{inv.customerNumber}</span>
                     </p>
                     <p className="text-sm text-gray-600 dark:text-gray-300">
-                      {inv.customerName} –{" "}
-                      {new Date(inv.createdAt).toLocaleDateString()}
+                      {inv.customerName} – {formatDate(inv.createdAt)}
                     </p>
                     <p className="text-sm font-semibold">
                       {t("total")}:{" "}

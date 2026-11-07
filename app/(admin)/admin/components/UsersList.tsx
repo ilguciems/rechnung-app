@@ -16,6 +16,7 @@ import { ConfirmationModal } from "@/app/components";
 import { useGlobalUsersList } from "@/hooks";
 import { useUrlState } from "@/hooks/useUrlState";
 import { useSession } from "@/lib/auth-client";
+import { formatDate } from "@/lib/format-date";
 import Pagination from "./Pagination";
 import SkeletonLoader from "./SkeletonLoader";
 
@@ -290,9 +291,7 @@ export default function UsersList() {
                               <span className="bg-red-100 text-red-700 w-fit px-2 py-0.5 rounded text-[10px] font-bold uppercase">
                                 {user.banExpires
                                   ? t("bannedUntil", {
-                                      date: new Date(
-                                        user.banExpires,
-                                      ).toLocaleDateString(),
+                                      date: formatDate(user.banExpires),
                                     })
                                   : t("bannedPermanent")}
                               </span>
