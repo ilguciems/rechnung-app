@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
+import { Suspense } from "react";
 import { Tabs } from "@/app/components";
 import { getAuthData } from "@/lib/get-auth-data";
 import {
@@ -36,7 +37,11 @@ export default async function Admin() {
       id: "statistics",
       label: t("statistics"),
       icon: <Activity />,
-      content: <Statistics />,
+      content: (
+        <Suspense fallback={null}>
+          <Statistics />
+        </Suspense>
+      ),
     },
     {
       id: "members",

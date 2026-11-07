@@ -274,7 +274,15 @@
       "paid": "Paid",
       "open": "Open",
       "chartLoadError": "The chart could not be loaded.",
-      "chartRetry": "Try again"
+      "chartRetry": "Try again",
+      "rangeLabel": "Period",
+      "range3m": "3 months",
+      "range6m": "6 months",
+      "range12m": "12 months",
+      "rangeYtd": "This year",
+      "rangeYear": "Year {year}",
+      "previousMonths": "Previous months",
+      "nextMonths": "Next months"
     },
     "members": {
       "empty": "There are currently no other members in your organization. You can <link>invite them here</link>.",

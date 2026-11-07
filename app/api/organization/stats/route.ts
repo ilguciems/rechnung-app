@@ -1,56 +1,71 @@
 import {
+  addMonths,
   differenceInDays,
   format,
   isBefore,
-  startOfMonth,
   subDays,
-  subMonths,
 } from "date-fns";
 import { de } from "date-fns/locale";
 import { NextResponse } from "next/server";
 import { getTranslations } from "next-intl/server";
 import { getAuthData } from "@/lib/get-auth-data";
 import { prisma } from "@/lib/prisma-client";
+import {
+  DEFAULT_STATS_RANGE,
+  isStatsRange,
+  resolveStatsRange,
+} from "@/lib/stats-range";
 
-export async function GET() {
+export async function GET(request: Request) {
   const t = await getTranslations("apiErrors");
   try {
     const session = await getAuthData();
     if (!session?.org?.companyId)
       return NextResponse.json({ error: t("unauthorized") }, { status: 401 });
 
+    const { searchParams } = new URL(request.url);
+    const requestedRange = searchParams.get("range");
+    const range = isStatsRange(requestedRange)
+      ? requestedRange
+      : DEFAULT_STATS_RANGE;
+
     const companyId = session.org.companyId;
-    const sixMonthsAgo = startOfMonth(subMonths(new Date(), 5));
+    const now = new Date();
+    const { start, end, monthCount } = resolveStatsRange(range, now);
 
     const invoices = await prisma.invoice.findMany({
-      where: { companyId, createdAt: { gte: sixMonthsAgo } },
+      where: { companyId, createdAt: { gte: start, lt: end } },
       include: { items: { select: { unitPrice: true, quantity: true } } },
     });
 
-    const monthlyData: Record<
+    const monthlyData = new Map<
       string,
-      { month: string; revenue: number; pending: number }
-    > = {};
-    for (let i = 0; i < 6; i++) {
-      const date = subMonths(new Date(), i);
-      const monthName = format(date, "MMM", { locale: de });
-      monthlyData[monthName] = { month: monthName, revenue: 0, pending: 0 };
+      { monthKey: string; month: string; revenue: number; pending: number }
+    >();
+    for (let i = 0; i < monthCount; i++) {
+      const date = addMonths(start, i);
+      const monthKey = format(date, "yyyy-MM");
+      monthlyData.set(monthKey, {
+        monthKey,
+        month: format(date, "MMM", { locale: de }).replace(/\.$/, ""),
+        revenue: 0,
+        pending: 0,
+      });
     }
-    const now = new Date();
     const stats = invoices.reduce(
       (acc, inv) => {
         const total = inv.items.reduce(
           (sum, item) => sum + item.unitPrice * item.quantity,
           0,
         );
-        const monthName = format(inv.createdAt, "MMM", { locale: de });
+        const bucket = monthlyData.get(format(inv.createdAt, "yyyy-MM"));
 
         if (inv.isPaid) {
           acc.totalRevenue += total;
-          if (monthlyData[monthName]) monthlyData[monthName].revenue += total;
+          if (bucket) bucket.revenue += total;
         } else {
           acc.pendingAmount += total;
-          if (monthlyData[monthName]) monthlyData[monthName].pending += total;
+          if (bucket) bucket.pending += total;
 
           if (inv.invoiceSentAt) {
             const dueDate = subDays(now, 30);
@@ -94,7 +109,7 @@ export async function GET() {
       },
     );
 
-    const chartData = Object.values(monthlyData).reverse();
+    const chartData = [...monthlyData.values()];
 
     return NextResponse.json({ stats, chartData });
   } catch (_error) {

@@ -1,4 +1,5 @@
 import { fireEvent, waitFor } from "@testing-library/react";
+import type { ChartDataType } from "@/hooks";
 import { renderWithIntl } from "@/tests/test-utils";
 import { RevenueChart } from "../RevenueChart";
 
@@ -14,6 +15,14 @@ vi.mock("recharts", () => {
   throw new Error("Failed to fetch dynamically imported module");
 });
 
+const months = (count: number): ChartDataType =>
+  Array.from({ length: count }, (_, index) => ({
+    month: `M${index + 1}`,
+    monthKey: `2026-${String(index + 1).padStart(2, "0")}`,
+    pending: 100,
+    revenue: 200,
+  }));
+
 describe("RevenueChart", () => {
   beforeEach(() => {
     rechartsImports.count = 0;
@@ -24,7 +33,14 @@ describe("RevenueChart", () => {
       .spyOn(console, "error")
       .mockImplementation(() => {});
 
-    const { findByRole } = renderWithIntl(<RevenueChart data={[]} />);
+    const { findByRole } = renderWithIntl(
+      <RevenueChart
+        title="Umsatzübersicht"
+        data={[]}
+        page={0}
+        onPageChange={vi.fn()}
+      />,
+    );
 
     expect(await findByRole("alert")).toHaveTextContent(
       "Das Diagramm konnte nicht geladen werden.",
@@ -37,7 +53,12 @@ describe("RevenueChart", () => {
     vi.spyOn(console, "error").mockImplementation(() => {});
 
     const { findByRole, getByRole } = renderWithIntl(
-      <RevenueChart data={[]} />,
+      <RevenueChart
+        title="Umsatzübersicht"
+        data={[]}
+        page={0}
+        onPageChange={vi.fn()}
+      />,
     );
 
     await findByRole("alert");
@@ -47,5 +68,59 @@ describe("RevenueChart", () => {
 
     await waitFor(() => expect(rechartsImports.count).toBe(2));
     expect(await findByRole("alert")).toBeInTheDocument();
+  });
+
+  it("pages through a range that holds more months than fit", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    const onPageChange = vi.fn();
+
+    const { findByRole, getByRole } = renderWithIntl(
+      <RevenueChart
+        title="Umsatzübersicht"
+        data={months(12)}
+        page={0}
+        onPageChange={onPageChange}
+      />,
+    );
+
+    expect(await findByRole("alert")).toBeInTheDocument();
+    expect(getByRole("button", { name: "Vorherige Monate" })).toBeDisabled();
+
+    fireEvent.click(getByRole("button", { name: "Nächste Monate" }));
+    expect(onPageChange).toHaveBeenCalledWith(1);
+  });
+
+  it("disables the next page on the last page", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+
+    const { findByRole, getByRole } = renderWithIntl(
+      <RevenueChart
+        title="Umsatzübersicht"
+        data={months(12)}
+        page={1}
+        onPageChange={vi.fn()}
+      />,
+    );
+
+    expect(await findByRole("alert")).toBeInTheDocument();
+    expect(getByRole("button", { name: "Vorherige Monate" })).toBeEnabled();
+    expect(getByRole("button", { name: "Nächste Monate" })).toBeDisabled();
+  });
+
+  it("hides the arrows when the range fits on one page", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+
+    const { findByRole, queryByRole } = renderWithIntl(
+      <RevenueChart
+        title="Umsatzübersicht"
+        data={months(6)}
+        page={0}
+        onPageChange={vi.fn()}
+      />,
+    );
+
+    expect(await findByRole("alert")).toBeInTheDocument();
+    expect(queryByRole("button", { name: "Vorherige Monate" })).toBeNull();
+    expect(queryByRole("button", { name: "Nächste Monate" })).toBeNull();
   });
 });

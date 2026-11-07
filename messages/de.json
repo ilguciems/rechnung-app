@@ -274,7 +274,15 @@
       "paid": "Bezahlt",
       "open": "Offen",
       "chartLoadError": "Das Diagramm konnte nicht geladen werden.",
-      "chartRetry": "Erneut versuchen"
+      "chartRetry": "Erneut versuchen",
+      "rangeLabel": "Zeitraum",
+      "range3m": "3 Monate",
+      "range6m": "6 Monate",
+      "range12m": "12 Monate",
+      "rangeYtd": "Dieses Jahr",
+      "rangeYear": "Jahr {year}",
+      "previousMonths": "Vorherige Monate",
+      "nextMonths": "Nächste Monate"
     },
     "members": {
       "empty": "Bisher gibt es keine weiteren Mitglieder in Ihrer Organisation. Sie können neue Mitglieder <link>hier einladen</link>.",

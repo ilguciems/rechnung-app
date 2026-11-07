@@ -2,21 +2,54 @@
 import { Info } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useStats } from "@/hooks";
+import { useUrlState } from "@/hooks/useUrlState";
+import {
+  DEFAULT_STATS_RANGE,
+  STATS_RANGES,
+  type StatsRange,
+} from "@/lib/stats-range";
 import { DashboardSkeleton } from "./DashboardSkeleton";
 
 import { RevenueChart } from "./RevenueChart";
 
+const RANGE_LABEL_KEYS = {
+  "3m": "range3m",
+  "6m": "range6m",
+  "12m": "range12m",
+  ytd: "rangeYtd",
+} as const satisfies Record<"3m" | "6m" | "12m" | "ytd", string>;
+
+const currencyFormatter = new Intl.NumberFormat(undefined, {
+  style: "currency",
+  currency: "EUR",
+});
+
+const formatCurrency = (value: number) => currencyFormatter.format(value || 0);
+
 export default function Statistics() {
   const t = useTranslations("organization.statistics");
-  const { data, isLoading } = useStats();
+  const [range, setRange] = useUrlState<StatsRange>(
+    "range",
+    DEFAULT_STATS_RANGE,
+  );
+  const [page, setPage] = useUrlState<number>("page", 0);
+  const { data, isLoading } = useStats(range);
 
-  if (isLoading) return <DashboardSkeleton />;
+  // A shorter range has fewer months, so the chart window starts over.
+  const selectRange = (nextRange: StatsRange) =>
+    setRange(nextRange, { page: "" });
 
-  const formatCurrency = (value: number) =>
-    new Intl.NumberFormat(undefined, {
-      style: "currency",
-      currency: "EUR",
-    }).format(value || 0);
+  // UTC, matching the month buckets the API builds on the server.
+  const currentYear = new Date().getUTCFullYear();
+
+  const rangeLabel = (value: StatsRange) => {
+    if (value === "lastYear") return t("rangeYear", { year: currentYear - 1 });
+    if (value === "yearBeforeLast") {
+      return t("rangeYear", { year: currentYear - 2 });
+    }
+
+    return t(RANGE_LABEL_KEYS[value]);
+  };
 
   const statCards = [
     {
@@ -47,8 +80,47 @@ export default function Statistics() {
     },
   ];
 
+  // Kept outside the loading branch so the pills stay put while a range loads.
+  const filters = (
+    <fieldset className="mx-0 min-w-0 border-0 p-0">
+      <legend className="sr-only">{t("rangeLabel")}</legend>
+      <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
+        {STATS_RANGES.map((value) => {
+          const isActive = value === range;
+
+          return (
+            <button
+              key={value}
+              type="button"
+              aria-pressed={isActive}
+              onClick={() => selectRange(value)}
+              className={`flex items-center justify-center rounded-full px-3 py-2 text-sm font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 sm:py-1.5 dark:focus-visible:ring-offset-gray-900 ${
+                isActive
+                  ? "bg-gray-950 text-white dark:bg-white dark:text-black"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+              }`}
+            >
+              {rangeLabel(value)}
+            </button>
+          );
+        })}
+      </div>
+    </fieldset>
+  );
+
+  if (isLoading) {
+    return (
+      <div className="p-6 space-y-8">
+        {filters}
+        <DashboardSkeleton />
+      </div>
+    );
+  }
+
   return (
     <div className="p-6 space-y-8">
+      {filters}
+
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {statCards.map((card) => {
           const formattedValue = formatCurrency(card.value || 0);
@@ -108,10 +180,14 @@ export default function Statistics() {
       </div>
 
       <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-        <h3 className="text-lg font-semibold mb-6">{t("title")}</h3>
         <div className="w-full overflow-x-auto pb-4 scrollbar-hide">
-          <div className="min-w-75 h-87.5">
-            <RevenueChart data={data?.chartData || []} />
+          <div className="min-w-75">
+            <RevenueChart
+              title={t("title")}
+              data={data?.chartData || []}
+              page={page}
+              onPageChange={setPage}
+            />
           </div>
         </div>
       </div>
