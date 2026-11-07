@@ -3,7 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { LoaderCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { Button, Output } from "@/app/components";
@@ -22,6 +22,7 @@ export default function ResfreshVerificationForm({
 }) {
   const t = useTranslations("auth.refreshEmailVerification");
   const [loading, setLoading] = useState(false);
+  const latestRequestId = useRef(0);
   const router = useRouter();
   const { register, handleSubmit, reset, formState } =
     useForm<emailVerificationType>({
@@ -33,6 +34,8 @@ export default function ResfreshVerificationForm({
 
   async function onSubmit(values: emailVerificationType) {
     const { email } = values;
+    const requestId = latestRequestId.current + 1;
+    latestRequestId.current = requestId;
     setLoading(true);
 
     try {
@@ -55,7 +58,8 @@ export default function ResfreshVerificationForm({
     } catch (error) {
       toast.error(t("toastUnexpectedError", { error: String(error) }));
     } finally {
-      setLoading(false);
+      // A newer submit owns the spinner; only the latest request clears it.
+      if (latestRequestId.current === requestId) setLoading(false);
     }
   }
 
