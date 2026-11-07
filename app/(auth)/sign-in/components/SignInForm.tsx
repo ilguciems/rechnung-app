@@ -9,6 +9,7 @@ import toast from "react-hot-toast";
 import { Button, Input, LinkButton, Output } from "@/app/components";
 import { useAuth } from "@/hooks";
 import { signIn } from "@/lib/auth-client";
+import { safeRedirectPath } from "@/lib/safe-redirect-path";
 import { type SignInType, signInSchema } from "@/lib/zod-schema";
 
 export default function SignInForm() {
@@ -18,7 +19,7 @@ export default function SignInForm() {
   const router = useRouter();
 
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl");
+  const callbackUrl = safeRedirectPath(searchParams.get("callbackUrl"), "");
   const reason = searchParams.get("reason");
   const token = searchParams.get("token");
   const email = searchParams.get("email");
@@ -33,7 +34,7 @@ export default function SignInForm() {
 
   useEffect(() => {
     if (session && !token && callbackUrl) {
-      window.location.href = decodeURIComponent(callbackUrl);
+      window.location.href = callbackUrl;
     }
   }, [session, token, callbackUrl]);
 
@@ -48,7 +49,7 @@ export default function SignInForm() {
   async function onSubmit(values: SignInType) {
     const { email, password } = values;
 
-    const destination = callbackUrl ? decodeURIComponent(callbackUrl) : "/";
+    const destination = callbackUrl || "/";
 
     await signIn.email(
       {
