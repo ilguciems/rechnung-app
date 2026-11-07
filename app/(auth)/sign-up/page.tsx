@@ -1,5 +1,6 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
 import { auth } from "@/lib/auth";
 import SignUpForm from "./components/SignUpForm";
 
@@ -10,5 +11,9 @@ export default async function SignUpPage() {
 
   if (session) redirect("/");
 
-  return <SignUpForm />;
+  return (
+    <Suspense fallback={null}>
+      <SignUpForm />
+    </Suspense>
+  );
 }

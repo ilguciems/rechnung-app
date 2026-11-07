@@ -1,5 +1,6 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
 import { auth } from "@/lib/auth";
 import ResetPasswordForm from "./components/ResetPasswordForm";
 
@@ -10,5 +11,9 @@ export default async function ResetPasswordPage() {
 
   if (session) redirect("/");
 
-  return <ResetPasswordForm />;
+  return (
+    <Suspense fallback={null}>
+      <ResetPasswordForm />
+    </Suspense>
+  );
 }
