@@ -24,15 +24,14 @@ export const useMailConfig = (mailConfig: boolean) => {
         body: JSON.stringify(form),
       });
 
-      const data = await res.json().catch(() => null);
-
       if (!res.ok) {
+        const data = await res.json().catch(() => null);
         const error = new Error(data?.error ?? "Fehler beim Speichern");
         error.name = "ValidationError";
         throw error;
       }
 
-      return data;
+      return res.json().catch(() => null);
     },
     onMutate: async (newData) => {
       await queryClient.cancelQueries({ queryKey: ["mail-config-data"] });
