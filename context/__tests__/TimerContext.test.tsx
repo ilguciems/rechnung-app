@@ -1,5 +1,5 @@
 import { act, render, screen } from "@testing-library/react";
-import { TimerProvider } from "@/context/TimerContext";
+import { TimerProvider, useTimer } from "@/context/TimerContext";
 
 vi.mock("next/navigation", () => ({ usePathname: () => "/" }));
 vi.mock("@/lib/auth-client", () => ({
@@ -24,9 +24,18 @@ class FakeEventSource {
   }
 }
 
+let consumerRenders = 0;
+
+function TimerConsumer() {
+  useTimer();
+  consumerRenders += 1;
+  return null;
+}
+
 describe("TimerProvider", () => {
   beforeEach(() => {
     FakeEventSource.instances = [];
+    consumerRenders = 0;
     vi.stubGlobal("EventSource", FakeEventSource);
   });
 
@@ -61,5 +70,22 @@ describe("TimerProvider", () => {
     unmount();
 
     expect(second.closed).toBe(true);
+  });
+
+  it("keeps the context value stable when only the stream reconnects", () => {
+    render(
+      <TimerProvider>
+        <TimerConsumer />
+      </TimerProvider>,
+    );
+
+    const rendersAfterMount = consumerRenders;
+
+    act(() => {
+      window.dispatchEvent(new Event("focus"));
+    });
+
+    expect(FakeEventSource.instances).toHaveLength(2);
+    expect(consumerRenders).toBe(rendersAfterMount);
   });
 });

@@ -6,6 +6,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -109,12 +110,15 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
     };
   }, [session, isPending, timerVersion, pathname, handleLogout, resetTimer]);
 
+  // Without a stable identity every consumer re-renders on each provider
+  // render, including the stream reconnects triggered by a window focus.
+  const value = useMemo(
+    () => ({ timeLeft, isPending, resetTimer, WARNING_TIME, handleLogout }),
+    [timeLeft, isPending, resetTimer, handleLogout],
+  );
+
   return (
-    <TimerContext.Provider
-      value={{ timeLeft, isPending, resetTimer, WARNING_TIME, handleLogout }}
-    >
-      {children}
-    </TimerContext.Provider>
+    <TimerContext.Provider value={value}>{children}</TimerContext.Provider>
   );
 }
 
