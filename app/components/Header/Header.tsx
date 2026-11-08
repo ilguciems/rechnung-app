@@ -27,9 +27,9 @@ export default async function Header() {
 
   return (
     <header className="sticky top-0 z-200">
-      <nav className="flex justify-between items-center px-4 py-2 bg-gray-100 dark:bg-gray-800 min-h-14 z-200 shadow-xl">
+      <nav className="flex justify-between items-center px-3 py-2 bg-gray-100 dark:bg-gray-800 min-h-14 z-200 shadow-xl min-[400px]:px-4">
         <Link href="/">
-          <h1 className="text-2xl font-bold flex items-center hover:underline">
+          <h1 className="text-xl font-bold flex items-center hover:underline min-[400px]:text-2xl">
             I<Activity />
             voice
           </h1>
@@ -40,7 +40,7 @@ export default async function Header() {
           </span>
         )}
         {session && (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 min-[400px]:gap-2">
             <HeaderTimer />
             <NotificationBell />
             <ThemeToggle />
