@@ -2,7 +2,7 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { useAuth } from "@/hooks";
 import { ROUTES } from "@/lib/api-routes";
@@ -20,6 +20,7 @@ export default function DeleteLastInvoiceButton({
 
   const triggerButtonRef = useRef<HTMLButtonElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
+  const titleId = useId();
 
   const deleteLastInvoice = useMutation({
     mutationFn: async () => {
@@ -117,13 +118,16 @@ export default function DeleteLastInvoiceButton({
           className="fixed inset-0 bg-gray-950-rgba flex items-center justify-center z-50"
           role="dialog"
           aria-modal="true"
+          aria-labelledby={titleId}
           onKeyDown={trapFocus}
         >
           <div
             ref={modalRef}
             className="bg-white dark:bg-gray-950 rounded-lg shadow-lg p-6 max-w-sm w-full opacity-100!"
           >
-            <h2 className="text-lg font-semibold mb-2">{t("modalTitle")}</h2>
+            <h2 id={titleId} className="text-lg font-semibold mb-2">
+              {t("modalTitle")}
+            </h2>
             <p className="text-sm text-gray-600 dark:text-gray-200 mb-4">
               {t.rich("modalText", {
                 strong: (chunks) => <strong>{chunks}</strong>,

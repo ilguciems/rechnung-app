@@ -167,6 +167,7 @@ export default function UsersList() {
             <div className="flex-1 flex items-stretch h-11">
               <div className="relative shrink-0 group">
                 <select
+                  aria-label={t("searchFieldLabel")}
                   value={searchField}
                   onChange={(e) =>
                     setSearchField(e.target.value as "name" | "email")
@@ -198,10 +199,11 @@ export default function UsersList() {
               </div>
               <button
                 type="button"
+                aria-label={t("searchButton")}
                 onClick={executeSearch}
                 className="px-3 bg-gray-950 hover:bg-gray-800 active:bg-gray-900 text-white font-semibold text-sm rounded-r-xl transition-all flex items-center shadow-[inset_-1px_0_0_rgba(0,0,0,0.1)] dark:bg-white dark:text-black dark:hover:bg-gray-200 dark:active:bg-gray-300"
               >
-                <Search className="w-4 h-4" />
+                <Search className="w-4 h-4" aria-hidden="true" />
               </button>
             </div>
           </div>
@@ -209,6 +211,7 @@ export default function UsersList() {
             <div className="relative min-w-32.5">
               <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
               <select
+                aria-label={t("filterByRole")}
                 onChange={(e) => handleFilterValue(e.target.value)}
                 value={filterValue}
                 className="h-11 w-full pl-10 pr-8 py-2 bg-slate-50 border border-slate-200 rounded-xl appearance-none focus:ring-2 focus:ring-black outline-none cursor-pointer text-sm font-medium text-slate-700 dark:bg-gray-950 dark:border-gray-700 dark:text-gray-200 dark:focus:ring-white"
@@ -221,6 +224,7 @@ export default function UsersList() {
             </div>
             <button
               type="button"
+              aria-label={t("sortDirection")}
               onClick={handleSortDirection}
               className="h-11 flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 active:bg-slate-100 transition-colors shadow-sm group text-sm font-medium text-slate-600 dark:bg-gray-950 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-900 dark:active:bg-gray-800"
             >

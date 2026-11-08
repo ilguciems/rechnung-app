@@ -1,7 +1,7 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FileText, Mail, Paperclip, Send, X } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useEffect, useId, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { type EmailFormValues, emailSchema, useSendEmail } from "@/hooks";
 import type { Invoice } from "../helpers";
@@ -33,6 +33,7 @@ export function SendEmailModal({
   onClose: () => void;
 }) {
   const modalRef = useRef<HTMLDivElement>(null);
+  const titleId = useId();
 
   const activeStepIndex = type === "invoice" ? 0 : level;
 
@@ -144,6 +145,7 @@ export function SendEmailModal({
     <div
       role="dialog"
       aria-modal="true"
+      aria-labelledby={titleId}
       onKeyDown={trapFocus}
       className="fixed inset-0 z-100 flex items-center justify-center bg-gray-950/50 backdrop-blur-sm p-4"
     >
@@ -155,16 +157,20 @@ export function SendEmailModal({
         <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50 dark:bg-gray-900">
           <div className="flex items-center gap-2">
             <Mail className="w-5 h-5" />
-            <h3 className="font-bold uppercase tracking-tight text-sm">
+            <h3
+              id={titleId}
+              className="font-bold uppercase tracking-tight text-sm"
+            >
               {type === "invoice" ? "Rechnung senden" : "Mahnung senden"}
             </h3>
           </div>
           <button
             type="button"
+            aria-label="Dialog schließen"
             onClick={onClose}
             className="text-slate-400 hover:text-black dark:text-gray-400 dark:hover:text-gray-100 transition-colors cursor-pointer"
           >
-            <X className="w-5 h-5" />
+            <X className="w-5 h-5" aria-hidden="true" />
           </button>
         </div>
         <div className="px-16 pb-8 pt-2 bg-slate-50/50 dark:bg-gray-900 border-b border-slate-100">

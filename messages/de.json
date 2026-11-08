@@ -441,7 +441,15 @@
       "permanent": "Permanent",
       "oneDay": "1 Tag",
       "sevenDays": "7 Tage",
-      "thirtyDays": "30 Tage"
+      "thirtyDays": "30 Tage",
+      "searchFieldLabel": "Suchfeld",
+      "searchButton": "Suchen",
+      "filterByRole": "Nach Rolle filtern",
+      "sortDirection": "Sortierrichtung ändern"
+    },
+    "pagination": {
+      "previousPage": "Vorherige Seite",
+      "nextPage": "Nächste Seite"
     }
   },
   "sessionTimer": {

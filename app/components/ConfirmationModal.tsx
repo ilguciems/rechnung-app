@@ -1,7 +1,7 @@
 "use client";
 import { X } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useEffect, useRef } from "react";
+import { useEffect, useId, useRef } from "react";
 
 interface ConfirmationModalProps {
   isOpen: boolean;
@@ -25,6 +25,7 @@ export default function ConfirmationModal({
   children,
 }: ConfirmationModalProps) {
   const t = useTranslations("confirmationModal");
+  const titleId = useId();
   const modalRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
 
@@ -86,6 +87,7 @@ export default function ConfirmationModal({
     <div
       role="dialog"
       aria-modal="true"
+      aria-labelledby={titleId}
       className="fixed inset-0 bg-gray-950/50 flex items-center justify-center z-100 p-4"
       onKeyDown={trapFocus}
     >
@@ -101,7 +103,10 @@ export default function ConfirmationModal({
         >
           <X className="h-6 w-6 " />
         </button>
-        <h2 className="text-xl font-bold mb-2 text-gray-900 dark:text-gray-100">
+        <h2
+          id={titleId}
+          className="text-xl font-bold mb-2 text-gray-900 dark:text-gray-100"
+        >
           {title}
         </h2>
         <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">

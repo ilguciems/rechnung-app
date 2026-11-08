@@ -1,4 +1,5 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useId } from "react";
 import { dotts, usePaginationLogic } from "./usePaginationLogic";
 
@@ -15,6 +16,7 @@ export default function Pagination({
 }: PaginationProps) {
   const uniqueId = useId();
   const pages = usePaginationLogic(page, totalPages);
+  const t = useTranslations("admin.pagination");
 
   const isFirst = page <= 1;
   const isLast = page >= totalPages;
@@ -26,6 +28,7 @@ export default function Pagination({
     <nav className="flex items-center justify-center gap-2 my-4">
       <button
         type="button"
+        aria-label={t("previousPage")}
         onClick={() => !isFirst && onChange(page - 1)}
         disabled={isFirst}
         className={`${baseCircle} ${
@@ -34,7 +37,7 @@ export default function Pagination({
             : "bg-gray-950 text-white hover:bg-gray-800 cursor-pointer shadow-sm dark:bg-white dark:text-black dark:hover:bg-gray-200"
         }`}
       >
-        <ChevronLeft className="w-5 h-5" />
+        <ChevronLeft className="w-5 h-5" aria-hidden="true" />
       </button>
       <div className="flex items-center gap-1">
         {pages.map((p: number | string, i: number) => {
@@ -73,6 +76,7 @@ export default function Pagination({
       </div>
       <button
         type="button"
+        aria-label={t("nextPage")}
         onClick={() => !isLast && onChange(page + 1)}
         disabled={isLast}
         className={`${baseCircle} ${
@@ -81,7 +85,7 @@ export default function Pagination({
             : "bg-gray-950 text-white hover:bg-gray-800 cursor-pointer shadow-sm dark:bg-white dark:text-black dark:hover:bg-gray-200"
         }`}
       >
-        <ChevronRight className="w-5 h-5" />
+        <ChevronRight className="w-5 h-5" aria-hidden="true" />
       </button>
     </nav>
   );
