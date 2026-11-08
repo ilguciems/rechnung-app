@@ -2,19 +2,15 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { useCompanyLogo } from "@/hooks";
-import { useSession } from "@/lib/auth-client";
 import { type UploadData, uploadSchema } from "@/lib/zod-schema";
 import ImageWithFallback from "./ImageWithFallback";
 import { useUpload } from "./useUpload";
 
 export default function UploadLogoSection() {
   const t = useTranslations("uploadLogo");
-  const { data: session } = useSession();
-  const userId = session?.user?.id;
   const {
     register,
     handleSubmit,
@@ -23,25 +19,16 @@ export default function UploadLogoSection() {
     resolver: zodResolver(uploadSchema),
   });
 
-  const [cacheBuster, setCacheBuster] = useState<number | null>(null);
-
   const { data: logo, isLoading } = useCompanyLogo();
 
-  const logoUrl =
-    logo?.logoUrl || `/assets/logo_${userId}.png?ts=${cacheBuster}`;
-
-  useEffect(() => {
-    setCacheBuster(Date.now());
-  }, []);
+  // The API versions the URL, so a re-upload arrives as a different src.
+  const logoUrl = logo?.logoUrl ?? "/assets/noimage.png";
 
   const { mutate: upload, isPending } = useUpload();
 
   const onSubmit = (data: UploadData) => {
     upload(data.file[0], {
-      onSuccess: () => {
-        setCacheBuster(Date.now());
-        toast.success(t("uploadSuccess"));
-      },
+      onSuccess: () => toast.success(t("uploadSuccess")),
       onError: () => toast.error(t("uploadError")),
     });
   };
@@ -54,7 +41,7 @@ export default function UploadLogoSection() {
               <ImageWithFallback
                 key={logoUrl}
                 src={logoUrl}
-                fallBackSrc={`/assets/noimage.png?ts=${cacheBuster}`}
+                fallBackSrc="/assets/noimage.png"
                 height={0}
                 alt="Logo"
                 className="object-contain h-50 w-50"

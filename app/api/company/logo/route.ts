@@ -7,6 +7,7 @@ import { Prisma } from "@/app/generated/prisma/client";
 import { logActivity } from "@/lib/activity-log";
 import { auth } from "@/lib/auth";
 import diffObjects from "@/lib/diff-objects";
+import { getUserLogoUrl } from "@/lib/logo-url";
 import { prisma } from "@/lib/prisma-client";
 
 export async function GET() {
@@ -39,14 +40,16 @@ export async function GET() {
       },
     });
 
+    // A user without an organization still uploads a logo before creating one,
+    // so the file lookup has to run on this path as well.
     if (!organization) {
-      return NextResponse.json(null);
+      return NextResponse.json({ logoUrl: await getUserLogoUrl(userId) });
     }
 
     const company = organization?.company;
 
     return NextResponse.json({
-      logoUrl: company?.logoUrl ?? null,
+      logoUrl: company?.logoUrl ?? (await getUserLogoUrl(userId)),
     });
   } catch (error) {
     console.error(error);
@@ -102,13 +105,9 @@ export async function POST(req: Request) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = new Uint8Array(arrayBuffer);
 
-    let fileName: string;
-
-    if (!company) {
-      fileName = `logo_${userId}.png`;
-    } else {
-      fileName = `logo_${company.id}_${Date.now()}.png`;
-    }
+    // A fresh filename per upload keeps the URL unique, so the immutable cache
+    // header on the assets route never serves a stale image.
+    const fileName = `logo_${company?.id ?? userId}_${Date.now()}.png`;
 
     const filePath = path.join(process.cwd(), "public", "assets", fileName);
     await fs.writeFile(filePath, buffer);
