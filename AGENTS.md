@@ -43,6 +43,7 @@ This file is the entry point. Deeper material lives in:
 | `i18n/`, `messages/`                   | next-intl config and German translations                                                                        |
 | `prisma/`                              | `schema.prisma` is the source of truth; migrations in `prisma/migrations/`                                      |
 | `tests/`                               | msw mocks and test helpers                                                                                      |
+| `doctor.config.json`                   | react-doctor config; excludes `.agents/**` (gitignored third-party skill bundles) from the scan                 |
 
 ## Invariants you must not break
 
