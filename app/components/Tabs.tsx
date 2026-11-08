@@ -1,6 +1,7 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
+import { domMax, LazyMotion, useReducedMotion } from "motion/react";
+import * as m from "motion/react-m";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Activity, type ReactNode } from "react";
 
@@ -52,51 +53,53 @@ export default function Tabs({ tabs, defaultActiveTab }: TabsProps) {
 
   return (
     <div className="w-full">
-      <div
-        role="tablist"
-        className="relative flex items-center gap-8 border-b border-gray-200 dark:border-gray-700 overflow-x-auto no-scrollbar py-1"
-      >
-        {tabs.map((tab) => {
-          const isActive = activeTab.id === tab.id;
+      <LazyMotion features={domMax}>
+        <div
+          role="tablist"
+          className="relative flex items-center gap-8 border-b border-gray-200 dark:border-gray-700 overflow-x-auto no-scrollbar py-1"
+        >
+          {tabs.map((tab) => {
+            const isActive = activeTab.id === tab.id;
 
-          return (
-            <button
-              type="button"
-              key={tab.id}
-              role="tab"
-              id={`tab-${tab.id}`}
-              aria-selected={isActive}
-              aria-controls={`panel-${tab.id}`}
-              tabIndex={isActive ? 0 : -1}
-              onClick={() => setActiveTab(tab.id)}
-              onKeyDown={(e) => handleKeyDown(e, tabs.indexOf(tab))}
-              className={`
+            return (
+              <button
+                type="button"
+                key={tab.id}
+                role="tab"
+                id={`tab-${tab.id}`}
+                aria-selected={isActive}
+                aria-controls={`panel-${tab.id}`}
+                tabIndex={isActive ? 0 : -1}
+                onClick={() => setActiveTab(tab.id)}
+                onKeyDown={(e) => handleKeyDown(e, tabs.indexOf(tab))}
+                className={`
                 relative py-4 px-2 text-sm font-medium transition-all outline-none group
                 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-black focus-visible:rounded-lg
                 ${isActive ? "text-black dark:text-white" : "text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"}
               `}
-            >
-              <span className="flex items-center gap-2">
-                <span>{tab.icon}</span>
-                <span className={tab.icon ? "hidden md:block" : ""}>
-                  {tab.label}
+              >
+                <span className="flex items-center gap-2">
+                  <span>{tab.icon}</span>
+                  <span className={tab.icon ? "hidden md:block" : ""}>
+                    {tab.label}
+                  </span>
                 </span>
-              </span>
-              {isActive && (
-                <motion.div
-                  layoutId="active-underline"
-                  className="absolute inset-x-0 bottom-0 h-0.5 bg-gray-950 dark:bg-white"
-                  transition={
-                    shouldReduceMotion
-                      ? { duration: 0 }
-                      : { type: "spring", stiffness: 380, damping: 30 }
-                  }
-                />
-              )}
-            </button>
-          );
-        })}
-      </div>
+                {isActive && (
+                  <m.div
+                    layoutId="active-underline"
+                    className="absolute inset-x-0 bottom-0 h-0.5 bg-gray-950 dark:bg-white"
+                    transition={
+                      shouldReduceMotion
+                        ? { duration: 0 }
+                        : { type: "spring", stiffness: 380, damping: 30 }
+                    }
+                  />
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </LazyMotion>
 
       <div className="mt-6">
         {tabs.map((tab) => (

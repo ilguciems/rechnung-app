@@ -1,6 +1,12 @@
 "use client";
 
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import {
+  AnimatePresence,
+  domAnimation,
+  LazyMotion,
+  useReducedMotion,
+} from "motion/react";
+import * as m from "motion/react-m";
 import { useTranslations } from "next-intl";
 import { useAuth, useCompany } from "@/hooks";
 import {
@@ -65,38 +71,40 @@ export default function MainPage({
         <MemberCompanyView />
       )}
 
-      <AnimatePresence>
-        {company && (
-          <motion.div
-            key="invoices"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={
-              shouldReduceMotion ? { duration: 0 } : { duration: 0.3 }
-            }
-          >
-            <InvoiceSection />
-            <InvoicesListSection />
-          </motion.div>
-        )}
-        {!company && !isLoading && (
-          <motion.section
-            key="empty-state"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={
-              shouldReduceMotion ? { duration: 0 } : { duration: 0.2 }
-            }
-            role="alert"
-            aria-live="polite"
-            className="rounded border border-gray-200 bg-gray-50 p-4 text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300"
-          >
-            {t("enterCompanyData")}
-          </motion.section>
-        )}
-      </AnimatePresence>
+      <LazyMotion features={domAnimation}>
+        <AnimatePresence>
+          {company && (
+            <m.div
+              key="invoices"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={
+                shouldReduceMotion ? { duration: 0 } : { duration: 0.3 }
+              }
+            >
+              <InvoiceSection />
+              <InvoicesListSection />
+            </m.div>
+          )}
+          {!company && !isLoading && (
+            <m.section
+              key="empty-state"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={
+                shouldReduceMotion ? { duration: 0 } : { duration: 0.2 }
+              }
+              role="alert"
+              aria-live="polite"
+              className="rounded border border-gray-200 bg-gray-50 p-4 text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300"
+            >
+              {t("enterCompanyData")}
+            </m.section>
+          )}
+        </AnimatePresence>
+      </LazyMotion>
     </div>
   );
 }

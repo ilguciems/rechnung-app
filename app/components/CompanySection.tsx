@@ -1,8 +1,14 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Loader2 } from "lucide-react";
+import {
+  AnimatePresence,
+  domAnimation,
+  LazyMotion,
+  useReducedMotion,
+} from "motion/react";
+import * as m from "motion/react-m";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -321,45 +327,47 @@ export default function CompanySection() {
             {isVatRequired ? t("vatLiable") : t("myCompanyVatLiable")}
           </label>
         </div>
-        <AnimatePresence initial={false}>
-          {isSubjectToVAT && (
-            <motion.div
-              id="vat-rate-fields"
-              key="vat-fields"
-              className="grid grid-cols-2 gap-3"
-              aria-live="polite"
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={
-                prefersReducedMotion
-                  ? { duration: 0 }
-                  : { duration: 0.3, ease: "easeInOut" }
-              }
-            >
-              <Input<Company>
-                name="firstTaxRate"
-                label="Erster Steuersatz in %"
-                className="col-span-2 sm:col-span-1"
-                inputMode="decimal"
-                step="0.01"
-                type="number"
-                register={register}
-                errors={errors}
-              />
-              <Input<Company>
-                name="secondTaxRate"
-                label={t("secondTaxRate")}
-                className="col-span-2 sm:col-span-1"
-                inputMode="decimal"
-                step="0.01"
-                type="number"
-                register={register}
-                errors={errors}
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <LazyMotion features={domAnimation}>
+          <AnimatePresence initial={false}>
+            {isSubjectToVAT && (
+              <m.div
+                id="vat-rate-fields"
+                key="vat-fields"
+                className="grid grid-cols-2 gap-3"
+                aria-live="polite"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={
+                  prefersReducedMotion
+                    ? { duration: 0 }
+                    : { duration: 0.3, ease: "easeInOut" }
+                }
+              >
+                <Input<Company>
+                  name="firstTaxRate"
+                  label="Erster Steuersatz in %"
+                  className="col-span-2 sm:col-span-1"
+                  inputMode="decimal"
+                  step="0.01"
+                  type="number"
+                  register={register}
+                  errors={errors}
+                />
+                <Input<Company>
+                  name="secondTaxRate"
+                  label={t("secondTaxRate")}
+                  className="col-span-2 sm:col-span-1"
+                  inputMode="decimal"
+                  step="0.01"
+                  type="number"
+                  register={register}
+                  errors={errors}
+                />
+              </m.div>
+            )}
+          </AnimatePresence>
+        </LazyMotion>
         <button
           type="submit"
           className="mt-4 px-3 py-1 bg-blue-500 text-white rounded-md flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed min-w-40 cursor-pointer"
