@@ -32,3 +32,13 @@
 html {
   scrollbar-gutter: stable;
 }
+
+/* Hide the scrollbar on horizontally scrollable strips (tabs, carousels)
+   while keeping them scrollable by touch, wheel and keyboard. */
+@utility no-scrollbar {
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
