@@ -19,6 +19,7 @@
     "test": "vitest",
     "test:ui": "vitest --ui",
     "reset-db": "rm -rf prisma/migrations && npx prisma migrate dev --name init && npx prisma migrate reset --force",
+    "rotate:db-key": "tsx scripts/rotate-db-encryption-key.ts",
     "doctor": "react-doctor"
   },
   "dependencies": {
