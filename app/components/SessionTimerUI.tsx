@@ -26,7 +26,7 @@ export function SessionTimerUI() {
       <div className="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-2xl dark:border-gray-700 dark:bg-gray-800">
         <div className="h-1.5 w-full bg-gray-100 dark:bg-gray-700">
           <div
-            className="h-full bg-red-500 transition-all duration-1000 ease-linear"
+            className="h-full bg-red-500 transition-[width] duration-1000 ease-linear"
             style={{ width: `${progress}%` }}
           />
         </div>

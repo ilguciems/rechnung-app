@@ -84,7 +84,7 @@ export default function CreateAdminForm() {
             variant="primary"
             size="full"
           >
-            <span className="flex items-center justify-center gap-2 transition-all">
+            <span className="flex items-center justify-center gap-2">
               <Mail className="w-4 h-4" />
               {t("invite")}
             </span>

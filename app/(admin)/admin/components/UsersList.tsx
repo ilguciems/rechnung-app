@@ -153,7 +153,7 @@ export default function UsersList() {
                   id="page-size"
                   value={pageSize}
                   onChange={(e) => handlePageSize(parseInt(e.target.value, 10))}
-                  className="w-full h-full pl-3 pr-8 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 outline-none hover:border-slate-400 focus:ring-2 focus:ring-black appearance-none transition-all cursor-pointer dark:bg-gray-950 dark:border-gray-700 dark:text-gray-200 dark:hover:border-gray-500 dark:focus:ring-white"
+                  className="w-full h-full pl-3 pr-8 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 outline-none hover:border-slate-400 focus:ring-2 focus:ring-black appearance-none transition-[color,background-color,border-color,box-shadow] cursor-pointer dark:bg-gray-950 dark:border-gray-700 dark:text-gray-200 dark:hover:border-gray-500 dark:focus:ring-white"
                 >
                   {[5, 10, 15, 20, 50].map((size) => (
                     <option key={size} value={size}>
@@ -172,7 +172,7 @@ export default function UsersList() {
                   onChange={(e) =>
                     setSearchField(e.target.value as "name" | "email")
                   }
-                  className="h-full pl-4 pr-9 py-2 bg-slate-50 border border-slate-200 rounded-l-xl text-sm font-medium text-slate-600 outline-none hover:bg-slate-100 cursor-pointer appearance-none transition-all border-r-0
+                  className="h-full pl-4 pr-9 py-2 bg-slate-50 border border-slate-200 rounded-l-xl text-sm font-medium text-slate-600 outline-none hover:bg-slate-100 cursor-pointer appearance-none transition-[color,background-color,border-color,box-shadow] border-r-0
                focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-black focus-visible:bg-white z-20 relative dark:bg-gray-950 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-900 dark:focus-visible:bg-gray-950 dark:focus-visible:ring-white"
                 >
                   <option value="name">{t("name")}</option>
@@ -194,14 +194,14 @@ export default function UsersList() {
                   value={tempSearchValue}
                   onChange={(e) => setTempSearchValue(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && executeSearch()}
-                  className="w-full h-full pl-10 pr-4 py-2 bg-slate-50 border-y border-slate-200 outline-none text-sm text-slate-700 transition-all focus:bg-white placeholder:text-slate-400 dark:bg-gray-950 dark:border-gray-700 dark:text-gray-100 dark:placeholder:text-gray-500 dark:focus:bg-gray-950"
+                  className="w-full h-full pl-10 pr-4 py-2 bg-slate-50 border-y border-slate-200 outline-none text-sm text-slate-700 transition-[color,background-color,border-color,box-shadow] focus:bg-white placeholder:text-slate-400 dark:bg-gray-950 dark:border-gray-700 dark:text-gray-100 dark:placeholder:text-gray-500 dark:focus:bg-gray-950"
                 />
               </div>
               <button
                 type="button"
                 aria-label={t("searchButton")}
                 onClick={executeSearch}
-                className="px-3 bg-gray-950 hover:bg-gray-800 active:bg-gray-900 text-white font-semibold text-sm rounded-r-xl transition-all flex items-center shadow-[inset_-1px_0_0_rgba(0,0,0,0.1)] dark:bg-white dark:text-black dark:hover:bg-gray-200 dark:active:bg-gray-300"
+                className="px-3 bg-gray-950 hover:bg-gray-800 active:bg-gray-900 text-white font-semibold text-sm rounded-r-xl transition-[color,background-color,border-color,box-shadow] flex items-center shadow-[inset_-1px_0_0_rgba(0,0,0,0.1)] dark:bg-white dark:text-black dark:hover:bg-gray-200 dark:active:bg-gray-300"
               >
                 <Search className="w-4 h-4" aria-hidden="true" />
               </button>

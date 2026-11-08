@@ -331,7 +331,7 @@ export function SendEmailModal({
             <button
               type="submit"
               disabled={isPending}
-              className="flex items-center gap-2 px-6 py-2 bg-gray-950 text-white rounded-xl text-xs font-bold hover:bg-slate-800 disabled:bg-slate-300 dark:bg-white dark:text-black dark:hover:bg-gray-200 dark:disabled:bg-gray-600 dark:disabled:text-gray-400 transition-all shadow-lg shadow-black/10 cursor-pointer disabled:cursor-not-allowed"
+              className="flex items-center gap-2 px-6 py-2 bg-gray-950 text-white rounded-xl text-xs font-bold hover:bg-slate-800 disabled:bg-slate-300 dark:bg-white dark:text-black dark:hover:bg-gray-200 dark:disabled:bg-gray-600 dark:disabled:text-gray-400 transition-colors shadow-lg shadow-black/10 cursor-pointer disabled:cursor-not-allowed"
             >
               {isPending ? (
                 <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
