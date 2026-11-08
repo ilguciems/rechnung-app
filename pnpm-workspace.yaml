@@ -7,3 +7,9 @@ allowBuilds:
   msw: true
   prisma: true
   sharp: true
+
+# GHSA-g3hv-75wg-m249: eslint pins minimatch ^10.2.6, which stays in the
+# vulnerable range. The only API eslint and @eslint/config-array use
+# (new Minimatch(...).match()) is unchanged in 11.
+overrides:
+  minimatch@<11.0.1: ^11.0.1
