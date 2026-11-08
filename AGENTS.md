@@ -62,6 +62,26 @@ This file is the entry point. Deeper material lives in:
 
 Keep changes small and run the smallest useful command first; see the debugging recipes in [docs/architecture.md](docs/architecture.md).
 
+## Commit messages
+
+Every commit follows [Conventional Commits 1.0.0](https://www.conventionalcommits.org/en/v1.0.0/):
+
+```
+<type>[optional scope][!]: <description>
+
+[optional body]
+
+[optional footer(s)]
+```
+
+- **Types:** `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`.
+- **Scope** is optional and lowercase: `fix(auth): …`, `perf(admin): …`, `feat(chart): …`.
+- **Description:** imperative mood, lower case, no trailing period, ≤ 72 characters. It continues the sentence "this commit will …".
+- **Body:** optional, separated by a blank line; explain _why_, wrap at 72 characters.
+- **Breaking change:** append `!` after the type/scope (`feat(api)!: …`) and/or add a `BREAKING CHANGE: <description>` footer.
+- **Footers:** one per line, `Token: value` — for example `Refs: #123`. Keep the `Co-authored-by:` trailer last.
+- A commit does exactly one thing; unrelated changes belong in separate commits.
+
 <!-- BEGIN:nextjs-agent-rules -->
 
 ## This is NOT the Next.js you know
