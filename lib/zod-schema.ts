@@ -70,12 +70,12 @@ export const companySchema = z
     email: z.email("Ungültige E-Mail"),
     isSubjectToVAT: z.boolean(),
     firstTaxRate: z
-      .number("Steuersatz erforderlich")
+      .number({ error: "Steuersatz erforderlich" })
       .default(19)
       .optional()
       .nullable(),
     secondTaxRate: z
-      .number("Steuersatz erforderlich")
+      .number({ error: "Steuersatz erforderlich" })
       .default(7)
       .optional()
       .nullable(),
@@ -111,7 +111,9 @@ export const companySchema = z
         message: "Ungültiges BIC-Format",
       }),
 
-    bank: z.string("Bank ist erforderlich").min(2, "Bank ist erforderlich"),
+    bank: z
+      .string({ error: "Bank ist erforderlich" })
+      .min(2, "Bank ist erforderlich"),
   })
   .superRefine((data, ctx) => {
     const { iban, bic, country } = data;
@@ -180,10 +182,10 @@ export type Company = z.infer<typeof companySchema>;
 export const invoiceItemSchema = z.object({
   description: z.string().min(2, "Beschreibung erforderlich"),
   quantity: z
-    .number("Menge erforderlich")
+    .number({ error: "Menge erforderlich" })
     .min(1, "Menge muss mindestens 1 sein"),
   unitPrice: z
-    .number("Preis erforderlich")
+    .number({ error: "Preis erforderlich" })
     .min(0.01, "Preis muss positiv sein"),
   taxRate: z.number().min(0).max(100).default(19).optional().nullable(),
 });
