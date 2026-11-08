@@ -159,9 +159,9 @@ function ChartPageButton({
       aria-label={label}
       disabled={disabled}
       onClick={onClick}
-      className="flex size-9 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-700 shadow-sm transition-colors hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-white dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700 dark:disabled:hover:bg-gray-800"
+      className="flex size-11 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-700 shadow-sm transition-colors hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-white sm:size-9 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700 dark:disabled:hover:bg-gray-800"
     >
-      <Icon className="size-4" aria-hidden="true" />
+      <Icon className="size-5 sm:size-4" aria-hidden="true" />
     </button>
   );
 }
@@ -204,7 +204,7 @@ export function RevenueChart({
           )}
           <p
             aria-live="polite"
-            className="min-w-36 text-center text-xs text-gray-500 tabular-nums dark:text-gray-300"
+            className="min-w-0 text-center text-xs text-gray-500 tabular-nums sm:min-w-36 dark:text-gray-300"
           >
             {windowLabel}
           </p>

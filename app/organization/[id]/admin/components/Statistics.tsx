@@ -180,16 +180,12 @@ export default function Statistics() {
       </div>
 
       <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-        <div className="w-full overflow-x-auto pb-4 scrollbar-hide">
-          <div className="min-w-75">
-            <RevenueChart
-              title={t("title")}
-              data={data?.chartData || []}
-              page={page}
-              onPageChange={setPage}
-            />
-          </div>
-        </div>
+        <RevenueChart
+          title={t("title")}
+          data={data?.chartData || []}
+          page={page}
+          onPageChange={setPage}
+        />
       </div>
     </div>
   );
