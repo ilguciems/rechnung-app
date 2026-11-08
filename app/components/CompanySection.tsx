@@ -10,7 +10,7 @@ import {
 } from "motion/react";
 import * as m from "motion/react-m";
 import { useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
+import { useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { useCompany, useSaveCompany } from "@/hooks";
 import { formatPhone } from "@/lib/phone-utils";
@@ -41,7 +41,8 @@ const legalFormsOptions = [
 
 export default function CompanySection() {
   const t = useTranslations("company");
-  const [vatToggledByUser, setVatToggledByUser] = useState(false);
+  // Signals the focus step in the effect below without forcing a re-render.
+  const vatToggledByUser = useRef(false);
   const prefersReducedMotion = useReducedMotion();
 
   // Load company
@@ -91,7 +92,7 @@ export default function CompanySection() {
     HANDELSREGISTER_REQUIRED_FORMS.includes(legalForm);
 
   const handleVatToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setVatToggledByUser(true);
+    vatToggledByUser.current = true;
 
     setValue("isSubjectToVAT", e.target.checked, {
       shouldDirty: true,
@@ -147,15 +148,14 @@ export default function CompanySection() {
     if (!getValues("secondTaxRate")) {
       setValue("secondTaxRate", second, { shouldDirty: true });
     }
-    if (vatToggledByUser) {
+    if (vatToggledByUser.current) {
       setFocus("firstTaxRate");
-      setVatToggledByUser(false);
+      vatToggledByUser.current = false;
     }
   }, [
     isSubjectToVAT,
     company?.firstTaxRate,
     company?.secondTaxRate,
-    vatToggledByUser,
     setValue,
     getValues,
     clearErrors,
