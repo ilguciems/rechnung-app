@@ -7,6 +7,7 @@ import { Prisma } from "@/app/generated/prisma/client";
 import { logActivity } from "@/lib/activity-log";
 import { auth } from "@/lib/auth";
 import diffObjects from "@/lib/diff-objects";
+import { deleteSupersededLogo } from "@/lib/logo-cleanup";
 import { getUserLogoUrl } from "@/lib/logo-url";
 import { prisma } from "@/lib/prisma-client";
 
@@ -108,16 +109,16 @@ export async function POST(req: Request) {
     // A fresh filename per upload keeps the URL unique, so the immutable cache
     // header on the assets route never serves a stale image.
     const fileName = `logo_${company?.id ?? userId}_${Date.now()}.png`;
+    const logoUrl = `/api/assets/${fileName}`;
+
+    // A company stores the URL it points at; without one the previous upload is
+    // resolved from disk, so both paths can drop the file they replace.
+    const oldLogoUrl = company ? company.logoUrl : await getUserLogoUrl(userId);
 
     const filePath = path.join(process.cwd(), "public", "assets", fileName);
     await fs.writeFile(filePath, buffer);
 
-    let oldLogoUrl: string | null = null;
-
     if (company) {
-      oldLogoUrl = company.logoUrl;
-      const logoUrl = `/api/assets/${fileName}`;
-
       const updated = await prisma.company.update({
         where: { id: company.id },
         data: { logoUrl },
@@ -173,12 +174,11 @@ export async function POST(req: Request) {
       });
     }
 
+    await deleteSupersededLogo(prisma, oldLogoUrl, logoUrl);
+
     const changes = diffObjects(
       { logoUrl: oldLogoUrl } as Record<string, Prisma.InputJsonValue>,
-      { logoUrl: `/api/assets/${fileName}` } as Record<
-        string,
-        Prisma.InputJsonValue
-      >,
+      { logoUrl } as Record<string, Prisma.InputJsonValue>,
     );
 
     if (company && organization) {
