@@ -5,6 +5,7 @@ import { Prisma } from "@/app/generated/prisma/client";
 import { logActivity } from "@/lib/activity-log";
 import { auth } from "@/lib/auth";
 import diffObjects from "@/lib/diff-objects";
+import { toCompanyAmounts } from "@/lib/money";
 import { prisma } from "@/lib/prisma-client";
 
 // Get a company
@@ -28,7 +29,7 @@ export async function GET() {
       return NextResponse.json(null);
     }
 
-    return NextResponse.json(membership.organization.company);
+    return NextResponse.json(toCompanyAmounts(membership.organization.company));
   } catch (error) {
     console.error(error);
 
@@ -144,7 +145,7 @@ export async function POST(req: Request) {
       return company;
     });
 
-    return NextResponse.json(result);
+    return NextResponse.json(toCompanyAmounts(result));
   } catch (error) {
     console.error(error);
 
@@ -239,7 +240,7 @@ export async function PATCH(req: Request) {
       },
     });
 
-    return NextResponse.json(updated);
+    return NextResponse.json(toCompanyAmounts(updated));
   } catch (error) {
     console.error(error);
 

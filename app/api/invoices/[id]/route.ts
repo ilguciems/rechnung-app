@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { Prisma } from "@/app/generated/prisma/client";
 import { logActivity } from "@/lib/activity-log";
 import { getAuthData } from "@/lib/get-auth-data";
+import { toInvoiceAmounts } from "@/lib/money";
 import { prisma } from "@/lib/prisma-client";
 
 export async function PATCH(
@@ -83,7 +84,7 @@ export async function PATCH(
       },
     });
 
-    return NextResponse.json(invoice);
+    return NextResponse.json(toInvoiceAmounts(invoice));
   } catch (error) {
     console.error(error);
 

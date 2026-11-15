@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { logActivity } from "@/lib/activity-log";
 import { getAuthData } from "@/lib/get-auth-data";
 import { generateInvoicePDF, generateMahnungPDF } from "@/lib/pdf";
+import { toPdfCompany, toPdfInvoice } from "@/lib/pdf/invoice-data";
 import { prisma } from "@/lib/prisma-client";
 import { sendOrganizationEmail } from "@/utils/organization-email";
 
@@ -36,15 +37,14 @@ export async function POST(
       );
     }
 
-    const pdfBuffer = await generateMahnungPDF(
-      invoice,
-      invoice.companySnapshot,
-      {
-        mahngebuehr: parseFloat(fee || "0"),
-        deadlineDays: 7,
-        level: level as 1 | 2 | 3,
-      },
-    );
+    const pdfInvoice = toPdfInvoice(invoice);
+    const pdfCompany = toPdfCompany(invoice.companySnapshot);
+
+    const pdfBuffer = await generateMahnungPDF(pdfInvoice, pdfCompany, {
+      mahngebuehr: parseFloat(fee || "0"),
+      deadlineDays: 7,
+      level: level as 1 | 2 | 3,
+    });
 
     const attachments = [
       {
@@ -55,8 +55,8 @@ export async function POST(
 
     if (level === 1) {
       const originalPdfBuffer = await generateInvoicePDF(
-        invoice,
-        invoice.companySnapshot,
+        pdfInvoice,
+        pdfCompany,
       );
       attachments.push({
         fileName: `Kopie_Rechnung_${invoice.invoiceNumber}.pdf`,

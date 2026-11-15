@@ -53,6 +53,7 @@ This file is the entry point. Deeper material lives in:
 - **The Prisma schema must match what better-auth expects.** A mismatch is logged as `[Better Auth]: Prisma schema mismatch` at startup — for example `session.impersonatedBy` is required by the admin plugin. Identity columns for credential accounts stay `account.accountId`; the `providerAccountId` / `issuer` fields apply only to OAuth providers, which this app does not use.
 - **Roles:** `superadmin` / `admin` get `adminAc.statements`, `user` gets nothing. New admin permissions arrive through `defaultStatements`, so they do not need to be copied by hand.
 - **Customer identity is `(companyId, normalizedKey)`** — the key is the md5 from `lib/customer-key.ts`. The customer backfill migration builds the same hash in SQL, so normalization changes must update both, and customer numbers come from `company.lastCustomerNumber`.
+- **Money and tax rates are `numeric`, not floats.** `Item.unitPrice` is `Decimal(12, 2)`, all tax rates are `Decimal(5, 2)`. Prisma returns `Decimal`, so convert with `toAmount` / `toRate` from `lib/money.ts` wherever a value leaves the database (API responses, PDF, sums) and use `roundAmount` for totals.
 
 ## Verification before committing
 

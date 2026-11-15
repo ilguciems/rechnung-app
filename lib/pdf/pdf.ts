@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { PDFDocument, type PDFPage, rgb, StandardFonts } from "pdf-lib";
+import type { InvoiceWithItems } from "@/lib/money";
 import type { Company, Invoice } from "@/lib/zod-schema";
 import {
   drawFooter,
@@ -11,7 +12,7 @@ import {
   NAMED_REQUIRED_FORMS,
 } from "./helpers";
 
-interface CreatedInvoice extends Invoice {
+export interface CreatedInvoice extends Invoice {
   invoiceNumber: string;
   customerNumber: string | null;
   createdAt: Date;
@@ -21,6 +22,8 @@ interface CreatedInvoice extends Invoice {
   secondReminderSentAt: Date | null;
   thirdReminderSentAt: Date | null;
 }
+
+export type InvoiceRow = InvoiceWithItems;
 
 const PAGE_WIDTH = 600;
 const PAGE_HEIGHT = 800;

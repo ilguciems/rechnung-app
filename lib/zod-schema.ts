@@ -71,11 +71,15 @@ export const companySchema = z
     isSubjectToVAT: z.boolean(),
     firstTaxRate: z
       .number({ error: "Steuersatz erforderlich" })
+      .min(0, "Steuersatz muss zwischen 0 und 100 liegen")
+      .max(100, "Steuersatz muss zwischen 0 und 100 liegen")
       .default(19)
       .optional()
       .nullable(),
     secondTaxRate: z
       .number({ error: "Steuersatz erforderlich" })
+      .min(0, "Steuersatz muss zwischen 0 und 100 liegen")
+      .max(100, "Steuersatz muss zwischen 0 und 100 liegen")
       .default(7)
       .optional()
       .nullable(),
@@ -186,7 +190,8 @@ export const invoiceItemSchema = z.object({
     .min(1, "Menge muss mindestens 1 sein"),
   unitPrice: z
     .number({ error: "Preis erforderlich" })
-    .min(0.01, "Preis muss positiv sein"),
+    .min(0.01, "Preis muss positiv sein")
+    .max(9_999_999_999.99, "Preis ist zu hoch"),
   taxRate: z.number().min(0).max(100).default(19).optional().nullable(),
 });
 

@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { getTranslations } from "next-intl/server";
 import { Prisma } from "@/app/generated/prisma/client";
 import { auth } from "@/lib/auth";
+import { toAmount, toRate } from "@/lib/money";
 import { prisma } from "@/lib/prisma-client";
 
 export async function GET(req: Request) {
@@ -84,8 +85,8 @@ export async function GET(req: Request) {
         {
           id: string;
           description: string;
-          unitPrice: number;
-          taxRate: number | null;
+          unitPrice: Prisma.Decimal;
+          taxRate: Prisma.Decimal | null;
         }[]
       >`
         SELECT DISTINCT ON (it.description)
@@ -101,7 +102,14 @@ export async function GET(req: Request) {
         LIMIT 10
       `;
 
-      return NextResponse.json(products);
+      return NextResponse.json(
+        products.map((product) => ({
+          id: product.id,
+          description: product.description,
+          unitPrice: toAmount(product.unitPrice),
+          taxRate: toRate(product.taxRate),
+        })),
+      );
     }
 
     return NextResponse.json(
