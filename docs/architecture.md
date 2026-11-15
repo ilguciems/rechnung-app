@@ -177,7 +177,31 @@ Roles/permissions are used in:
 **Where data access happens:**
 
 - `lib/prisma-client.ts` — creates the prisma client
+- `lib/customer.ts` — finds or creates the `Customer` for an invoice address
 - `lib/auth.ts` — uses `prisma.user.count()` and `findUnique({ role: true })`
+
+**Customer master data:**
+
+- `Customer` holds one row per address and company; `Invoice` keeps its own copy
+  of the address as an immutable snapshot and links to the row via `customerId`
+- identity is `(companyId, normalizedKey)`, where `normalizedKey` is the md5 built
+  in `lib/customer-key.ts`; the backfill migration
+  (`prisma/migrations/*_add_customer_table`) computes the same hash in SQL, so a
+  change to the normalization has to change both sides
+- numbers come from `company.lastCustomerNumber` (same pattern as
+  `lastInvoiceNumber`), never from scanning the invoices of a company
+
+**Growth and maintenance:**
+
+- `GET /api/organization/logs` is cursor-paginated (`?cursor=…&pageSize=…`,
+  max 100) and walks the `(organizationId, createdAt desc)` index; the admin UI
+  appends one page at a time
+- `POST /api/maintenance/cleanup` deletes expired `session` rows (30 days after
+  expiry) and `verification` tokens (7 days after expiry). It is disabled until
+  `CRON_SECRET` is set and expects `Authorization: Bearer $CRON_SECRET`; wire it
+  to a scheduler, e.g. `curl -X POST -H "Authorization: Bearer $CRON_SECRET"
+  https://<host>/api/maintenance/cleanup`
+- `activity_log` is an audit trail and is never pruned automatically
 
 **better-auth schema contract:**
 

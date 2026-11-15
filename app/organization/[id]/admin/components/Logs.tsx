@@ -58,7 +58,9 @@ function renderLogMessage(
 
 export default function Logs() {
   const t = useTranslations("logs");
-  const { data: logs, isLoading } = useLogs();
+  const { data, isLoading, hasNextPage, fetchNextPage, isFetchingNextPage } =
+    useLogs();
+  const logs = data?.pages.flatMap((page) => page.data) ?? [];
 
   const fieldLabels = useMemo(
     () => ({
@@ -100,45 +102,63 @@ export default function Logs() {
 
   if (isLoading) return <div>{t("loading")}</div>;
 
-  if (!logs?.length) {
+  if (!logs.length) {
     return <div className="text-gray-500">{t("empty")}</div>;
   }
 
   return (
-    <ul className="space-y-2">
-      {logs.map((log) => (
-        <li
-          key={log.id}
-          className="flex flex-col gap-1 rounded border p-3 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700"
-        >
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-800 dark:text-gray-200">
-              <strong>{getUserLabel(log)}</strong> {renderLogMessage(log, t)}
-            </span>
+    <div>
+      <ul className="space-y-2">
+        {logs.map((log) => (
+          <li
+            key={log.id}
+            className="flex flex-col gap-1 rounded border p-3 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700"
+          >
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-gray-800 dark:text-gray-200">
+                <strong>{getUserLabel(log)}</strong> {renderLogMessage(log, t)}
+              </span>
 
-            <span className="text-xs text-gray-400 dark:text-gray-200">
-              {formatDateTime(log.createdAt)}
-            </span>
-          </div>
+              <span className="text-xs text-gray-400 dark:text-gray-200">
+                {formatDateTime(log.createdAt)}
+              </span>
+            </div>
 
-          {log.action === "UPDATE" && log.metadata?.changes && (
-            <ul className="mt-2 text-xs text-gray-600 dark:text-gray-200">
-              {Object.entries(log.metadata.changes).map(
-                ([field, { old, new: newVal }]) => (
-                  <li key={field}>
-                    <strong>
-                      {fieldLabels[field as keyof typeof fieldLabels] ?? field}
-                    </strong>
-                    : "{valueLabels[old as keyof typeof valueLabels] ?? old}" →
-                    "{valueLabels[newVal as keyof typeof valueLabels] ?? newVal}
-                    "
-                  </li>
-                ),
-              )}
-            </ul>
-          )}
-        </li>
-      ))}
-    </ul>
+            {log.action === "UPDATE" && log.metadata?.changes && (
+              <ul className="mt-2 text-xs text-gray-600 dark:text-gray-200">
+                {Object.entries(log.metadata.changes).map(
+                  ([field, { old, new: newVal }]) => (
+                    <li key={field}>
+                      <strong>
+                        {fieldLabels[field as keyof typeof fieldLabels] ??
+                          field}
+                      </strong>
+                      : "{valueLabels[old as keyof typeof valueLabels] ?? old}"
+                      → "
+                      {valueLabels[newVal as keyof typeof valueLabels] ??
+                        newVal}
+                      "
+                    </li>
+                  ),
+                )}
+              </ul>
+            )}
+          </li>
+        ))}
+      </ul>
+
+      {hasNextPage && (
+        <div className="flex justify-center mt-4">
+          <button
+            type="button"
+            onClick={() => fetchNextPage()}
+            disabled={isFetchingNextPage}
+            className="px-3 py-2 bg-gray-200 dark:bg-gray-800 rounded disabled:opacity-50 cursor-pointer"
+          >
+            {isFetchingNextPage ? t("loading") : t("loadMore")}
+          </button>
+        </div>
+      )}
+    </div>
   );
 }

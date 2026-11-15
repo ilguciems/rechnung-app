@@ -14,13 +14,14 @@ All variables live in [`env.example`](env.example) — it is the single source o
 cp env.example .env
 ```
 
-| Group    | Variables                                                       | Notes                                              |
-| -------- | --------------------------------------------------------------- | -------------------------------------------------- |
-| Database | `DATABASE_URL`, `DB_ENCRYPTION_KEY`                             | the default URL matches `docker-compose.yml`       |
-| Auth     | `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `NEXT_PUBLIC_BASE_URL` | generate the secret with `openssl rand -base64 32` |
-| Email    | `MAILJET_API_KEY`, `MAILJET_API_SECRET`, `EMAIL_FROM`           | Mailjet account required                           |
-| Realtime | `ABLY_API_KEY`                                                  | Ably powers live notifications                     |
-| App      | `APP_URL`, `PORT`                                               | used in emails and redirects                       |
+| Group       | Variables                                                       | Notes                                              |
+| ----------- | --------------------------------------------------------------- | -------------------------------------------------- |
+| Database    | `DATABASE_URL`, `DB_ENCRYPTION_KEY`                             | the default URL matches `docker-compose.yml`       |
+| Auth        | `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `NEXT_PUBLIC_BASE_URL` | generate the secret with `openssl rand -base64 32` |
+| Email       | `MAILJET_API_KEY`, `MAILJET_API_SECRET`, `EMAIL_FROM`           | Mailjet account required                           |
+| Realtime    | `ABLY_API_KEY`                                                  | Ably powers live notifications                     |
+| App         | `APP_URL`, `PORT`                                               | used in emails and redirects                       |
+| Maintenance | `CRON_SECRET` (optional)                                        | enables `POST /api/maintenance/cleanup`            |
 
 Never commit `.env` — it is covered by `.gitignore`.
 

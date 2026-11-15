@@ -90,6 +90,7 @@ model Session {
   impersonatedBy String?
 
   @@unique([token])
+  @@index([userId])
   @@map("session")
 }
 
@@ -109,6 +110,7 @@ model Account {
   createdAt             DateTime
   updatedAt             DateTime
 
+  @@index([userId])
   @@map("account")
 }
 
@@ -120,6 +122,7 @@ model Verification {
   createdAt  DateTime?
   updatedAt  DateTime?
 
+  @@index([identifier])
   @@map("verification")
 }
 
@@ -139,6 +142,8 @@ model Organization {
   organizationInvites OrganizationInvite[]
   activityLogs        ActivityLog[]
 
+  @@index([companyId])
+  @@index([ownerId])
   @@map("organization")
 }
 
@@ -184,6 +189,7 @@ model OrganizationInvite {
 
   organization Organization @relation(fields: [organizationId], references: [id])
 
+  @@index([organizationId, acceptedAt])
   @@map("organization_invite")
 }
 
@@ -217,14 +223,14 @@ model Company {
   handelsregisternummer String?
 
   lastInvoiceNumber Int @default(0)
+  lastCustomerNumber Int @default(0)
 
   invoices         Invoice[]
+  customers        Customer[]
   companySnapshots CompanySnapshot[]
   organizations    Organization[]
   activityLogs     ActivityLog[]
 
-  @@index([createdAt])
-  @@index([updatedAt])
   @@map("company")
 }
 
@@ -261,8 +267,40 @@ model CompanySnapshot {
 
   invoices Invoice[]
 
-  @@index([createdAt])
+  @@index([companyId, createdAt(sort: Desc)])
   @@map("company_snapshot")
+}
+
+/// Deduplicated customer master data. Invoices keep their own copy of the
+/// address as an immutable snapshot; this table is only used for lookups,
+/// autocomplete and customer numbering.
+model Customer {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  customerNumber String
+  /// Normalized hash of the address fields, see lib/customer-key.ts
+  normalizedKey String
+
+  name        String
+  street      String
+  houseNumber String
+  zipCode     String
+  city        String
+  country     String  @default("Deutschland")
+  email       String?
+  phone       String?
+
+  invoices Invoice[]
+
+  @@unique([companyId, customerNumber])
+  @@unique([companyId, normalizedKey])
+  @@index([companyId, name])
+  @@map("customer")
 }
 
 model Invoice {
@@ -293,6 +331,9 @@ model Invoice {
   companySnapshot   CompanySnapshot? @relation(fields: [companySnapshotId], references: [id])
   companySnapshotId String?
 
+  customerId String?
+  customer   Customer? @relation(fields: [customerId], references: [id])
+
   lastSentAt        DateTime?
   lastReminderLevel Int?      @default(0)
 
@@ -305,7 +346,10 @@ model Invoice {
   deliveryMethod DeliveryMethod @default(EMAIL)
 
   @@unique([invoiceNumber, companyId])
-  @@index([createdAt])
+  @@index([companyId, createdAt(sort: Desc)])
+  @@index([companyId, isPaid, createdAt(sort: Desc)])
+  @@index([createdByUserId])
+  @@index([customerId])
   @@map("invoice")
 }
 
@@ -318,6 +362,7 @@ model Item {
   invoiceId   String
   invoice     Invoice @relation(fields: [invoiceId], references: [id])
 
+  @@index([invoiceId])
   @@map("item")
 }
 
@@ -340,9 +385,8 @@ model ActivityLog {
 
   metadata Json?
 
-  @@index([createdAt])
+  @@index([organizationId, createdAt(sort: Desc)])
   @@index([userId])
-  @@index([organizationId])
   @@index([companyId])
   @@map("activity_log")
 }

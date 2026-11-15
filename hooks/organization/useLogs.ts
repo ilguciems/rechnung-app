@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { ROUTES } from "@/lib/api-routes";
 
 export type ActivityLogType = {
@@ -29,16 +29,29 @@ export type ActivityLogType = {
   };
 };
 
+export type ActivityLogPage = {
+  data: ActivityLogType[];
+  nextCursor: string | null;
+};
+
 export const useLogs = () => {
-  return useQuery<ActivityLogType[]>({
+  return useInfiniteQuery({
     queryKey: ["organization-logs"],
-    queryFn: async () => {
-      const res = await fetch(ROUTES.ORGANIZATION_LOGS);
+    queryFn: async ({ pageParam }) => {
+      const params = new URLSearchParams();
+      if (pageParam) params.set("cursor", pageParam);
+      const query = params.toString();
+
+      const res = await fetch(
+        `${ROUTES.ORGANIZATION_LOGS}${query ? `?${query}` : ""}`,
+      );
       if (!res.ok) {
         const data = await res.json().catch(() => null);
         throw new Error(data?.error ?? "Fehler beim Laden der Logs");
       }
-      return res.json();
+      return (await res.json()) as ActivityLogPage;
     },
+    initialPageParam: null as string | null,
+    getNextPageParam: (lastPage) => lastPage.nextCursor,
   });
 };

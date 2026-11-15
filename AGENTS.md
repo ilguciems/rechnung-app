@@ -52,6 +52,7 @@ This file is the entry point. Deeper material lives in:
 - **Invite links span three forms**: `token` / `inviteToken` / `welcome` params are read by `ForgotPasswordForm`, `ResetPasswordForm` and `RefreshVerificationForm`. Changing a link in an email means checking all three.
 - **The Prisma schema must match what better-auth expects.** A mismatch is logged as `[Better Auth]: Prisma schema mismatch` at startup — for example `session.impersonatedBy` is required by the admin plugin. Identity columns for credential accounts stay `account.accountId`; the `providerAccountId` / `issuer` fields apply only to OAuth providers, which this app does not use.
 - **Roles:** `superadmin` / `admin` get `adminAc.statements`, `user` gets nothing. New admin permissions arrive through `defaultStatements`, so they do not need to be copied by hand.
+- **Customer identity is `(companyId, normalizedKey)`** — the key is the md5 from `lib/customer-key.ts`. The customer backfill migration builds the same hash in SQL, so normalization changes must update both, and customer numbers come from `company.lastCustomerNumber`.
 
 ## Verification before committing
 
