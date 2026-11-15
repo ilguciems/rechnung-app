@@ -90,6 +90,7 @@ model Session {
   impersonatedBy String?
 
   @@unique([token])
+  @@index([userId])
   @@map("session")
 }
 
@@ -109,6 +110,7 @@ model Account {
   createdAt             DateTime
   updatedAt             DateTime
 
+  @@index([userId])
   @@map("account")
 }
 
@@ -120,6 +122,7 @@ model Verification {
   createdAt  DateTime?
   updatedAt  DateTime?
 
+  @@index([identifier])
   @@map("verification")
 }
 
@@ -139,6 +142,8 @@ model Organization {
   organizationInvites OrganizationInvite[]
   activityLogs        ActivityLog[]
 
+  @@index([companyId])
+  @@index([ownerId])
   @@map("organization")
 }
 
@@ -184,6 +189,7 @@ model OrganizationInvite {
 
   organization Organization @relation(fields: [organizationId], references: [id])
 
+  @@index([organizationId, acceptedAt])
   @@map("organization_invite")
 }
 
@@ -223,8 +229,6 @@ model Company {
   organizations    Organization[]
   activityLogs     ActivityLog[]
 
-  @@index([createdAt])
-  @@index([updatedAt])
   @@map("company")
 }
 
@@ -261,7 +265,7 @@ model CompanySnapshot {
 
   invoices Invoice[]
 
-  @@index([createdAt])
+  @@index([companyId, createdAt(sort: Desc)])
   @@map("company_snapshot")
 }
 
@@ -305,7 +309,9 @@ model Invoice {
   deliveryMethod DeliveryMethod @default(EMAIL)
 
   @@unique([invoiceNumber, companyId])
-  @@index([createdAt])
+  @@index([companyId, createdAt(sort: Desc)])
+  @@index([companyId, isPaid, createdAt(sort: Desc)])
+  @@index([createdByUserId])
   @@map("invoice")
 }
 
@@ -318,6 +324,7 @@ model Item {
   invoiceId   String
   invoice     Invoice @relation(fields: [invoiceId], references: [id])
 
+  @@index([invoiceId])
   @@map("item")
 }
 
@@ -340,9 +347,8 @@ model ActivityLog {
 
   metadata Json?
 
-  @@index([createdAt])
+  @@index([organizationId, createdAt(sort: Desc)])
   @@index([userId])
-  @@index([organizationId])
   @@index([companyId])
   @@map("activity_log")
 }
