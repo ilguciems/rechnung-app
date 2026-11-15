@@ -1,12 +1,14 @@
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { getTranslations } from "next-intl/server";
+import { z } from "zod";
 import { Prisma } from "@/app/generated/prisma/client";
 import { logActivity } from "@/lib/activity-log";
 import { auth } from "@/lib/auth";
 import diffObjects from "@/lib/diff-objects";
 import { toCompanyAmounts } from "@/lib/money";
 import { prisma } from "@/lib/prisma-client";
+import { companyCreateSchema, companyPayloadSchema } from "@/lib/zod-schema";
 
 // Get a company
 export async function GET() {
@@ -54,7 +56,7 @@ export async function POST(req: Request) {
     }
 
     const userId = session.user.id;
-    const data = await req.json();
+    const data = companyCreateSchema.parse(await req.json());
 
     // check if organization already exists
     const existingOrg = await prisma.organization.findFirst({
@@ -149,6 +151,13 @@ export async function POST(req: Request) {
   } catch (error) {
     console.error(error);
 
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: error.issues.map((issue) => issue.message).join(", ") },
+        { status: 400 },
+      );
+    }
+
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       return NextResponse.json({ error: t("databaseError") }, { status: 400 });
     }
@@ -169,7 +178,7 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ error: t("unauthorized") }, { status: 401 });
     }
 
-    const data = await req.json();
+    const data = companyPayloadSchema.parse(await req.json());
 
     const membership = await prisma.organizationMember.findFirst({
       where: {
@@ -243,6 +252,13 @@ export async function PATCH(req: Request) {
     return NextResponse.json(toCompanyAmounts(updated));
   } catch (error) {
     console.error(error);
+
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: error.issues.map((issue) => issue.message).join(", ") },
+        { status: 400 },
+      );
+    }
 
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       return NextResponse.json({ error: t("databaseError") }, { status: 400 });

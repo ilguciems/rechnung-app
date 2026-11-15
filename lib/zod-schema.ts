@@ -51,135 +51,157 @@ export const HANDELSREGISTER_REQUIRED_FORMS = [
   "EINZELKAUFMANN",
 ];
 
-export const companySchema = z
-  .object({
-    name: z.string().min(2, "Name ist erforderlich"),
-    street: z.string().min(2, "Straße ist erforderlich"),
-    city: z.string().min(2, "Stadt ist erforderlich"),
-    zipCode: z.string().min(2, "PLZ ist erforderlich"),
-    houseNumber: z.string().min(1, "Hausnummer ist erforderlich"),
-    country: z.string().min(2, "Land ist erforderlich"),
-    phone: z
-      .string()
-      .min(6, "Telefon ist erforderlich")
-      .transform((val) => normalizePhone(val))
-      .refine(
-        (val) => /^\+\d{8,15}$/.test(val as string),
-        "Bitte geben Sie eine gültige Telefonnummer im internationalen Format ein",
-      ),
-    email: z.email("Ungültige E-Mail"),
-    isSubjectToVAT: z.boolean(),
-    firstTaxRate: z
-      .number({ error: "Steuersatz erforderlich" })
-      .min(0, "Steuersatz muss zwischen 0 und 100 liegen")
-      .max(100, "Steuersatz muss zwischen 0 und 100 liegen")
-      .default(19)
-      .optional()
-      .nullable(),
-    secondTaxRate: z
-      .number({ error: "Steuersatz erforderlich" })
-      .min(0, "Steuersatz muss zwischen 0 und 100 liegen")
-      .max(100, "Steuersatz muss zwischen 0 und 100 liegen")
-      .default(7)
-      .optional()
-      .nullable(),
-    logoUrl: z.string().optional().nullable(),
-    legalForm: LegalFormEnum,
+const taxRateField = z
+  .number({ error: "Steuersatz erforderlich" })
+  .min(0, "Steuersatz muss zwischen 0 und 100 liegen")
+  .max(100, "Steuersatz muss zwischen 0 und 100 liegen");
 
-    steuernummer: z.string().optional().nullable(),
-    ustId: z.string().optional().nullable(),
-    handelsregisternummer: z.string().optional().nullable(),
+const companyFields = z.object({
+  name: z.string().min(2, "Name ist erforderlich"),
+  street: z.string().min(2, "Straße ist erforderlich"),
+  city: z.string().min(2, "Stadt ist erforderlich"),
+  zipCode: z.string().min(2, "PLZ ist erforderlich"),
+  houseNumber: z.string().min(1, "Hausnummer ist erforderlich"),
+  country: z.string().min(2, "Land ist erforderlich"),
+  phone: z
+    .string()
+    .min(6, "Telefon ist erforderlich")
+    .transform((val) => normalizePhone(val))
+    .refine(
+      (val) => /^\+\d{8,15}$/.test(val as string),
+      "Bitte geben Sie eine gültige Telefonnummer im internationalen Format ein",
+    ),
+  email: z.email("Ungültige E-Mail"),
+  isSubjectToVAT: z.boolean(),
+  firstTaxRate: taxRateField.default(19).optional().nullable(),
+  secondTaxRate: taxRateField.default(7).optional().nullable(),
+  logoUrl: z.string().optional().nullable(),
+  legalForm: LegalFormEnum,
 
-    iban: z
-      .string()
-      .min(2, "IBAN ist erforderlich")
-      .transform((v) => v?.replace(/\s+/g, "").toUpperCase() ?? null)
-      .refine(
-        (v) => {
-          if (!genericIbanRegex.test(v)) return false;
-          if (v.startsWith("DE") && !germanIbanRegex.test(v)) return false;
-          return isValidIbanChecksum(v);
-        },
-        { message: "Ungültige IBAN" },
-      )
-      .transform((v) => {
-        if (!v) return v;
-        return v.replace(/(.{4})/g, "$1 ").trim();
-      }),
-    bic: z
-      .string()
-      .min(2, "BIC ist erforderlich")
-      .trim()
-      .transform((v) => v?.toUpperCase() ?? null)
-      .refine((v) => bicRegex.test(v), {
-        message: "Ungültiges BIC-Format",
-      }),
+  steuernummer: z.string().optional().nullable(),
+  ustId: z.string().optional().nullable(),
+  handelsregisternummer: z.string().optional().nullable(),
 
-    bank: z
-      .string({ error: "Bank ist erforderlich" })
-      .min(2, "Bank ist erforderlich"),
-  })
-  .superRefine((data, ctx) => {
-    const { iban, bic, country } = data;
-    const countryCode = getCountryCode(country);
+  iban: z
+    .string()
+    .min(2, "IBAN ist erforderlich")
+    .transform((v) => v?.replace(/\s+/g, "").toUpperCase() ?? null)
+    .refine(
+      (v) => {
+        if (!genericIbanRegex.test(v)) return false;
+        if (v.startsWith("DE") && !germanIbanRegex.test(v)) return false;
+        return isValidIbanChecksum(v);
+      },
+      { message: "Ungültige IBAN" },
+    )
+    .transform((v) => {
+      if (!v) return v;
+      return v.replace(/(.{4})/g, "$1 ").trim();
+    }),
+  bic: z
+    .string()
+    .min(2, "BIC ist erforderlich")
+    .trim()
+    .transform((v) => v?.toUpperCase() ?? null)
+    .refine((v) => bicRegex.test(v), {
+      message: "Ungültiges BIC-Format",
+    }),
 
-    if (!countryCode) return;
+  bank: z
+    .string({ error: "Bank ist erforderlich" })
+    .min(2, "Bank ist erforderlich"),
+});
 
-    // --- IBAN ---
-    if (iban) {
-      if (!iban.startsWith(countryCode)) {
-        ctx.addIssue({
-          path: ["iban"],
-          message: `IBAN sollte mit "${countryCode}" beginnen`,
-          code: "custom",
-        });
-      }
-    }
+export const companySchema = companyFields.superRefine((data, ctx) => {
+  const { iban, bic, country } = data;
+  const countryCode = getCountryCode(country);
 
-    // --- BIC ---
-    if (bic && !bic.includes(countryCode)) {
+  if (!countryCode) return;
+
+  // --- IBAN ---
+  if (iban) {
+    if (!iban.startsWith(countryCode)) {
       ctx.addIssue({
-        path: ["bic"],
-        message: `BIC sollte den Ländercode "${countryCode}" enthalten`,
+        path: ["iban"],
+        message: `IBAN sollte mit "${countryCode}" beginnen`,
         code: "custom",
       });
     }
+  }
 
-    // --- Steuernummer / USt-IdNr ---
-    if (!data.steuernummer && !data.ustId) {
-      ctx.addIssue({
-        code: "custom",
-        message:
-          "Bitte geben Sie entweder die Steuernummer oder die USt-IdNr. an.",
-        path: ["steuernummer"],
-      });
-    }
+  // --- BIC ---
+  if (bic && !bic.includes(countryCode)) {
+    ctx.addIssue({
+      path: ["bic"],
+      message: `BIC sollte den Ländercode "${countryCode}" enthalten`,
+      code: "custom",
+    });
+  }
 
-    // --- Handelsregisternummer ---
-    if (
-      VAT_REQUIRED_FORMS.includes(data.legalForm) &&
-      !data.handelsregisternummer
-    ) {
-      ctx.addIssue({
-        code: "custom",
-        message: "Handelsregisternummer ist für diese Rechtsform erforderlich.",
-        path: ["handelsregisternummer"],
-      });
-    }
+  // --- Steuernummer / USt-IdNr ---
+  if (!data.steuernummer && !data.ustId) {
+    ctx.addIssue({
+      code: "custom",
+      message:
+        "Bitte geben Sie entweder die Steuernummer oder die USt-IdNr. an.",
+      path: ["steuernummer"],
+    });
+  }
 
-    // --- Handelsregisternummer ---
-    const requiresHandelsregister = HANDELSREGISTER_REQUIRED_FORMS.includes(
-      data.legalForm,
-    );
+  // --- Handelsregisternummer ---
+  if (
+    VAT_REQUIRED_FORMS.includes(data.legalForm) &&
+    !data.handelsregisternummer
+  ) {
+    ctx.addIssue({
+      code: "custom",
+      message: "Handelsregisternummer ist für diese Rechtsform erforderlich.",
+      path: ["handelsregisternummer"],
+    });
+  }
 
-    if (requiresHandelsregister && !data.handelsregisternummer?.trim()) {
-      ctx.addIssue({
-        path: ["handelsregisternummer"],
-        message: "Handelsregisternummer ist für diese Rechtsform erforderlich.",
-        code: "custom",
-      });
-    }
-  });
+  // --- Handelsregisternummer ---
+  const requiresHandelsregister = HANDELSREGISTER_REQUIRED_FORMS.includes(
+    data.legalForm,
+  );
+
+  if (requiresHandelsregister && !data.handelsregisternummer?.trim()) {
+    ctx.addIssue({
+      path: ["handelsregisternummer"],
+      message: "Handelsregisternummer ist für diese Rechtsform erforderlich.",
+      code: "custom",
+    });
+  }
+});
+
+/**
+ * Payload accepted by the company API. Any subset of the fields is allowed —
+ * the form only sends the ones the user touched — and unknown keys are dropped,
+ * so a request cannot smuggle in `id`, `lastInvoiceNumber` or similar.
+ * The tax rates are re-declared without their defaults, otherwise a request
+ * that leaves them out would silently reset them to 19 and 7.
+ */
+export const companyPayloadSchema = companyFields.partial().extend({
+  firstTaxRate: taxRateField.nullish(),
+  secondTaxRate: taxRateField.nullish(),
+});
+
+/**
+ * Payload for creating a company: the columns without a database default have
+ * to be there, everything else keeps its default.
+ */
+export const companyCreateSchema = companyPayloadSchema.extend({
+  name: companyFields.shape.name,
+  street: companyFields.shape.street,
+  houseNumber: companyFields.shape.houseNumber,
+  zipCode: companyFields.shape.zipCode,
+  city: companyFields.shape.city,
+  phone: companyFields.shape.phone,
+  email: companyFields.shape.email,
+  iban: companyFields.shape.iban,
+  bic: companyFields.shape.bic,
+  bank: companyFields.shape.bank,
+});
 
 export type Company = z.infer<typeof companySchema>;
 
