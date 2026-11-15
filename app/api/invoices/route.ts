@@ -7,6 +7,7 @@ import { Prisma } from "@/app/generated/prisma/client";
 import { logActivity } from "@/lib/activity-log";
 import { auth } from "@/lib/auth";
 import { resolveCustomer } from "@/lib/customer";
+import { toInvoiceAmounts } from "@/lib/money";
 import { prisma } from "@/lib/prisma-client";
 import { validateQuery } from "@/lib/validateQuery";
 import { invoiceSchema as createInvoiceSchema } from "@/lib/zod-schema";
@@ -114,10 +115,12 @@ export async function GET(req: Request) {
           take: pageSize,
         }),
       ]);
-      const invoicesWithOverduePaymentLevel = invoices.map((invoice) => ({
-        ...invoice,
-        overduePaymentLevel: calculateOverduePaymentLevel(invoice),
-      }));
+      const invoicesWithOverduePaymentLevel = invoices.map((invoice) =>
+        toInvoiceAmounts({
+          ...invoice,
+          overduePaymentLevel: calculateOverduePaymentLevel(invoice),
+        }),
+      );
 
       return NextResponse.json({
         data: invoicesWithOverduePaymentLevel,
@@ -311,7 +314,7 @@ export async function POST(req: Request) {
       },
     });
 
-    return NextResponse.json(invoice);
+    return NextResponse.json(toInvoiceAmounts(invoice));
   } catch (error) {
     // zod validation error
     if (error instanceof z.ZodError) {

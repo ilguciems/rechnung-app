@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { logActivity } from "@/lib/activity-log";
 import { getAuthData } from "@/lib/get-auth-data";
 import { generateInvoicePDF } from "@/lib/pdf";
+import { toPdfCompany, toPdfInvoice } from "@/lib/pdf/invoice-data";
 import { prisma } from "@/lib/prisma-client";
 import { isAllowedRequestOrigin } from "@/lib/verify-request-origin";
 
@@ -64,8 +65,8 @@ export async function POST(
   }
 
   const pdfBuffer = await generateInvoicePDF(
-    finalInvoice,
-    finalInvoice.companySnapshot,
+    toPdfInvoice(finalInvoice),
+    toPdfCompany(finalInvoice.companySnapshot),
   );
 
   try {

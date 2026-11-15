@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { logActivity } from "@/lib/activity-log";
 import { getAuthData } from "@/lib/get-auth-data";
 import { generateInvoicePDF } from "@/lib/pdf";
+import { toPdfCompany, toPdfInvoice } from "@/lib/pdf/invoice-data";
 import { prisma } from "@/lib/prisma-client";
 import { sendOrganizationEmail } from "@/utils/organization-email";
 export async function POST(
@@ -32,8 +33,8 @@ export async function POST(
     }
 
     const pdfBuffer = await generateInvoicePDF(
-      invoice,
-      invoice.companySnapshot,
+      toPdfInvoice(invoice),
+      toPdfCompany(invoice.companySnapshot),
     );
     const base64Attachment = Buffer.from(pdfBuffer).toString("base64");
 

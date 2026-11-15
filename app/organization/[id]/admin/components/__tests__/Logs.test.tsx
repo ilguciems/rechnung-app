@@ -32,8 +32,9 @@ describe("Logs", () => {
   });
 
   it("appends the next page and hides the button at the end", async () => {
-    const { findByText, getByRole, queryByRole, queryByText } =
-      renderWithIntl(<Logs />);
+    const { findByText, getByRole, queryByRole, queryByText } = renderWithIntl(
+      <Logs />,
+    );
 
     await findByText(/Ada 1/);
     expect(queryByText(/Ada 2/)).toBeNull();

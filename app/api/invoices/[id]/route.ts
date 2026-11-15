@@ -1,10 +1,16 @@
 import Ably from "ably";
 import { NextResponse } from "next/server";
 import { getTranslations } from "next-intl/server";
+import { z } from "zod";
 import { Prisma } from "@/app/generated/prisma/client";
 import { logActivity } from "@/lib/activity-log";
 import { getAuthData } from "@/lib/get-auth-data";
+import { toInvoiceAmounts } from "@/lib/money";
 import { prisma } from "@/lib/prisma-client";
+
+const paidSchema = z.object({
+  isPaid: z.boolean({ error: "Bezahlstatus ist erforderlich" }),
+});
 
 export async function PATCH(
   req: Request,
@@ -13,7 +19,7 @@ export async function PATCH(
   const t = await getTranslations("apiErrors");
   try {
     const { id } = await context.params;
-    const { isPaid } = await req.json();
+    const { isPaid } = paidSchema.parse(await req.json());
     const session = await getAuthData();
 
     if (!session?.org) {
@@ -83,9 +89,16 @@ export async function PATCH(
       },
     });
 
-    return NextResponse.json(invoice);
+    return NextResponse.json(toInvoiceAmounts(invoice));
   } catch (error) {
     console.error(error);
+
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: error.issues.map((issue) => issue.message).join(", ") },
+        { status: 400 },
+      );
+    }
 
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       return NextResponse.json({ error: t("databaseError") }, { status: 400 });

@@ -178,6 +178,7 @@ Roles/permissions are used in:
 
 - `lib/prisma-client.ts` — creates the prisma client
 - `lib/customer.ts` — finds or creates the `Customer` for an invoice address
+- `lib/money.ts` — converts the `numeric` money columns to numbers and rounds sums
 - `lib/auth.ts` — uses `prisma.user.count()` and `findUnique({ role: true })`
 
 **Customer master data:**
@@ -202,6 +203,16 @@ Roles/permissions are used in:
   to a scheduler, e.g. `curl -X POST -H "Authorization: Bearer $CRON_SECRET"
   https://<host>/api/maintenance/cleanup`
 - `activity_log` is an audit trail and is never pruned automatically
+
+**Money:**
+
+- `Item.unitPrice` (`Decimal(12,2)`) and every tax rate (`Decimal(5,2)`) are
+  `numeric` columns; floats are only used inside the app after an explicit
+  conversion
+- Prisma hands out `Decimal`, so `toAmount` / `toRate` in `lib/money.ts` convert
+  at the boundary — API responses, PDF data and sums — and `roundAmount` keeps
+  totals at two decimals
+- new raw SQL over these columns gets `Decimal` (or a string) back, not a number
 
 **better-auth schema contract:**
 

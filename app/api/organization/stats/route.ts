@@ -9,6 +9,7 @@ import { de } from "date-fns/locale";
 import { NextResponse } from "next/server";
 import { getTranslations } from "next-intl/server";
 import { getAuthData } from "@/lib/get-auth-data";
+import { roundAmount, toAmount } from "@/lib/money";
 import { prisma } from "@/lib/prisma-client";
 import {
   DEFAULT_STATS_RANGE,
@@ -55,7 +56,7 @@ export async function GET(request: Request) {
     const stats = invoices.reduce(
       (acc, inv) => {
         const total = inv.items.reduce(
-          (sum, item) => sum + item.unitPrice * item.quantity,
+          (sum, item) => sum + toAmount(item.unitPrice) * item.quantity,
           0,
         );
         const bucket = monthlyData.get(format(inv.createdAt, "yyyy-MM"));
@@ -109,9 +110,21 @@ export async function GET(request: Request) {
       },
     );
 
-    const chartData = [...monthlyData.values()];
+    const chartData = [...monthlyData.values()].map((bucket) => ({
+      ...bucket,
+      revenue: roundAmount(bucket.revenue),
+      pending: roundAmount(bucket.pending),
+    }));
 
-    return NextResponse.json({ stats, chartData });
+    return NextResponse.json({
+      stats: {
+        totalRevenue: roundAmount(stats.totalRevenue),
+        pendingAmount: roundAmount(stats.pendingAmount),
+        overdueAmount: roundAmount(stats.overdueAmount),
+        expectedNext14Days: roundAmount(stats.expectedNext14Days),
+      },
+      chartData,
+    });
   } catch (_error) {
     return NextResponse.json({ error: "Internal Error" }, { status: 500 });
   }
