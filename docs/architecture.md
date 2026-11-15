@@ -177,7 +177,19 @@ Roles/permissions are used in:
 **Where data access happens:**
 
 - `lib/prisma-client.ts` — creates the prisma client
+- `lib/customer.ts` — finds or creates the `Customer` for an invoice address
 - `lib/auth.ts` — uses `prisma.user.count()` and `findUnique({ role: true })`
+
+**Customer master data:**
+
+- `Customer` holds one row per address and company; `Invoice` keeps its own copy
+  of the address as an immutable snapshot and links to the row via `customerId`
+- identity is `(companyId, normalizedKey)`, where `normalizedKey` is the md5 built
+  in `lib/customer-key.ts`; the backfill migration
+  (`prisma/migrations/*_add_customer_table`) computes the same hash in SQL, so a
+  change to the normalization has to change both sides
+- numbers come from `company.lastCustomerNumber` (same pattern as
+  `lastInvoiceNumber`), never from scanning the invoices of a company
 
 **better-auth schema contract:**
 

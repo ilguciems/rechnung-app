@@ -39,64 +39,67 @@ export async function GET(req: Request) {
     }
 
     if (type === "customers") {
-      const customers = await prisma.invoice.findMany({
-        where: q
-          ? {
-              companyId: company.id,
-              customerName: { contains: q, mode: "insensitive" },
-            }
-          : { companyId: company.id },
+      const customers = await prisma.customer.findMany({
+        where: {
+          companyId: company.id,
+          ...(q ? { name: { contains: q, mode: "insensitive" } } : {}),
+        },
         select: {
           id: true,
-          customerName: true,
-          customerStreet: true,
-          customerHouseNumber: true,
-          customerZipCode: true,
-          customerCity: true,
-          customerCountry: true,
-          customerEmail: true,
-          customerPhone: true,
+          customerNumber: true,
+          name: true,
+          street: true,
+          houseNumber: true,
+          zipCode: true,
+          city: true,
+          country: true,
+          email: true,
+          phone: true,
         },
-        distinct: [
-          "customerName",
-          "customerStreet",
-          "customerHouseNumber",
-          "customerZipCode",
-          "customerCity",
-          "customerCountry",
-          "customerEmail",
-          "customerPhone",
-        ],
+        orderBy: { name: "asc" },
         take: 10,
       });
 
-      return NextResponse.json(customers);
+      return NextResponse.json(
+        customers.map((customer) => ({
+          id: customer.id,
+          customerNumber: customer.customerNumber,
+          customerName: customer.name,
+          customerStreet: customer.street,
+          customerHouseNumber: customer.houseNumber,
+          customerZipCode: customer.zipCode,
+          customerCity: customer.city,
+          customerCountry: customer.country,
+          customerEmail: customer.email,
+          customerPhone: customer.phone,
+        })),
+      );
     }
 
     if (type === "products") {
-      const products = await prisma.item.findMany({
-        where: {
-          invoice: {
-            companyId: company.id,
-          },
-          ...(q
-            ? {
-                description: {
-                  contains: q,
-                  mode: "insensitive",
-                },
-              }
-            : {}),
-        },
-        select: {
-          id: true,
-          description: true,
-          unitPrice: true,
-          taxRate: true,
-        },
-        distinct: ["description"],
-        take: 10,
-      });
+      // LIKE wildcards must stay literal, like they were with `contains`.
+      const pattern = `%${q.replace(/[\\%_]/g, (char) => `\\${char}`)}%`;
+
+      const products = await prisma.$queryRaw<
+        {
+          id: string;
+          description: string;
+          unitPrice: number;
+          taxRate: number | null;
+        }[]
+      >`
+        SELECT DISTINCT ON (it.description)
+          it.id,
+          it.description,
+          it."unitPrice",
+          it."taxRate"
+        FROM "item" it
+        JOIN "invoice" i ON i.id = it."invoiceId"
+        WHERE i."companyId" = ${company.id}
+          AND it.description ILIKE ${pattern}
+        ORDER BY it.description
+        LIMIT 10
+      `;
 
       return NextResponse.json(products);
     }

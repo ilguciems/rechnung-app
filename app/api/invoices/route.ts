@@ -6,6 +6,7 @@ import { z } from "zod";
 import { Prisma } from "@/app/generated/prisma/client";
 import { logActivity } from "@/lib/activity-log";
 import { auth } from "@/lib/auth";
+import { resolveCustomer } from "@/lib/customer";
 import { prisma } from "@/lib/prisma-client";
 import { validateQuery } from "@/lib/validateQuery";
 import { invoiceSchema as createInvoiceSchema } from "@/lib/zod-schema";
@@ -214,67 +215,18 @@ export async function POST(req: Request) {
       });
     }
 
-    // Normalization helper
-    const normalize = (v: string) =>
-      v.trim().replace(/\s+/g, " ").toLowerCase();
-
-    const normalizedInput = {
-      name: normalize(data.customerName),
-      street: normalize(data.customerStreet),
-      house: normalize(data.customerHouseNumber),
-      zip: normalize(data.customerZipCode),
-      city: normalize(data.customerCity),
-      country: normalize(data.customerCountry),
-      email: data.customerEmail ? normalize(data.customerEmail) : "",
-      phone: data.customerPhone ? normalize(data.customerPhone) : "",
-    };
-
-    // Load all unique customers (one record per customerNumber)
-    const existingCustomers = await prisma.invoice.findMany({
-      where: { companyId },
-      select: {
-        customerName: true,
-        customerStreet: true,
-        customerHouseNumber: true,
-        customerZipCode: true,
-        customerCity: true,
-        customerCountry: true,
-        customerNumber: true,
-        customerEmail: true,
-        customerPhone: true,
-      },
-      distinct: ["customerNumber"],
+    // Resolve the customer master data; the invoice keeps its own copy of the
+    // address as an immutable snapshot.
+    const customer = await resolveCustomer(companyId, {
+      name: data.customerName,
+      street: data.customerStreet,
+      houseNumber: data.customerHouseNumber,
+      zipCode: data.customerZipCode,
+      city: data.customerCity,
+      country: data.customerCountry,
+      email: data.customerEmail,
+      phone: data.customerPhone,
     });
-
-    // Try to find exact match after normalization
-    const matched = existingCustomers.find((c) => {
-      return (
-        normalize(c.customerName) === normalizedInput.name &&
-        normalize(c.customerStreet) === normalizedInput.street &&
-        normalize(String(c.customerHouseNumber)) === normalizedInput.house &&
-        normalize(c.customerZipCode) === normalizedInput.zip &&
-        normalize(c.customerCity) === normalizedInput.city &&
-        normalize(c.customerCountry) === normalizedInput.country &&
-        normalize(c.customerEmail ?? "") === normalizedInput.email &&
-        normalize(c.customerPhone ?? "") === normalizedInput.phone
-      );
-    });
-
-    let customerNumber: string;
-
-    if (matched) {
-      // Use existing KND-xxxx
-      customerNumber = matched.customerNumber as string;
-    } else {
-      // Generate new KND-xxxx
-      const lastNumber =
-        existingCustomers
-          .map((c) => Number(c.customerNumber?.replace(/\D/g, "")))
-          .filter((n) => !Number.isNaN(n))
-          .sort((a, b) => b - a)[0] ?? 0;
-
-      customerNumber = `KND-${String(lastNumber + 1).padStart(4, "0")}`;
-    }
 
     const invoice = await prisma.$transaction(async (tx) => {
       const updatedCompany = await tx.company.update({
@@ -303,7 +255,8 @@ export async function POST(req: Request) {
           createdByUserId: session.user.id,
           deliveryMethod: deliveryMethod,
 
-          customerNumber,
+          customerId: customer.id,
+          customerNumber: customer.customerNumber,
           customerName: data.customerName.trim(),
           customerStreet: data.customerStreet.trim(),
           customerHouseNumber: data.customerHouseNumber.trim(),
