@@ -191,6 +191,18 @@ Roles/permissions are used in:
 - numbers come from `company.lastCustomerNumber` (same pattern as
   `lastInvoiceNumber`), never from scanning the invoices of a company
 
+**Growth and maintenance:**
+
+- `GET /api/organization/logs` is cursor-paginated (`?cursor=…&pageSize=…`,
+  max 100) and walks the `(organizationId, createdAt desc)` index; the admin UI
+  appends one page at a time
+- `POST /api/maintenance/cleanup` deletes expired `session` rows (30 days after
+  expiry) and `verification` tokens (7 days after expiry). It is disabled until
+  `CRON_SECRET` is set and expects `Authorization: Bearer $CRON_SECRET`; wire it
+  to a scheduler, e.g. `curl -X POST -H "Authorization: Bearer $CRON_SECRET"
+  https://<host>/api/maintenance/cleanup`
+- `activity_log` is an audit trail and is never pruned automatically
+
 **better-auth schema contract:**
 
 - the Prisma models must match what better-auth expects; otherwise it logs

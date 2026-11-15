@@ -473,6 +473,7 @@
   "logs": {
     "loading": "Loading...",
     "empty": "No activity available",
+    "loadMore": "Load more",
     "unknownAction": "Unknown action",
     "invoiceCreated": "Invoice {number} created",
     "invoiceDeleted": "Invoice {number} deleted",
