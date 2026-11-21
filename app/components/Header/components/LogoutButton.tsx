@@ -1,10 +1,13 @@
 "use client";
 import { LogOut } from "lucide-react";
 import { useTimer } from "@/context/TimerContext";
+import { useCloseMobileMenu } from "./MobileMenuContext";
 
 export function LogoutButton({ title }: { title?: string }) {
   const { handleLogout } = useTimer();
+  const closeMobileMenu = useCloseMobileMenu();
   const onLogoutClick = async () => {
+    closeMobileMenu?.();
     await handleLogout("manual");
   };
 

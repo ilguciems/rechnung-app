@@ -1,7 +1,8 @@
 "use client";
 import { Menu, X } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { MobileMenuCloseContext } from "./MobileMenuContext";
 
 type Props = {
   children: React.ReactNode;
@@ -9,6 +10,7 @@ type Props = {
 
 export function MobileMenu({ children }: Props) {
   const [isOpen, setIsOpen] = useState(false);
+  const close = useCallback(() => setIsOpen(false), []);
   const t = useTranslations("mobileMenu");
 
   useEffect(() => {
@@ -55,7 +57,7 @@ export function MobileMenu({ children }: Props) {
           <button
             type="button"
             className="fixed inset-0 bg-gray-950/50 z-199 md:hidden cursor-default"
-            onClick={() => setIsOpen(false)}
+            onClick={close}
             aria-label={t("close")}
             tabIndex={-1}
           />
@@ -64,7 +66,9 @@ export function MobileMenu({ children }: Props) {
             className="absolute top-full right-0 mt-2 mr-4 bg-white dark:bg-gray-800 rounded-lg shadow-xl z-201 md:hidden"
             aria-label={t("navigation")}
           >
-            <div className="flex flex-col gap-2 p-3">{children}</div>
+            <MobileMenuCloseContext.Provider value={close}>
+              <div className="flex flex-col gap-2 p-3">{children}</div>
+            </MobileMenuCloseContext.Provider>
           </nav>
         </>
       )}
